@@ -72,6 +72,15 @@ func TestLexer_NextToken(t *testing.T) {
 			},
 		},
 		{
+			name:  "line w/out semicolon",
+			input: "a * b",
+			want: []token.Token{
+				newToken(token.Ident, 'a'),
+				newFixedToken(token.Mult),
+				newToken(token.Ident, 'b'),
+			},
+		},
+		{
 			name:  "function definition",
 			input: `let add = fn(a, b) { a + b };`,
 			want: []token.Token{

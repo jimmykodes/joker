@@ -100,9 +100,9 @@ func (l *Lexer) NextToken() token.Token {
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
-		return
+	} else {
+		l.ch = l.input[l.readPosition]
 	}
-	l.ch = l.input[l.readPosition]
 	l.advancePos()
 }
 func (l *Lexer) advancePos() {
