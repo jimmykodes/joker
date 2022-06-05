@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/jimmykodes/jk/ast"
@@ -23,6 +24,16 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	}
 	p.nextToken()
 	exp.Right = p.parseExpression(Prefix)
+	return exp
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken()
+	exp := p.parseExpression(Lowest)
+	if !p.assertAndAdvance(p.peekTokenIs(token.RParen)) {
+		p.errors = append(p.errors, fmt.Errorf("missing expected closing paren"))
+		return nil
+	}
 	return exp
 }
 

@@ -74,6 +74,12 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 1,
 			programText:   "((5 < 3) == false)",
 		},
+		{
+			name:          "grouped",
+			input:         "(5 + 8) * 23",
+			numStatements: 1,
+			programText:   "((5 + 8) * 23)",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
