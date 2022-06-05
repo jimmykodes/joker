@@ -139,3 +139,23 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 
 	return exp
 }
+
+func (p *Parser) parseCallExpression(f ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.curToken, Function: f}
+	if p.peekTokenIs(token.RParen) {
+		p.nextToken()
+		return exp
+	}
+	p.nextToken()
+	exp.Arguments = append(exp.Arguments, p.parseExpression(Lowest))
+	for p.peekTokenIs(token.Comma) {
+		p.nextToken()
+		p.nextToken()
+		exp.Arguments = append(exp.Arguments, p.parseExpression(Lowest))
+	}
+	if !p.assertAndAdvance(p.peekTokenIs(token.RParen)) {
+		p.errors = append(p.errors, fmt.Errorf("missing required closing paren"))
+		return nil
+	}
+	return exp
+}

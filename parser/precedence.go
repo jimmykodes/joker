@@ -18,16 +18,17 @@ const (
 )
 
 var precedences = map[token.Type]Precedence{
-	token.EQ:    EQ,
-	token.NEQ:   EQ,
-	token.LT:    LGT,
-	token.LTE:   LGT,
-	token.GT:    LGT,
-	token.GTE:   LGT,
-	token.Minus: Sum,
-	token.Plus:  Sum,
-	token.Div:   Product,
-	token.Mult:  Product,
+	token.EQ:     EQ,
+	token.NEQ:    EQ,
+	token.LT:     LGT,
+	token.LTE:    LGT,
+	token.GT:     LGT,
+	token.GTE:    LGT,
+	token.Minus:  Sum,
+	token.Plus:   Sum,
+	token.Div:    Product,
+	token.Mult:   Product,
+	token.LParen: Call,
 }
 
 func (p *Parser) peekPrecedence() Precedence {

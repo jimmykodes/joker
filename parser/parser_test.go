@@ -98,6 +98,12 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 1,
 			programText:   "fn (a, b, c) {\nreturn (a + b);\n}\n",
 		},
+		{
+			name:          "func call",
+			input:         "add(2 + 5, 3 * 9)",
+			numStatements: 1,
+			programText:   "add((2 + 5), (3 * 9))",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

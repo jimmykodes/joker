@@ -38,17 +38,18 @@ func New(l *lexer.Lexer) *Parser {
 	}
 
 	p.infixParseFuncs = map[token.Type]infixParseFunc{
-		token.Plus:  p.parseInfixExpression,
-		token.Minus: p.parseInfixExpression,
-		token.Mult:  p.parseInfixExpression,
-		token.Div:   p.parseInfixExpression,
-		token.Mod:   p.parseInfixExpression,
-		token.LT:    p.parseInfixExpression,
-		token.GT:    p.parseInfixExpression,
-		token.LTE:   p.parseInfixExpression,
-		token.GTE:   p.parseInfixExpression,
-		token.EQ:    p.parseInfixExpression,
-		token.NEQ:   p.parseInfixExpression,
+		token.Plus:   p.parseInfixExpression,
+		token.Minus:  p.parseInfixExpression,
+		token.Mult:   p.parseInfixExpression,
+		token.Div:    p.parseInfixExpression,
+		token.Mod:    p.parseInfixExpression,
+		token.LT:     p.parseInfixExpression,
+		token.GT:     p.parseInfixExpression,
+		token.LTE:    p.parseInfixExpression,
+		token.GTE:    p.parseInfixExpression,
+		token.EQ:     p.parseInfixExpression,
+		token.NEQ:    p.parseInfixExpression,
+		token.LParen: p.parseCallExpression,
 	}
 
 	return p

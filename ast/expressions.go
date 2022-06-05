@@ -71,3 +71,22 @@ func (i *IfExpression) String() string {
 	}
 	return sb.String()
 }
+
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression
+	Arguments []Expression
+}
+
+func (c *CallExpression) expressionNode()      {}
+func (c *CallExpression) TokenLiteral() string { return c.Token.Literal }
+func (c *CallExpression) String() string {
+	var sb strings.Builder
+	sb.WriteString(c.Function.String() + c.Token.Literal)
+	args := make([]string, len(c.Arguments))
+	for i, arg := range c.Arguments {
+		args[i] = arg.String()
+	}
+	sb.WriteString(strings.Join(args, ", ") + ")")
+	return sb.String()
+}
