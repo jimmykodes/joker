@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jimmykodes/jk/token"
 )
@@ -48,3 +49,25 @@ func (e *InfixExpression) String() string {
 }
 
 // todo: postfix Expression
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (i *IfExpression) expressionNode()      {}
+func (i *IfExpression) TokenLiteral() string { return i.Token.Literal }
+func (i *IfExpression) String() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "if %s {\n", i.Condition)
+	fmt.Fprintf(&sb, "%s", i.Consequence.String())
+
+	if i.Alternative != nil {
+		fmt.Fprintf(&sb, "} else {\n%s}\n", i.Alternative.String())
+	} else {
+		sb.WriteString("}\n")
+	}
+	return sb.String()
+}

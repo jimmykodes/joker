@@ -80,3 +80,28 @@ func (p *Parser) parseBoolean() ast.Expression {
 		Value: p.curTokenIs(token.True),
 	}
 }
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	exp := &ast.IfExpression{Token: p.curToken}
+	p.nextToken()
+	exp.Condition = p.parseExpression(Lowest)
+	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
+		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		return nil
+	}
+	exp.Consequence = p.parseBlockStatement()
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.Else)) {
+		// no else, just continue
+		return exp
+	}
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
+		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		return nil
+	}
+
+	exp.Alternative = p.parseBlockStatement()
+
+	return exp
+}

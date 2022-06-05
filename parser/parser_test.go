@@ -80,6 +80,18 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 1,
 			programText:   "((5 + 8) * 23)",
 		},
+		{
+			name:          "if",
+			input:         "if x == y { return 12 }",
+			numStatements: 1,
+			programText:   "if (x == y) {\nreturn 12;\n}\n",
+		},
+		{
+			name:          "if else",
+			input:         "if x == y { return 12 } else { return 11 }",
+			numStatements: 1,
+			programText:   "if (x == y) {\nreturn 12;\n} else {\nreturn 11;\n}\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

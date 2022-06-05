@@ -26,6 +26,14 @@ func (p *Parser) peekTokenIs(t token.Type) bool {
 	return p.peekToken.Type == t
 }
 
-func (p *Parser) curTokenIs(t token.Type) bool {
-	return p.curToken.Type == t
+func (p *Parser) curTokenIs(t token.Type, ts ...token.Type) bool {
+	if p.curToken.Type == t {
+		return true
+	}
+	for _, tt := range ts {
+		if tt == t {
+			return true
+		}
+	}
+	return false
 }

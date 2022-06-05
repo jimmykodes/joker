@@ -51,3 +51,22 @@ type ExpressionStatement struct {
 func (es *ExpressionStatement) statementNode()       {}
 func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
 func (es *ExpressionStatement) String() string       { return es.Expression.String() }
+
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (b *BlockStatement) statementNode()       {}
+func (b *BlockStatement) TokenLiteral() string { return b.Token.Literal }
+func (b *BlockStatement) String() string {
+	var sb strings.Builder
+	for _, statement := range b.Statements {
+		if statement == nil {
+			sb.WriteString("nil statement")
+		} else {
+			sb.WriteString(statement.String())
+		}
+	}
+	return sb.String()
+}
