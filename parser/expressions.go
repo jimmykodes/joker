@@ -37,6 +37,13 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+}
+
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	i, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 	if err != nil {

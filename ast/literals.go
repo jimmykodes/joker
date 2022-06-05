@@ -1,8 +1,19 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/jimmykodes/jk/token"
 )
+
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (l *StringLiteral) expressionNode()      {}
+func (l *StringLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *StringLiteral) String() string       { return fmt.Sprintf(`"%s"`, l.Value) }
 
 type IntegerLiteral struct {
 	Token token.Token

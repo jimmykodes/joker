@@ -24,11 +24,12 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 
 	p.prefixParseFuncs = map[token.Type]prefixParseFunc{
-		token.Ident: p.parseIdentifier,
-		token.NOT:   p.parsePrefixExpression,
-		token.Minus: p.parsePrefixExpression,
-		token.Int:   p.parseIntegerLiteral,
-		token.Float: p.parseFloatLiteral,
+		token.Ident:  p.parseIdentifier,
+		token.NOT:    p.parsePrefixExpression,
+		token.Minus:  p.parsePrefixExpression,
+		token.Int:    p.parseIntegerLiteral,
+		token.Float:  p.parseFloatLiteral,
+		token.String: p.parseStringLiteral,
 	}
 
 	p.infixParseFuncs = map[token.Type]infixParseFunc{

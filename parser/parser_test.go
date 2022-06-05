@@ -27,6 +27,12 @@ func TestParser_ParseProgram(t *testing.T) {
 			programText:   "let x = 5;\nlet why = 12;\nlet zed = 22;\n",
 		},
 		{
+			name:          "let string",
+			input:         `let x = "test";`,
+			numStatements: 1,
+			programText:   "let x = \"test\";\n",
+		},
+		{
 			name:          "expression statement - ident",
 			input:         "foobar;",
 			numStatements: 1,
