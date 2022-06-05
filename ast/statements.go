@@ -65,7 +65,7 @@ func (b *BlockStatement) String() string {
 		if statement == nil {
 			sb.WriteString("nil statement")
 		} else {
-			sb.WriteString(statement.String())
+			sb.WriteString("\t" + statement.String())
 		}
 	}
 	return sb.String()

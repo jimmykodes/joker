@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/jimmykodes/jk/lexer"
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/jk/parser"
 )
 
 const Prompt = ">> "
@@ -20,8 +20,14 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		l := lexer.New(scanner.Text())
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Fprintln(out, tok)
+		p := parser.New(l)
+		prog := p.ParseProgram()
+		if len(p.Errors()) > 0 {
+			for _, err := range p.Errors() {
+				fmt.Fprintf(out, "\t%s\n", err)
+			}
+			continue
 		}
+		fmt.Fprintln(out, prog.String())
 	}
 }

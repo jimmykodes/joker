@@ -28,8 +28,9 @@ func (p *Parser) parseLetStatement() ast.Statement {
 
 	stmt.Value = p.parseExpression(Lowest)
 
-	for !p.curTokenIs(token.SemiCol) {
-		p.nextToken()
+	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
+		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		return nil
 	}
 
 	return stmt

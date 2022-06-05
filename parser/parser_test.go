@@ -84,19 +84,19 @@ func TestParser_ParseProgram(t *testing.T) {
 			name:          "if",
 			input:         "if x == y { return 12 }",
 			numStatements: 1,
-			programText:   "if (x == y) {\nreturn 12;\n}\n",
+			programText:   "if (x == y) {\n\treturn 12;\n}\n",
 		},
 		{
 			name:          "if else",
 			input:         "if x == y { return 12 } else { return 11 }",
 			numStatements: 1,
-			programText:   "if (x == y) {\nreturn 12;\n} else {\nreturn 11;\n}\n",
+			programText:   "if (x == y) {\n\treturn 12;\n} else {\n\treturn 11;\n}\n",
 		},
 		{
 			name:          "func literal",
 			input:         "fn (a, b, c) { return a + b }",
 			numStatements: 1,
-			programText:   "fn (a, b, c) {\nreturn (a + b);\n}\n",
+			programText:   "fn (a, b, c) {\n\treturn (a + b);\n}\n",
 		},
 		{
 			name:          "func call",
