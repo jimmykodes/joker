@@ -62,6 +62,18 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 1,
 			programText:   "return 43;\n",
 		},
+		{
+			name:          "bool",
+			input:         "true == false",
+			numStatements: 1,
+			programText:   "(true == false)",
+		},
+		{
+			name:          "complex bool",
+			input:         "5 < 3 == false",
+			numStatements: 1,
+			programText:   "((5 < 3) == false)",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

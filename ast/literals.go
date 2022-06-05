@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/jimmykodes/jk/token"
 )
@@ -32,3 +33,12 @@ type FloatLiteral struct {
 func (l *FloatLiteral) expressionNode()      {}
 func (l *FloatLiteral) TokenLiteral() string { return l.Token.Literal }
 func (l *FloatLiteral) String() string       { return l.Token.Literal }
+
+type BooleanLiteral struct {
+	Token token.Token
+	Value bool
+}
+
+func (l *BooleanLiteral) expressionNode()      {}
+func (l *BooleanLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *BooleanLiteral) String() string       { return strconv.FormatBool(l.Value) }

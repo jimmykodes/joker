@@ -30,6 +30,8 @@ func New(l *lexer.Lexer) *Parser {
 		token.Int:    p.parseIntegerLiteral,
 		token.Float:  p.parseFloatLiteral,
 		token.String: p.parseStringLiteral,
+		token.True:   p.parseBoolean,
+		token.False:  p.parseBoolean,
 	}
 
 	p.infixParseFuncs = map[token.Type]infixParseFunc{

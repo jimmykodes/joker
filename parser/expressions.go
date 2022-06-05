@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/jimmykodes/jk/ast"
+	"github.com/jimmykodes/jk/token"
 )
 
 type (
@@ -60,4 +61,11 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 		return nil
 	}
 	return &ast.FloatLiteral{Token: p.curToken, Value: i}
+}
+
+func (p *Parser) parseBoolean() ast.Expression {
+	return &ast.BooleanLiteral{
+		Token: p.curToken,
+		Value: p.curTokenIs(token.True),
+	}
 }
