@@ -94,9 +94,9 @@ func TestParser_ParseProgram(t *testing.T) {
 		},
 		{
 			name:          "func literal",
-			input:         "fn (a, b) { return a + b }",
+			input:         "fn (a, b, c) { return a + b }",
 			numStatements: 1,
-			programText:   "fn (a, b) {\nreturn (a + b);\n}\n",
+			programText:   "fn (a, b, c) {\nreturn (a + b);\n}\n",
 		},
 	}
 	for _, tt := range tests {

@@ -115,13 +115,19 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 	p.nextToken()
 	for !p.curTokenIs(token.RParen, token.EOF) {
 		ident := p.parseIdentifier()
-		if ident != nil {
-			exp.Parameters = append(exp.Parameters, ident.(*ast.Identifier))
-			if p.peekTokenIs(token.Comma) {
-				p.nextToken()
-			}
+		if ident == nil {
+			p.errors = append(p.errors, fmt.Errorf("invalid identifier"))
+			return nil
+		}
+		exp.Parameters = append(exp.Parameters, ident.(*ast.Identifier))
+		if p.peekTokenIs(token.Ident) {
+			p.errors = append(p.errors, fmt.Errorf("missing comma between paramenters"))
+			return nil
 		}
 		p.nextToken()
+		if p.curTokenIs(token.Comma) {
+			p.nextToken()
+		}
 	}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
