@@ -24,7 +24,9 @@ func (p *Parser) parseLetStatement() ast.Statement {
 		return nil
 	}
 
-	// todo: eval expressions
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(Lowest)
 
 	for !p.curTokenIs(token.SemiCol) {
 		p.nextToken()
@@ -35,10 +37,13 @@ func (p *Parser) parseLetStatement() ast.Statement {
 
 func (p *Parser) parseReturnStatement() ast.Statement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
-	// todo: parse expressions
-	for !p.curTokenIs(token.SemiCol) {
+
+	p.nextToken()
+	stmt.Value = p.parseExpression(Lowest)
+	if p.peekTokenIs(token.SemiCol) {
 		p.nextToken()
 	}
+
 	return stmt
 }
 

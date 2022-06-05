@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/jimmykodes/jk/lexer"
@@ -13,50 +12,64 @@ func TestParser_ParseProgram(t *testing.T) {
 		name          string
 		input         string
 		numStatements int
-		wantIdents    []string
+		programText   string
 	}{
 		{
 			name:          "simple let",
 			input:         "let x = 5;",
 			numStatements: 1,
-			wantIdents:    []string{"x"},
+			programText:   "let x = 5;\n",
 		},
 		{
 			name:          "simple let",
 			input:         `let x = 5; let why = 12; let zed = 22;`,
 			numStatements: 3,
-			wantIdents:    []string{"x", "why", "zed"},
+			programText:   "let x = 5;\nlet why = 12;\nlet zed = 22;\n",
 		},
 		{
 			name:          "expression statement - ident",
 			input:         "foobar;",
 			numStatements: 1,
+			programText:   "foobar",
 		},
 		{
 			name:          "expression statement - int",
 			input:         "-5;",
 			numStatements: 1,
+			programText:   "(-5)",
 		},
 		{
 			name:          "expression statement - int",
-			input:         "-5 + 5;",
+			input:         "5",
 			numStatements: 1,
+			programText:   "5",
+		},
+		{
+			name:          "expression statement - multiple",
+			input:         "5 + 4 <= 2 + 12 * 2",
+			numStatements: 1,
+			programText:   "((5 + 4) <= (2 + (12 * 2)))",
+		},
+		{
+			name:          "return int",
+			input:         "return 43;",
+			numStatements: 1,
+			programText:   "return 43;\n",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := New(lexer.New(tt.input))
 			got := p.ParseProgram()
-			fmt.Println(got)
 			if l := len(got.Statements); l != tt.numStatements {
 				t.Errorf("incorrect number of statements returned: got %d - want %d", l, tt.numStatements)
 			}
 			for _, err := range p.errors {
 				t.Errorf("parser error: %s", err)
 			}
-			// for _, stmt := range got.Statements {
-			//
-			// }
+			if got.String() != tt.programText {
+				t.Errorf("invalid program string. got %s - want %s", got, tt.programText)
+			}
 		})
 	}
 }

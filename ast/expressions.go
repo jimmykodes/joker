@@ -44,7 +44,7 @@ type InfixExpression struct {
 func (e *InfixExpression) expressionNode()      {}
 func (e *InfixExpression) TokenLiteral() string { return e.Token.Literal }
 func (e *InfixExpression) String() string {
-	return fmt.Sprintf("%s %s %s", e.Left.String(), e.Operator, e.Right.String())
+	return fmt.Sprintf("(%s %s %s)", e.Left.String(), e.Operator, e.Right.String())
 }
 
 // todo: postfix Expression

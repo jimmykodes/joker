@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jimmykodes/jk/token"
 )
@@ -30,7 +31,17 @@ type ReturnStatement struct {
 
 func (rs *ReturnStatement) statementNode()       {}
 func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
-func (rs *ReturnStatement) String() string       { return fmt.Sprintf("%s %s;", rs.Token.Literal, rs.Value) }
+func (rs *ReturnStatement) String() string {
+	var sb strings.Builder
+	sb.WriteString(rs.TokenLiteral() + " ")
+	if rs.Value != nil {
+		sb.WriteString(rs.Value.String())
+	} else {
+		sb.WriteString("<nil>")
+	}
+	sb.WriteString(";\n")
+	return sb.String()
+}
 
 type ExpressionStatement struct {
 	Token      token.Token

@@ -94,7 +94,6 @@ func (p *Parser) parseExpression(pre Precedence) ast.Expression {
 		p.nextToken()
 		leftExp = infix(leftExp)
 	}
-	return leftExp
 
 	return leftExp
 }
