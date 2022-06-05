@@ -92,6 +92,12 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 1,
 			programText:   "if (x == y) {\nreturn 12;\n} else {\nreturn 11;\n}\n",
 		},
+		{
+			name:          "func literal",
+			input:         "fn (a, b) { return a + b }",
+			numStatements: 1,
+			programText:   "fn (a, b) {\nreturn (a + b);\n}\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

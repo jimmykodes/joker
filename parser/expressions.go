@@ -105,3 +105,31 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	return exp
 }
+
+func (p *Parser) parseFuncExpression() ast.Expression {
+	exp := &ast.FunctionLiteral{Token: p.curToken}
+	if !p.assertAndAdvance(p.peekTokenIs(token.LParen)) {
+		p.errors = append(p.errors, fmt.Errorf("missing required left paren"))
+		return nil
+	}
+	p.nextToken()
+	for !p.curTokenIs(token.RParen, token.EOF) {
+		ident := p.parseIdentifier()
+		if ident != nil {
+			exp.Parameters = append(exp.Parameters, ident.(*ast.Identifier))
+			if p.peekTokenIs(token.Comma) {
+				p.nextToken()
+			}
+		}
+		p.nextToken()
+	}
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
+		p.errors = append(p.errors, fmt.Errorf("missing required left brace"))
+		return nil
+	}
+
+	exp.Body = p.parseBlockStatement()
+
+	return exp
+}

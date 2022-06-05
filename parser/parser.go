@@ -34,6 +34,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.False:  p.parseBoolean,
 		token.LParen: p.parseGroupedExpression,
 		token.If:     p.parseIfExpression,
+		token.Func:   p.parseFuncExpression,
 	}
 
 	p.infixParseFuncs = map[token.Type]infixParseFunc{

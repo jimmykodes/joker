@@ -3,6 +3,7 @@ package ast
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/jimmykodes/jk/token"
 )
@@ -42,3 +43,23 @@ type BooleanLiteral struct {
 func (l *BooleanLiteral) expressionNode()      {}
 func (l *BooleanLiteral) TokenLiteral() string { return l.Token.Literal }
 func (l *BooleanLiteral) String() string       { return strconv.FormatBool(l.Value) }
+
+type FunctionLiteral struct {
+	Token      token.Token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (f *FunctionLiteral) expressionNode()      {}
+func (f *FunctionLiteral) TokenLiteral() string { return f.Token.Literal }
+func (f *FunctionLiteral) String() string {
+	var sb strings.Builder
+	sb.WriteString(f.TokenLiteral() + " (")
+	params := make([]string, len(f.Parameters))
+	for i, parameter := range f.Parameters {
+		params[i] = parameter.String()
+	}
+	sb.WriteString(strings.Join(params, ", "))
+	sb.WriteString(") {\n" + f.Body.String() + "}\n")
+	return sb.String()
+}

@@ -22,16 +22,20 @@ func (p *Parser) assertAndAdvance(b bool) bool {
 	return b
 }
 
-func (p *Parser) peekTokenIs(t token.Type) bool {
-	return p.peekToken.Type == t
+func (p *Parser) peekTokenIs(t token.Type, ts ...token.Type) bool {
+	return tokenIs(p.peekToken, t, ts...)
 }
 
 func (p *Parser) curTokenIs(t token.Type, ts ...token.Type) bool {
-	if p.curToken.Type == t {
+	return tokenIs(p.curToken, t, ts...)
+}
+
+func tokenIs(tok token.Token, t1 token.Type, ts ...token.Type) bool {
+	if tok.Type == t1 {
 		return true
 	}
-	for _, tt := range ts {
-		if tt == t {
+	for _, t := range ts {
+		if tok.Type == t {
 			return true
 		}
 	}
