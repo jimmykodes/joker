@@ -1,10 +1,9 @@
 package parser
 
 import (
-	"strings"
+	"fmt"
 	"testing"
 
-	"github.com/jimmykodes/jk/ast"
 	"github.com/jimmykodes/jk/lexer"
 )
 
@@ -28,20 +27,36 @@ func TestParser_ParseProgram(t *testing.T) {
 			numStatements: 3,
 			wantIdents:    []string{"x", "why", "zed"},
 		},
+		{
+			name:          "expression statement - ident",
+			input:         "foobar;",
+			numStatements: 1,
+		},
+		{
+			name:          "expression statement - int",
+			input:         "-5;",
+			numStatements: 1,
+		},
+		{
+			name:          "expression statement - int",
+			input:         "-5 + 5;",
+			numStatements: 1,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := New(lexer.New(tt.input))
 			got := p.ParseProgram()
+			fmt.Println(got)
 			if l := len(got.Statements); l != tt.numStatements {
 				t.Errorf("incorrect number of statements returned: got %d - want %d", l, tt.numStatements)
 			}
-			for i, stmt := range got.Statements {
-				s := stmt.(*ast.LetStatement)
-				if !strings.EqualFold(s.Name.Value, tt.wantIdents[i]) {
-					t.Errorf("incorrect identifier: got %s - want %s", s.Name.Value, tt.wantIdents[i])
-				}
+			for _, err := range p.errors {
+				t.Errorf("parser error: %s", err)
 			}
+			// for _, stmt := range got.Statements {
+			//
+			// }
 		})
 	}
 }

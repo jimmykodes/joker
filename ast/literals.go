@@ -1,0 +1,23 @@
+package ast
+
+import (
+	"github.com/jimmykodes/jk/token"
+)
+
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (l *IntegerLiteral) expressionNode()      {}
+func (l *IntegerLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *IntegerLiteral) String() string       { return l.Token.Literal }
+
+type FloatLiteral struct {
+	Token token.Token
+	Value float64
+}
+
+func (l *FloatLiteral) expressionNode()      {}
+func (l *FloatLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *FloatLiteral) String() string       { return l.Token.Literal }
