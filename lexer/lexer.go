@@ -79,7 +79,9 @@ func (l *Lexer) NextToken() token.Token {
 	case ';':
 		tok = newFixedToken(token.SemiCol)
 	case '"':
-		tok = newFixedToken(token.QUOTE)
+		l.readChar()
+		tok.Literal = l.readMultiple(func(b byte) bool { return b != '"' })
+		tok.Type = token.String
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readMultiple(isLetter)
@@ -119,7 +121,7 @@ func (l *Lexer) peekChar() byte {
 
 func (l *Lexer) readMultiple(tester func(byte) bool) string {
 	startPos := l.position
-	for tester(l.ch) {
+	for tester(l.ch) && l.ch != 0 {
 		l.readChar()
 	}
 	return l.input[startPos:l.position]

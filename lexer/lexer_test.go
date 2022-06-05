@@ -43,10 +43,7 @@ func TestLexer_NextToken(t *testing.T) {
 				newFixedToken(token.Let),
 				{Type: token.Ident, Literal: "my_val"},
 				newFixedToken(token.Assign),
-				newFixedToken(token.QUOTE),
-				{Type: token.Ident, Literal: "test"},
-				newFixedToken(token.QUOTE),
-				newFixedToken(token.SemiCol),
+				{Type: token.String, Literal: "test"},
 			},
 		},
 		{
@@ -124,10 +121,10 @@ func TestLexer_NextToken(t *testing.T) {
 			for i, tok := range tt.want {
 				got := l.NextToken()
 				if got.Type != tok.Type {
-					t.Errorf("NextToken().Type = %v at %d, want %v", got.Type, i, tok.Type)
+					t.Errorf("NextToken().Type = (%v) at %d, want (%v)", got.Type, i, tok.Type)
 				}
 				if !strings.EqualFold(got.Literal, tok.Literal) {
-					t.Errorf("NextToken().Literal = %s at %d, want %s", got.Literal, i, tok.Literal)
+					t.Errorf("NextToken().Literal = (%s) at %d, want (%s)", got.Literal, i, tok.Literal)
 				}
 			}
 		})
