@@ -9,6 +9,7 @@ const (
 	FloatType
 	BoolType
 	StringType
+	FunctionType
 	ReturnType
 	ErrorType
 )

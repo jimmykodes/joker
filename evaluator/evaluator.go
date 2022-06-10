@@ -52,14 +52,23 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfExpression:
 		return evalIf(n, env)
 	case *ast.CallExpression:
-		// pass
-		return newError("cannot call yet")
+		f := Eval(n.Function, env)
+		if isError(f) {
+			return f
+		}
+		args, err := evalExpressions(n.Arguments, env)
+		if isError(err) {
+			return err
+		}
+		return applyFunc(f, args)
 	case *ast.Identifier:
 		o, ok := env.Get(n.Value)
 		if !ok {
 			return newError("identifier not found: %s", n.Value)
 		}
 		return o
+	case *ast.FunctionLiteral:
+		return &object.Function{Parameters: n.Parameters, Body: n.Body, Env: env}
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
 	case *ast.FloatLiteral:
@@ -91,6 +100,37 @@ func newError(format string, a ...any) *object.Error {
 
 func isError(o object.Object) bool {
 	return o != nil && o.Type() == object.ErrorType
+}
+
+func applyFunc(fn object.Object, args []object.Object) object.Object {
+	f, ok := fn.(*object.Function)
+	if !ok {
+		return newError("cannot call a non-function: %s", fn.Type())
+	}
+	if len(args) != len(f.Parameters) {
+		return newError("invalid number of args. got %d - want %d", len(args), len(f.Parameters))
+	}
+	wrappedEnv := object.NewEnvironment(object.EncloseOuterOption(f.Env))
+	for i, parameter := range f.Parameters {
+		wrappedEnv.Set(parameter.Value, args[i])
+	}
+	ret := Eval(f.Body, wrappedEnv)
+	if r, ok := ret.(*object.Return); ok {
+		return r.Value
+	}
+	return ret
+}
+
+func evalExpressions(exp []ast.Expression, env *object.Environment) ([]object.Object, object.Object) {
+	res := make([]object.Object, len(exp))
+	for i, expression := range exp {
+		r := Eval(expression, env)
+		if isError(r) {
+			return nil, r
+		}
+		res[i] = r
+	}
+	return res, Null
 }
 
 func evalProgram(program *ast.Program, env *object.Environment) object.Object {

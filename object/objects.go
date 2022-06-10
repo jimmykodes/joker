@@ -3,6 +3,9 @@ package object
 import (
 	"fmt"
 	"strconv"
+	"strings"
+
+	"github.com/jimmykodes/jk/ast"
 )
 
 type Object interface {
@@ -56,3 +59,20 @@ type Error struct {
 
 func (e *Error) Type() Type      { return ErrorType }
 func (e *Error) Inspect() string { return e.Message }
+
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+func (f *Function) Type() Type { return FunctionType }
+func (f *Function) Inspect() string {
+	var sb strings.Builder
+	params := make([]string, len(f.Parameters))
+	for i, p := range f.Parameters {
+		params[i] = p.String()
+	}
+	fmt.Fprintf(&sb, "fn(%s) {\n%s\n}", strings.Join(params, ", "), f.Body.String())
+	return sb.String()
+}
