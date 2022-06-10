@@ -35,3 +35,10 @@ type Boolean struct {
 
 func (b *Boolean) Type() Type      { return BoolType }
 func (b *Boolean) Inspect() string { return strconv.FormatBool(b.Value) }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() Type      { return StringType }
+func (s *String) Inspect() string { return `"` + s.Value + `"` }

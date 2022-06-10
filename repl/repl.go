@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/jimmykodes/jk/evaluator"
 	"github.com/jimmykodes/jk/lexer"
 	"github.com/jimmykodes/jk/parser"
 )
@@ -28,6 +29,10 @@ func Start(in io.Reader, out io.Writer) {
 			}
 			continue
 		}
-		fmt.Fprintln(out, prog.String())
+		// fmt.Fprintln(out, prog.String())
+		evaluated := evaluator.Eval(prog)
+		if evaluated != nil {
+			fmt.Fprintln(out, evaluated.Inspect())
+		}
 	}
 }
