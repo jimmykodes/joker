@@ -42,3 +42,10 @@ type String struct {
 
 func (s *String) Type() Type      { return StringType }
 func (s *String) Inspect() string { return `"` + s.Value + `"` }
+
+type Return struct {
+	Value Object
+}
+
+func (r *Return) Type() Type      { return ReturnType }
+func (r *Return) Inspect() string { return r.Value.Inspect() }

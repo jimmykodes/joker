@@ -14,14 +14,19 @@ var (
 func Eval(node ast.Node) object.Object {
 	switch n := node.(type) {
 	case *ast.Program:
-		return evalStatements(n.Statements)
+		return evalProgram(n)
+	case *ast.BlockStatement:
+		return evalBlockStatements(n)
+	case *ast.ReturnStatement:
+		return &object.Return{Value: Eval(n.Value)}
 	case *ast.ExpressionStatement:
 		return Eval(n.Expression)
 	case *ast.PrefixExpression:
-		right := Eval(n.Right)
-		return evalPrefix(n.Operator, right)
+		return evalPrefix(n.Operator, Eval(n.Right))
 	case *ast.InfixExpression:
 		return evalInfix(n.Operator, Eval(n.Left), Eval(n.Right))
+	case *ast.IfExpression:
+		return evalIf(n)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
 	case *ast.FloatLiteral:
@@ -45,10 +50,24 @@ func intToFloat(obj object.Object) object.Object {
 	return &object.Float{Value: float64(obj.(*object.Integer).Value)}
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+func evalProgram(program *ast.Program) object.Object {
 	var res object.Object
-	for _, stmt := range stmts {
+	for _, stmt := range program.Statements {
 		res = Eval(stmt)
+		if r, ok := res.(*object.Return); ok {
+			return r.Value
+		}
+	}
+	return res
+}
+
+func evalBlockStatements(block *ast.BlockStatement) object.Object {
+	var res object.Object
+	for _, statement := range block.Statements {
+		res = Eval(statement)
+		if res.Type() == object.ReturnType {
+			return res
+		}
 	}
 	return res
 }
@@ -76,6 +95,20 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 		return evalFloatInfix(operator, left, right)
 	}
 	return Null
+}
+
+func evalIf(n *ast.IfExpression) object.Object {
+	switch Eval(n.Condition) {
+	case True:
+		return Eval(n.Consequence)
+	case False:
+		if n.Alternative != nil {
+			return Eval(n.Alternative)
+		}
+		fallthrough
+	default:
+		return Null
+	}
 }
 
 func evalBang(right object.Object) object.Object {

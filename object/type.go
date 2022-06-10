@@ -9,4 +9,5 @@ const (
 	FloatType
 	BoolType
 	StringType
+	ReturnType
 )
