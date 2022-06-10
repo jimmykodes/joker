@@ -49,3 +49,10 @@ type Return struct {
 
 func (r *Return) Type() Type      { return ReturnType }
 func (r *Return) Inspect() string { return r.Value.Inspect() }
+
+type Error struct {
+	Message string
+}
+
+func (e *Error) Type() Type      { return ErrorType }
+func (e *Error) Inspect() string { return e.Message }

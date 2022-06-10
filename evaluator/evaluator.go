@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/jimmykodes/jk/ast"
 	"github.com/jimmykodes/jk/object"
 )
@@ -11,22 +13,53 @@ var (
 	Null  = &object.Null{}
 )
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch n := node.(type) {
 	case *ast.Program:
-		return evalProgram(n)
+		return evalProgram(n, env)
+	case *ast.LetStatement:
+		r := Eval(n.Value, env)
+		if isError(r) {
+			return r
+		}
+		env.Set(n.Name.Value, r)
 	case *ast.BlockStatement:
-		return evalBlockStatements(n)
+		return evalBlockStatements(n, env)
 	case *ast.ReturnStatement:
-		return &object.Return{Value: Eval(n.Value)}
+		r := Eval(n.Value, env)
+		if isError(r) {
+			return r
+		}
+		return &object.Return{Value: r}
 	case *ast.ExpressionStatement:
-		return Eval(n.Expression)
+		return Eval(n.Expression, env)
 	case *ast.PrefixExpression:
-		return evalPrefix(n.Operator, Eval(n.Right))
+		r := Eval(n.Right, env)
+		if isError(r) {
+			return r
+		}
+		return evalPrefix(n.Operator, r)
 	case *ast.InfixExpression:
-		return evalInfix(n.Operator, Eval(n.Left), Eval(n.Right))
+		l := Eval(n.Left, env)
+		if isError(l) {
+			return l
+		}
+		r := Eval(n.Right, env)
+		if isError(r) {
+			return r
+		}
+		return evalInfix(n.Operator, l, r)
 	case *ast.IfExpression:
-		return evalIf(n)
+		return evalIf(n, env)
+	case *ast.CallExpression:
+		// pass
+		return newError("cannot call yet")
+	case *ast.Identifier:
+		o, ok := env.Get(n.Value)
+		if !ok {
+			return newError("identifier not found: %s", n.Value)
+		}
+		return o
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
 	case *ast.FloatLiteral:
@@ -35,8 +68,10 @@ func Eval(node ast.Node) object.Object {
 		return toBoolObject(n.Value)
 	case *ast.StringLiteral:
 		return &object.String{Value: n.Value}
+	default:
+		return newError("invalid node type: %T", node)
 	}
-	return nil
+	return Null
 }
 
 func toBoolObject(b bool) object.Object {
@@ -50,22 +85,33 @@ func intToFloat(obj object.Object) object.Object {
 	return &object.Float{Value: float64(obj.(*object.Integer).Value)}
 }
 
-func evalProgram(program *ast.Program) object.Object {
+func newError(format string, a ...any) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func isError(o object.Object) bool {
+	return o != nil && o.Type() == object.ErrorType
+}
+
+func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	var res object.Object
 	for _, stmt := range program.Statements {
-		res = Eval(stmt)
-		if r, ok := res.(*object.Return); ok {
+		res = Eval(stmt, env)
+		switch r := res.(type) {
+		case *object.Return:
 			return r.Value
+		case *object.Error:
+			return r
 		}
 	}
 	return res
 }
 
-func evalBlockStatements(block *ast.BlockStatement) object.Object {
+func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var res object.Object
 	for _, statement := range block.Statements {
-		res = Eval(statement)
-		if res.Type() == object.ReturnType {
+		res = Eval(statement, env)
+		if res.Type() == object.ReturnType || res.Type() == object.ErrorType {
 			return res
 		}
 	}
@@ -79,7 +125,7 @@ func evalPrefix(operator string, right object.Object) object.Object {
 	case "-":
 		return evalNegative(right)
 	default:
-		return Null
+		return newError("unknown operator %s%s", operator, right.Type())
 	}
 }
 
@@ -94,16 +140,16 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 	case left.Type() == object.FloatType && right.Type() == object.FloatType:
 		return evalFloatInfix(operator, left, right)
 	}
-	return Null
+	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 }
 
-func evalIf(n *ast.IfExpression) object.Object {
-	switch Eval(n.Condition) {
+func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
+	switch Eval(n.Condition, env) {
 	case True:
-		return Eval(n.Consequence)
+		return Eval(n.Consequence, env)
 	case False:
 		if n.Alternative != nil {
-			return Eval(n.Alternative)
+			return Eval(n.Alternative, env)
 		}
 		fallthrough
 	default:
@@ -117,21 +163,19 @@ func evalBang(right object.Object) object.Object {
 		return False
 	case False:
 		return True
-	case Null:
-		return True
 	default:
-		return False
+		return newError("invalid type for !: %s", right.Type())
 	}
 }
 
 func evalNegative(right object.Object) object.Object {
 	switch r := right.(type) {
 	case *object.Integer:
-		return &object.Integer{Value: r.Value}
+		return &object.Integer{Value: -r.Value}
 	case *object.Float:
-		return &object.Float{Value: r.Value}
+		return &object.Float{Value: -r.Value}
 	default:
-		return Null
+		return newError("invalid type for !: %s", right.Type())
 	}
 }
 
@@ -162,7 +206,7 @@ func evalIntInfix(operator string, left, right object.Object) object.Object {
 	case "!=":
 		return toBoolObject(lv != rv)
 	}
-	return Null
+	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 }
 
 func evalFloatInfix(operator string, left, right object.Object) object.Object {
@@ -190,5 +234,5 @@ func evalFloatInfix(operator string, left, right object.Object) object.Object {
 	case "!=":
 		return toBoolObject(lv != rv)
 	}
-	return Null
+	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 }

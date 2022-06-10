@@ -10,4 +10,5 @@ const (
 	BoolType
 	StringType
 	ReturnType
+	ErrorType
 )

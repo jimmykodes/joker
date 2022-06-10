@@ -7,6 +7,7 @@ import (
 
 	"github.com/jimmykodes/jk/evaluator"
 	"github.com/jimmykodes/jk/lexer"
+	"github.com/jimmykodes/jk/object"
 	"github.com/jimmykodes/jk/parser"
 )
 
@@ -14,6 +15,7 @@ const Prompt = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 	for {
 		fmt.Fprint(out, Prompt)
 		if scanned := scanner.Scan(); !scanned {
@@ -29,8 +31,7 @@ func Start(in io.Reader, out io.Writer) {
 			}
 			continue
 		}
-		// fmt.Fprintln(out, prog.String())
-		evaluated := evaluator.Eval(prog)
+		evaluated := evaluator.Eval(prog, env)
 		if evaluated != nil {
 			fmt.Fprintln(out, evaluated.Inspect())
 		}

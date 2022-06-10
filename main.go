@@ -7,6 +7,7 @@ import (
 
 	"github.com/jimmykodes/jk/evaluator"
 	"github.com/jimmykodes/jk/lexer"
+	"github.com/jimmykodes/jk/object"
 	"github.com/jimmykodes/jk/parser"
 	"github.com/jimmykodes/jk/repl"
 )
@@ -29,7 +30,8 @@ func main() {
 		l := lexer.New(string(progText))
 		p := parser.New(l)
 		prog := p.ParseProgram()
-		res := evaluator.Eval(prog)
+		env := object.NewEnvironment()
+		res := evaluator.Eval(prog, env)
 		fmt.Println(res.Inspect())
 	}
 }
