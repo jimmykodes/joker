@@ -24,6 +24,18 @@ func (ls *LetStatement) String() string {
 	return fmt.Sprintf("%s %s = %s;\n", ls.TokenLiteral(), ls.Name.Value, ls.Value)
 }
 
+type ReassignStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (rs *ReassignStatement) statementNode()       {}
+func (rs *ReassignStatement) TokenLiteral() string { return rs.Token.Literal }
+func (rs *ReassignStatement) String() string {
+	return fmt.Sprintf("%s %s %s", rs.Name.Value, rs.Token.Literal, rs.Value.String())
+}
+
 type ReturnStatement struct {
 	Token token.Token
 	Value Expression

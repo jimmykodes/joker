@@ -73,11 +73,17 @@ func (p *Parser) Errors() []error {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
+	fmt.Println("parsing statement")
 	switch p.curToken.Type {
 	case token.Let:
 		return p.parseLetStatement()
 	case token.Return:
 		return p.parseReturnStatement()
+	case token.Ident:
+		if p.peekTokenIs(token.Assign) {
+			return p.parseReassignStatement()
+		}
+		fallthrough
 	default:
 		return p.parseExpressionStatement()
 	}

@@ -23,6 +23,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return r
 		}
 		env.Set(n.Name.Value, r)
+	case *ast.ReassignStatement:
+		_, ok := env.Get(n.Name.Value)
+		if !ok {
+			return newError("cannot assign to uninitialized variable: %s", n.Name.Value)
+		}
+		r := Eval(n.Value, env)
+		if isError(r) {
+			return r
+		}
+		env.Set(n.Name.Value, r)
 	case *ast.BlockStatement:
 		return evalBlockStatements(n, env)
 	case *ast.ReturnStatement:

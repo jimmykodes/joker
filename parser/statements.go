@@ -19,11 +19,31 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
-		fmt.Println("parse error at assing")
+		fmt.Println("parse error at assign")
 		p.errors = append(p.errors, invalidToken(token.Assign, p.peekToken.Type))
 		return nil
 	}
 
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(Lowest)
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
+		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		return nil
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseReassignStatement() ast.Statement {
+	stmt := &ast.ReassignStatement{
+		Name: &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
+	}
+	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
+		p.errors = append(p.errors, fmt.Errorf("identifier not followed by assignment"))
+		return nil
+	}
 	p.nextToken()
 
 	stmt.Value = p.parseExpression(Lowest)
