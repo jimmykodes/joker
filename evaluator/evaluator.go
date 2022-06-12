@@ -189,6 +189,8 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 		return evalFloatInfix(operator, left, intToFloat(right))
 	case left.Type() == object.FloatType && right.Type() == object.FloatType:
 		return evalFloatInfix(operator, left, right)
+	case left.Type() == object.StringType && right.Type() == object.StringType:
+		return evalStringInfix(operator, left, right)
 	}
 	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 }
@@ -285,4 +287,15 @@ func evalFloatInfix(operator string, left, right object.Object) object.Object {
 		return toBoolObject(lv != rv)
 	}
 	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
+}
+
+func evalStringInfix(operator string, left, right object.Object) object.Object {
+	lv := left.(*object.String).Value
+	rv := right.(*object.String).Value
+	switch operator {
+	case "+":
+		return &object.String{Value: lv + rv}
+	default:
+		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
+	}
 }
