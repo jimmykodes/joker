@@ -9,9 +9,7 @@ import (
 )
 
 var (
-	True  = &object.Boolean{Value: true}
-	False = &object.Boolean{Value: false}
-	Null  = &object.Null{}
+	Null = &object.Null{}
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -102,13 +100,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 func toBoolObject(b bool) object.Object {
 	if b {
-		return True
+		return object.True
 	}
-	return False
-}
-
-func intToFloat(obj object.Object) object.Object {
-	return &object.Float{Value: float64(obj.(*object.Integer).Value)}
+	return object.False
 }
 
 func newError(format string, a ...any) *object.Error {
@@ -144,28 +138,15 @@ func applyFunc(fn object.Object, args []object.Object) object.Object {
 func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Object {
 	left := Eval(index.Left, env)
 	i := Eval(index.Index, env)
-
-	switch l := left.(type) {
-	case *object.Array:
-		idx, ok := i.(*object.Integer)
-		if !ok {
-			return newError("cannot index array with type %s", i.Type())
-		}
-		if idx.Value >= int64(len(l.Elements)) {
-			return newError("index out of range [%d] with length %d", idx.Value, len(l.Elements))
-		}
-		return l.Elements[idx.Value]
-	case *object.String:
-		idx, ok := i.(*object.Integer)
-		if !ok {
-			return newError("cannot index array with type %s", i.Type())
-		}
-		if idx.Value >= int64(len(l.Value)) {
-			return newError("index out of range [%d] with length %d", idx.Value, len(l.Value))
-		}
-		return &object.String{Value: string(l.Value[idx.Value])}
+	o, err := left.Idx(i)
+	if errors.Is(err, object.ErrUnsupportedType) {
+		return newError("cannot index %s with type %s", left.Type(), i.Type())
+	} else if errors.Is(err, object.ErrUnsupportedOperation) {
+		return newError("cannot index object of type %s", left.Type())
+	} else if err != nil {
+		return newError(err.Error())
 	}
-	return Null
+	return o
 }
 
 func evalIdent(ident *ast.Identifier, env *object.Environment) object.Object {
@@ -216,14 +197,24 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 }
 
 func evalPrefix(operator string, right object.Object) object.Object {
+	var (
+		o   object.Object
+		err error
+	)
 	switch operator {
 	case "!":
-		return evalBang(right)
+		o, err = right.Bang()
 	case "-":
-		return evalNegative(right)
+		o, err = right.Negative()
 	default:
 		return newError("unknown operator %s%s", operator, right.Type())
 	}
+	if errors.Is(err, object.ErrUnsupportedOperation) {
+		return newError("unsupported operation (%s) on type %s", operator, right.Type())
+	} else if err != nil {
+		return newError(err.Error())
+	}
+	return o
 }
 
 func evalInfix(operator string, left, right object.Object) object.Object {
@@ -234,25 +225,35 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 	switch operator {
 	case "+":
 		r, err = left.Add(right)
+	case "-":
+		r, err = left.Minus(right)
+	case "*":
+		r, err = left.Mult(right)
+	case "/":
+		r, err = left.Div(right)
+	case "%":
+		r, err = left.Mod(right)
+	case "<":
+		r, err = left.LT(right)
+	case ">":
+		r, err = left.GT(right)
+	case "<=":
+		r, err = left.LTE(right)
+	case ">=":
+		r, err = left.GTE(right)
+	case "==":
+		r, err = left.EQ(right)
+	case "!=":
+		r, err = left.NEQ(right)
 	default:
-		switch {
-		case left.Type() == object.IntegerType && right.Type() == object.IntegerType:
-			return evalIntInfix(operator, left, right)
-		case left.Type() == object.IntegerType && right.Type() == object.FloatType:
-			return evalFloatInfix(operator, intToFloat(left), right)
-		case left.Type() == object.FloatType && right.Type() == object.IntegerType:
-			return evalFloatInfix(operator, left, intToFloat(right))
-		case left.Type() == object.FloatType && right.Type() == object.FloatType:
-			return evalFloatInfix(operator, left, right)
-		case left.Type() == object.StringType && right.Type() == object.StringType:
-			return evalStringInfix(operator, left, right)
-		}
 		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
-	if errors.Is(err, object.ErrUnsupportedType) || errors.Is(err, object.ErrUnsupportedOperation) {
-		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
+	if errors.Is(err, object.ErrUnsupportedOperation) {
+		return newError("unsupported operation (%s) on %s", operator, left.Type())
+	} else if errors.Is(err, object.ErrUnsupportedType) {
+		return newError("unsupported operation (%s) between %s and %s", operator, left.Type(), right.Type())
 	} else if err != nil {
-		return newError("error doing addition: %s", err)
+		return newError(err.Error())
 	}
 	return r
 
@@ -260,9 +261,9 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 	switch e := Eval(n.Condition, env); e {
-	case True:
+	case object.True:
 		return Eval(n.Consequence, env)
-	case False:
+	case object.False:
 		if n.Alternative != nil {
 			return Eval(n.Alternative, env)
 		}
@@ -279,9 +280,9 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 	var res object.Object
 	for {
 		switch e := Eval(n.Condition, env); e {
-		case True:
+		case object.True:
 			res = Eval(n.Body, env)
-		case False:
+		case object.False:
 			return res
 		default:
 			if isError(e) {
@@ -289,95 +290,5 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 			}
 			return newError("invalid conditional")
 		}
-	}
-}
-func evalBang(right object.Object) object.Object {
-	switch right {
-	case True:
-		return False
-	case False:
-		return True
-	default:
-		return newError("invalid type for !: %s", right.Type())
-	}
-}
-
-func evalNegative(right object.Object) object.Object {
-	switch r := right.(type) {
-	case *object.Integer:
-		return &object.Integer{Value: -r.Value}
-	case *object.Float:
-		return &object.Float{Value: -r.Value}
-	default:
-		return newError("invalid type for !: %s", right.Type())
-	}
-}
-
-func evalIntInfix(operator string, left, right object.Object) object.Object {
-	lv := left.(*object.Integer).Value
-	rv := right.(*object.Integer).Value
-	switch operator {
-	case "+":
-		return &object.Integer{Value: lv + rv}
-	case "-":
-		return &object.Integer{Value: lv - rv}
-	case "*":
-		return &object.Integer{Value: lv * rv}
-	case "/":
-		return &object.Integer{Value: lv / rv}
-	case "%":
-		return &object.Integer{Value: lv % rv}
-	case "<":
-		return toBoolObject(lv < rv)
-	case ">":
-		return toBoolObject(lv > rv)
-	case "<=":
-		return toBoolObject(lv <= rv)
-	case ">=":
-		return toBoolObject(lv >= rv)
-	case "==":
-		return toBoolObject(lv == rv)
-	case "!=":
-		return toBoolObject(lv != rv)
-	}
-	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
-}
-
-func evalFloatInfix(operator string, left, right object.Object) object.Object {
-	lv := left.(*object.Float).Value
-	rv := right.(*object.Float).Value
-	switch operator {
-	case "+":
-		return &object.Float{Value: lv + rv}
-	case "-":
-		return &object.Float{Value: lv - rv}
-	case "*":
-		return &object.Float{Value: lv * rv}
-	case "/":
-		return &object.Float{Value: lv / rv}
-	case "<":
-		return toBoolObject(lv < rv)
-	case ">":
-		return toBoolObject(lv > rv)
-	case "<=":
-		return toBoolObject(lv <= rv)
-	case ">=":
-		return toBoolObject(lv >= rv)
-	case "==":
-		return toBoolObject(lv == rv)
-	case "!=":
-		return toBoolObject(lv != rv)
-	}
-	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
-}
-
-func evalStringInfix(operator string, left, right object.Object) object.Object {
-	lv := left.(*object.String).Value
-	rv := right.(*object.String).Value
-	switch operator {
-	case "+":
-		return &object.String{Value: lv + rv}
-	default:
-		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
 }
