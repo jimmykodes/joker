@@ -242,42 +242,38 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 }
 
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
-	switch Eval(n.Condition, env) {
+	switch e := Eval(n.Condition, env); e {
 	case True:
 		return Eval(n.Consequence, env)
 	case False:
 		if n.Alternative != nil {
 			return Eval(n.Alternative, env)
 		}
-		fallthrough
-	default:
 		return Null
+	default:
+		if isError(e) {
+			return e
+		}
+		return newError("invalid conditional")
 	}
 }
 
 func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 	var res object.Object
-Loop:
 	for {
-		cond := Eval(n.Condition, env)
-		if isError(cond) {
-			return cond
-		}
-		switch cond {
-		case False:
-			break Loop
+		switch e := Eval(n.Condition, env); e {
 		case True:
 			res = Eval(n.Body, env)
-			if res.Type() == object.ReturnType || res.Type() == object.ErrorType {
-				return res
-			}
+		case False:
+			return res
 		default:
+			if isError(e) {
+				return e
+			}
 			return newError("invalid conditional")
 		}
 	}
-	return res
 }
-
 func evalBang(right object.Object) object.Object {
 	switch right {
 	case True:
