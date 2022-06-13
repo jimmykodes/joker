@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jimmykodes/jk/ast"
@@ -226,19 +227,35 @@ func evalPrefix(operator string, right object.Object) object.Object {
 }
 
 func evalInfix(operator string, left, right object.Object) object.Object {
-	switch {
-	case left.Type() == object.IntegerType && right.Type() == object.IntegerType:
-		return evalIntInfix(operator, left, right)
-	case left.Type() == object.IntegerType && right.Type() == object.FloatType:
-		return evalFloatInfix(operator, intToFloat(left), right)
-	case left.Type() == object.FloatType && right.Type() == object.IntegerType:
-		return evalFloatInfix(operator, left, intToFloat(right))
-	case left.Type() == object.FloatType && right.Type() == object.FloatType:
-		return evalFloatInfix(operator, left, right)
-	case left.Type() == object.StringType && right.Type() == object.StringType:
-		return evalStringInfix(operator, left, right)
+	var (
+		r   object.Object
+		err error
+	)
+	switch operator {
+	case "+":
+		r, err = left.Add(right)
+	default:
+		switch {
+		case left.Type() == object.IntegerType && right.Type() == object.IntegerType:
+			return evalIntInfix(operator, left, right)
+		case left.Type() == object.IntegerType && right.Type() == object.FloatType:
+			return evalFloatInfix(operator, intToFloat(left), right)
+		case left.Type() == object.FloatType && right.Type() == object.IntegerType:
+			return evalFloatInfix(operator, left, intToFloat(right))
+		case left.Type() == object.FloatType && right.Type() == object.FloatType:
+			return evalFloatInfix(operator, left, right)
+		case left.Type() == object.StringType && right.Type() == object.StringType:
+			return evalStringInfix(operator, left, right)
+		}
+		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
-	return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
+	if errors.Is(err, object.ErrUnsupportedType) || errors.Is(err, object.ErrUnsupportedOperation) {
+		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
+	} else if err != nil {
+		return newError("error doing addition: %s", err)
+	}
+	return r
+
 }
 
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
