@@ -63,3 +63,22 @@ func (f *FunctionLiteral) String() string {
 	sb.WriteString(") {\n" + f.Body.String() + "}\n")
 	return sb.String()
 }
+
+type ArrayLiteral struct {
+	Token    token.Token
+	Elements []Expression
+}
+
+func (a *ArrayLiteral) expressionNode()      {}
+func (a *ArrayLiteral) TokenLiteral() string { return a.Token.Literal }
+func (a *ArrayLiteral) String() string {
+	var sb strings.Builder
+	sb.WriteString("[")
+	elems := make([]string, len(a.Elements))
+	for i, element := range a.Elements {
+		elems[i] = element.String()
+	}
+	sb.WriteString(strings.Join(elems, ", "))
+	sb.WriteString("]")
+	return sb.String()
+}

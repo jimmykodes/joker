@@ -56,6 +56,31 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	a := &ast.ArrayLiteral{Token: p.curToken}
+	a.Elements = p.parseExpressionList(token.RBrack)
+	return a
+}
+
+func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
+	var list []ast.Expression
+	if p.peekTokenIs(end, token.EOF) {
+		return list
+	}
+	p.nextToken()
+	list = append(list, p.parseExpression(Lowest))
+	for p.peekTokenIs(token.Comma) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(Lowest))
+	}
+	if !p.assertAndAdvance(p.peekTokenIs(end)) {
+		p.errors = append(p.errors, fmt.Errorf("missing end token"))
+		return nil
+	}
+	return list
+}
+
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	i, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 	if err != nil {
@@ -112,22 +137,16 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 		p.errors = append(p.errors, fmt.Errorf("missing required left paren"))
 		return nil
 	}
-	p.nextToken()
-	for !p.curTokenIs(token.RParen, token.EOF) {
-		ident := p.parseIdentifier()
-		if ident == nil {
-			p.errors = append(p.errors, fmt.Errorf("invalid identifier"))
+
+	params := p.parseExpressionList(token.RParen)
+	exp.Parameters = make([]*ast.Identifier, len(params))
+	for i, param := range params {
+		cast, ok := param.(*ast.Identifier)
+		if !ok {
+			p.errors = append(p.errors, fmt.Errorf("invalid type for func param. got %T - want %T", param, &ast.Identifier{}))
 			return nil
 		}
-		exp.Parameters = append(exp.Parameters, ident.(*ast.Identifier))
-		if p.peekTokenIs(token.Ident) {
-			p.errors = append(p.errors, fmt.Errorf("missing comma between paramenters"))
-			return nil
-		}
-		p.nextToken()
-		if p.curTokenIs(token.Comma) {
-			p.nextToken()
-		}
+		exp.Parameters[i] = cast
 	}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
@@ -141,21 +160,20 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 }
 
 func (p *Parser) parseCallExpression(f ast.Expression) ast.Expression {
-	exp := &ast.CallExpression{Token: p.curToken, Function: f}
-	if p.peekTokenIs(token.RParen) {
-		p.nextToken()
-		return exp
+	return &ast.CallExpression{
+		Token:     p.curToken,
+		Function:  f,
+		Arguments: p.parseExpressionList(token.RParen),
 	}
+}
+
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	e := &ast.IndexExpression{Token: p.curToken, Left: left}
 	p.nextToken()
-	exp.Arguments = append(exp.Arguments, p.parseExpression(Lowest))
-	for p.peekTokenIs(token.Comma) {
-		p.nextToken()
-		p.nextToken()
-		exp.Arguments = append(exp.Arguments, p.parseExpression(Lowest))
-	}
-	if !p.assertAndAdvance(p.peekTokenIs(token.RParen)) {
-		p.errors = append(p.errors, fmt.Errorf("missing required closing paren"))
+	e.Index = p.parseExpression(Lowest)
+	if !p.assertAndAdvance(p.peekTokenIs(token.RBrack)) {
+		p.errors = append(p.errors, fmt.Errorf("missing closing bracket"))
 		return nil
 	}
-	return exp
+	return e
 }

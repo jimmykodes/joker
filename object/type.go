@@ -10,6 +10,7 @@ const (
 	BoolType
 	StringType
 	FunctionType
+	BuiltinType
 	ReturnType
 	ErrorType
 )

@@ -30,6 +30,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.Int:    p.parseIntegerLiteral,
 		token.Float:  p.parseFloatLiteral,
 		token.String: p.parseStringLiteral,
+		token.LBrack: p.parseArrayLiteral,
 		token.True:   p.parseBoolean,
 		token.False:  p.parseBoolean,
 		token.LParen: p.parseGroupedExpression,
@@ -50,6 +51,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.EQ:     p.parseInfixExpression,
 		token.NEQ:    p.parseInfixExpression,
 		token.LParen: p.parseCallExpression,
+		token.LBrack: p.parseIndexExpression,
 	}
 
 	return p

@@ -71,12 +71,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return err
 		}
 		return applyFunc(f, args)
+	case *ast.IndexExpression:
+		return evalIndex(n, env)
 	case *ast.Identifier:
-		o, ok := env.Get(n.Value)
-		if !ok {
-			return newError("identifier not found: %s", n.Value)
-		}
-		return o
+		return evalIdent(n, env)
 	case *ast.FunctionLiteral:
 		return &object.Function{Parameters: n.Parameters, Body: n.Body, Env: env}
 	case *ast.IntegerLiteral:
@@ -113,22 +111,46 @@ func isError(o object.Object) bool {
 }
 
 func applyFunc(fn object.Object, args []object.Object) object.Object {
-	f, ok := fn.(*object.Function)
-	if !ok {
+	switch f := fn.(type) {
+	case *object.Builtin:
+		return f.Fn(args...)
+	case *object.Function:
+		if len(args) != len(f.Parameters) {
+			return newError("invalid number of args. got %d - want %d", len(args), len(f.Parameters))
+		}
+		wrappedEnv := object.NewEnvironment(object.EncloseOuterOption(f.Env))
+		for i, parameter := range f.Parameters {
+			wrappedEnv.Set(parameter.Value, args[i])
+		}
+		ret := Eval(f.Body, wrappedEnv)
+		if r, ok := ret.(*object.Return); ok {
+			return r.Value
+		}
+		return ret
+	default:
 		return newError("cannot call a non-function: %s", fn.Type())
 	}
-	if len(args) != len(f.Parameters) {
-		return newError("invalid number of args. got %d - want %d", len(args), len(f.Parameters))
+}
+
+func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Object {
+	// switch l := index.Left.(type) {
+	// case *ast.ArrayLiteral:
+	// 	Eval()
+	// 	if !ok {
+	// 		return newError("cannot index array with type %s", index.Index)
+	// 	}
+	// }
+	return Null
+}
+
+func evalIdent(ident *ast.Identifier, env *object.Environment) object.Object {
+	if o, ok := env.Get(ident.Value); ok {
+		return o
 	}
-	wrappedEnv := object.NewEnvironment(object.EncloseOuterOption(f.Env))
-	for i, parameter := range f.Parameters {
-		wrappedEnv.Set(parameter.Value, args[i])
+	if b, ok := builtins[ident.Value]; ok {
+		return b
 	}
-	ret := Eval(f.Body, wrappedEnv)
-	if r, ok := ret.(*object.Return); ok {
-		return r.Value
-	}
-	return ret
+	return newError("identifier not found: %s", ident.Value)
 }
 
 func evalExpressions(exp []ast.Expression, env *object.Environment) ([]object.Object, object.Object) {

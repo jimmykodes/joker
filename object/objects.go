@@ -76,3 +76,12 @@ func (f *Function) Inspect() string {
 	fmt.Fprintf(&sb, "fn(%s) {\n%s\n}", strings.Join(params, ", "), f.Body.String())
 	return sb.String()
 }
+
+type BuiltinFunction func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+func (b *Builtin) Type() Type      { return BuiltinType }
+func (b *Builtin) Inspect() string { return "builtin function" }

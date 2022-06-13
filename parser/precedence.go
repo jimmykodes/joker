@@ -15,6 +15,7 @@ const (
 	Product
 	Prefix
 	Call
+	Index
 )
 
 var precedences = map[token.Type]Precedence{
@@ -30,6 +31,7 @@ var precedences = map[token.Type]Precedence{
 	token.Mult:   Product,
 	token.Mod:    Product,
 	token.LParen: Call,
+	token.LBrack: Index,
 }
 
 func (p *Parser) peekPrecedence() Precedence {

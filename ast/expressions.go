@@ -90,3 +90,15 @@ func (c *CallExpression) String() string {
 	sb.WriteString(strings.Join(args, ", ") + ")")
 	return sb.String()
 }
+
+type IndexExpression struct {
+	Token token.Token
+	Left  Expression
+	Index Expression
+}
+
+func (i *IndexExpression) expressionNode()      {}
+func (i *IndexExpression) TokenLiteral() string { return i.Token.Literal }
+func (i *IndexExpression) String() string {
+	return "(" + i.Left.String() + "[" + i.Index.String() + "])"
+}
