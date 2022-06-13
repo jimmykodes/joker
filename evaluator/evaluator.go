@@ -260,35 +260,45 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 }
 
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
-	switch e := Eval(n.Condition, env); e {
-	case object.True:
-		return Eval(n.Consequence, env)
-	case object.False:
-		if n.Alternative != nil {
-			return Eval(n.Alternative, env)
-		}
-		return Null
-	default:
-		if isError(e) {
-			return e
-		}
-		return newError("invalid conditional")
+	condition := Eval(n.Condition, env)
+	if isError(condition) {
+		return condition
 	}
+
+	b, err := condition.Bool()
+	if errors.Is(err, object.ErrUnsupportedOperation) {
+		return newError("cannot implicitly convert %s to bool", condition.Type())
+	} else if err != nil {
+		return newError(err.Error())
+	}
+	if b {
+		return Eval(n.Consequence, env)
+	}
+	if n.Alternative != nil {
+		return Eval(n.Alternative, env)
+	}
+	return Null
 }
 
 func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 	var res object.Object
 	for {
-		switch e := Eval(n.Condition, env); e {
-		case object.True:
-			res = Eval(n.Body, env)
-		case object.False:
+		condition := Eval(n.Condition, env)
+		if isError(condition) {
+			return condition
+		}
+		b, err := condition.Bool()
+		if errors.Is(err, object.ErrUnsupportedOperation) {
+			return newError("cannot implicitly convert %s to bool", condition.Type())
+		} else if err != nil {
+			return newError(err.Error())
+		}
+		if !b {
 			return res
-		default:
-			if isError(e) {
-				return e
-			}
-			return newError("invalid conditional")
+		}
+		res = Eval(n.Body, env)
+		if res.Type() == object.ReturnType {
+			return res
 		}
 	}
 }
