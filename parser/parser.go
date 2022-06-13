@@ -35,6 +35,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.False:  p.parseBoolean,
 		token.LParen: p.parseGroupedExpression,
 		token.If:     p.parseIfExpression,
+		token.While:  p.parseWhileExpression,
 		token.Func:   p.parseFuncExpression,
 	}
 

@@ -72,6 +72,24 @@ func (i *IfExpression) String() string {
 	return sb.String()
 }
 
+type WhileExpression struct {
+	Token     token.Token
+	Condition Expression
+	Body      *BlockStatement
+}
+
+func (w *WhileExpression) expressionNode()      {}
+func (w *WhileExpression) TokenLiteral() string { return w.Token.Literal }
+func (w *WhileExpression) String() string {
+	var sb strings.Builder
+	sb.WriteString("while (")
+	sb.WriteString(w.Condition.String())
+	sb.WriteString(") {\n")
+	sb.WriteString(w.Body.String())
+	sb.WriteString("};\n")
+	return sb.String()
+}
+
 type CallExpression struct {
 	Token     token.Token
 	Function  Expression

@@ -131,6 +131,18 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseWhileExpression() ast.Expression {
+	exp := &ast.WhileExpression{Token: p.curToken}
+	p.nextToken()
+	exp.Condition = p.parseExpression(Lowest)
+	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
+		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		return nil
+	}
+	exp.Body = p.parseBlockStatement()
+	return exp
+}
+
 func (p *Parser) parseFuncExpression() ast.Expression {
 	exp := &ast.FunctionLiteral{Token: p.curToken}
 	if !p.assertAndAdvance(p.peekTokenIs(token.LParen)) {
