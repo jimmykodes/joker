@@ -31,7 +31,6 @@ func main() {
 		p := parser.New(l)
 		prog := p.ParseProgram()
 		env := object.NewEnvironment()
-		res := evaluator.Eval(prog, env)
-		fmt.Println(res.Inspect())
+		evaluator.Eval(prog, env)
 	}
 }

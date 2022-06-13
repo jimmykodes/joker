@@ -16,6 +16,8 @@ var builtins = map[string]*object.Builtin{
 			switch a := args[0].(type) {
 			case *object.String:
 				v = int64(len(a.Value))
+			case *object.Array:
+				v = int64(len(a.Elements))
 			default:
 				return newError("cannot call len() on %s", a.Type())
 			}

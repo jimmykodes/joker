@@ -257,10 +257,22 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 
 func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 	var res object.Object
-	for Eval(n.Condition, env) == True {
-		res = Eval(n.Body, env)
-		if res.Type() == object.ReturnType || res.Type() == object.ErrorType {
-			return res
+Loop:
+	for {
+		cond := Eval(n.Condition, env)
+		if isError(cond) {
+			return cond
+		}
+		switch cond {
+		case False:
+			break Loop
+		case True:
+			res = Eval(n.Body, env)
+			if res.Type() == object.ReturnType || res.Type() == object.ErrorType {
+				return res
+			}
+		default:
+			return newError("invalid conditional")
 		}
 	}
 	return res
