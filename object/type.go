@@ -11,6 +11,7 @@ const (
 	StringType
 	FunctionType
 	BuiltinType
+	ArrayType
 	ReturnType
 	ErrorType
 )

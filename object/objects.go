@@ -85,3 +85,17 @@ type Builtin struct {
 
 func (b *Builtin) Type() Type      { return BuiltinType }
 func (b *Builtin) Inspect() string { return "builtin function" }
+
+type Array struct {
+	Elements []Object
+}
+
+func (a *Array) Type() Type { return ArrayType }
+
+func (a *Array) Inspect() string {
+	elements := make([]string, len(a.Elements))
+	for i, element := range a.Elements {
+		elements[i] = element.Inspect()
+	}
+	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
+}

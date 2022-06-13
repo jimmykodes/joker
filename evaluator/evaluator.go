@@ -85,6 +85,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return toBoolObject(n.Value)
 	case *ast.StringLiteral:
 		return &object.String{Value: n.Value}
+	case *ast.ArrayLiteral:
+		elems := make([]object.Object, len(n.Elements))
+		for i, element := range n.Elements {
+			elems[i] = Eval(element, env)
+		}
+		return &object.Array{Elements: elems}
 	default:
 		return newError("invalid node type: %T", node)
 	}
@@ -133,13 +139,29 @@ func applyFunc(fn object.Object, args []object.Object) object.Object {
 }
 
 func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Object {
-	// switch l := index.Left.(type) {
-	// case *ast.ArrayLiteral:
-	// 	Eval()
-	// 	if !ok {
-	// 		return newError("cannot index array with type %s", index.Index)
-	// 	}
-	// }
+	left := Eval(index.Left, env)
+	i := Eval(index.Index, env)
+
+	switch l := left.(type) {
+	case *object.Array:
+		idx, ok := i.(*object.Integer)
+		if !ok {
+			return newError("cannot index array with type %s", i.Type())
+		}
+		if idx.Value >= int64(len(l.Elements)) {
+			return newError("index out of range [%d] with length %d", idx.Value, len(l.Elements))
+		}
+		return l.Elements[idx.Value]
+	case *object.String:
+		idx, ok := i.(*object.Integer)
+		if !ok {
+			return newError("cannot index array with type %s", i.Type())
+		}
+		if idx.Value >= int64(len(l.Value)) {
+			return newError("index out of range [%d] with length %d", idx.Value, len(l.Value))
+		}
+		return &object.String{Value: string(l.Value[idx.Value])}
+	}
 	return Null
 }
 
