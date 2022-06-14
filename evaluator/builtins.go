@@ -32,4 +32,16 @@ var builtins = map[string]*object.Builtin{
 			return Null
 		},
 	},
+	"append": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) < 2 {
+				return newError("invalid number of args, got %d, want 2+", len(args))
+			}
+			source, ok := args[0].(*object.Array)
+			if !ok {
+				return newError("first argument of append must be an %s", object.ArrayType)
+			}
+			return &object.Array{Elements: append(source.Elements, args[1:]...)}
+		},
+	},
 }
