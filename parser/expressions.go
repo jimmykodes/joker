@@ -64,10 +64,10 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 
 func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 	var list []ast.Expression
-	if p.peekTokenIs(end, token.EOF) {
+	p.nextToken()
+	if p.curTokenIs(end, token.EOF) {
 		return list
 	}
-	p.nextToken()
 	list = append(list, p.parseExpression(Lowest))
 	for p.peekTokenIs(token.Comma) {
 		p.nextToken()

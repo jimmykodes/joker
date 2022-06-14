@@ -137,7 +137,13 @@ func applyFunc(fn object.Object, args []object.Object) object.Object {
 
 func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Object {
 	left := Eval(index.Left, env)
+	if isError(left) {
+		return left
+	}
 	i := Eval(index.Index, env)
+	if isError(i) {
+		return i
+	}
 	o, err := left.Idx(i)
 	if errors.Is(err, object.ErrUnsupportedType) {
 		return newError("cannot index %s with type %s", left.Type(), i.Type())
