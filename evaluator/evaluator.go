@@ -216,7 +216,7 @@ func evalPrefix(operator string, right object.Object) object.Object {
 	)
 	switch operator {
 	case "!":
-		o, err = right.Bang()
+		o, err = evalBang(right)
 	case "-":
 		o, err = right.Negative()
 	default:
@@ -272,6 +272,14 @@ func evalInfix(operator string, left, right object.Object) object.Object {
 
 }
 
+func evalBang(obj object.Object) (object.Object, error) {
+	b, err := obj.Bool()
+	if err != nil {
+		return nil, err
+	}
+	return toBoolObject(!b.Value), nil
+}
+
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 	condition := Eval(n.Condition, env)
 	if isError(condition) {
@@ -284,7 +292,7 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 	} else if err != nil {
 		return newError(err.Error())
 	}
-	if b {
+	if b == object.True {
 		return Eval(n.Consequence, env)
 	}
 	if n.Alternative != nil {
@@ -306,7 +314,7 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 		} else if err != nil {
 			return newError(err.Error())
 		}
-		if !b {
+		if b == object.False {
 			return res
 		}
 		res = Eval(n.Body, env)

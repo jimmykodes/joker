@@ -4,9 +4,8 @@ type Object interface {
 	Type() Type
 	Inspect() string
 
-	Bool() (bool, error)
-	Bang() (Object, error)
 	Negative() (Object, error)
+	Bool() (*Boolean, error)
 	Len() (*Integer, error)
 
 	Add(Object) (Object, error)
@@ -25,10 +24,7 @@ type Object interface {
 
 type baseObject struct{}
 
-func (b *baseObject) Bool() (bool, error) {
-	return false, ErrUnsupportedOperation
-}
-func (b *baseObject) Bang() (Object, error) {
+func (b *baseObject) Bool() (*Boolean, error) {
 	return nil, ErrUnsupportedOperation
 }
 func (b *baseObject) Negative() (Object, error) {

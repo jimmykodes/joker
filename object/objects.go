@@ -18,8 +18,8 @@ type Null struct{ baseObject }
 func (n *Null) Type() Type      { return NullType }
 func (n *Null) Inspect() string { return "null" }
 
-func (n *Null) Bool() (bool, error) {
-	return false, nil
+func (n *Null) Bool() (*Boolean, error) {
+	return False, nil
 }
 
 type Continue struct {

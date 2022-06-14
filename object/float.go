@@ -12,6 +12,12 @@ type Float struct {
 func (f *Float) Type() Type      { return FloatType }
 func (f *Float) Inspect() string { return fmt.Sprintf("%f", f.Value) }
 
+func (f *Float) Bool() (*Boolean, error) {
+	if f.Value != 0 {
+		return True, nil
+	}
+	return False, nil
+}
 func (f *Float) Negative() (Object, error) {
 	return &Float{Value: -f.Value}, nil
 }

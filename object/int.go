@@ -12,6 +12,13 @@ type Integer struct {
 func (i *Integer) Type() Type      { return IntegerType }
 func (i *Integer) Inspect() string { return strconv.FormatInt(i.Value, 10) }
 
+func (i *Integer) Bool() (*Boolean, error) {
+	if i.Value != 0 {
+		return True, nil
+	}
+	return False, nil
+}
+
 func (i *Integer) Negative() (Object, error) {
 	return &Integer{Value: -i.Value}, nil
 }

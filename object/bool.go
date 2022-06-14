@@ -17,13 +17,9 @@ type Boolean struct {
 func (b *Boolean) Type() Type      { return BoolType }
 func (b *Boolean) Inspect() string { return strconv.FormatBool(b.Value) }
 
-func (b *Boolean) Bool() (bool, error) {
-	return b.Value, nil
-}
-
-func (b *Boolean) Bang() (Object, error) {
+func (b *Boolean) Bool() (*Boolean, error) {
 	if b.Value {
-		return False, nil
+		return True, nil
 	}
-	return True, nil
+	return False, nil
 }
