@@ -65,6 +65,15 @@ func (p *Parser) parseContinueStatement() ast.Statement {
 	return stmt
 }
 
+func (p *Parser) parseBreakStatement() ast.Statement {
+	stmt := &ast.BreakStatement{Token: p.curToken}
+	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
+		p.errors = append(p.errors, fmt.Errorf("missing semicolon after break"))
+		return nil
+	}
+	return stmt
+}
+
 func (p *Parser) parseReturnStatement() ast.Statement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 

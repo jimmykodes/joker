@@ -17,6 +17,7 @@ var keywords = map[string]Type{
 	"for":      For,
 	"while":    While,
 	"continue": Continue,
+	"break":    Break,
 	"return":   Return,
 	"true":     True,
 	"false":    False,

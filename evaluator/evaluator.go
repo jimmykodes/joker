@@ -42,6 +42,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Return{Value: r}
 	case *ast.ContinueStatement:
 		return &object.Continue{}
+	case *ast.BreakStatement:
+		return &object.Break{}
 	case *ast.ExpressionStatement:
 		return Eval(n.Expression, env)
 	case *ast.PrefixExpression:
@@ -197,8 +199,11 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 	var res object.Object
 	for _, statement := range block.Statements {
 		res = Eval(statement, env)
-		if res.Type() == object.ReturnType || res.Type() == object.ErrorType || res.Type() == object.ContinueType {
+		if res.Type() == object.ReturnType || res.Type() == object.ErrorType || res.Type() == object.BreakType {
 			return res
+		}
+		if res.Type() == object.ContinueType {
+			return Null
 		}
 	}
 	return res
@@ -305,7 +310,7 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 			return res
 		}
 		res = Eval(n.Body, env)
-		if res.Type() == object.ReturnType {
+		if res.Type() == object.ReturnType || res.Type() == object.BreakType {
 			return res
 		}
 	}

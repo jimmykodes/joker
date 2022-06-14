@@ -22,6 +22,7 @@ const (
 	For
 	While
 	Continue
+	Break
 	Return
 	True
 	False
@@ -67,6 +68,7 @@ var tokens = [...]string{
 	For:      "FOR",
 	While:    "WHILE",
 	Continue: "CONTINUE",
+	Break:    "BREAK",
 	Return:   "RETURN",
 	True:     "TRUE",
 	False:    "FALSE",

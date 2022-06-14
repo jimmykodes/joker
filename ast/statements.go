@@ -63,6 +63,14 @@ func (c *ContinueStatement) statementNode()       {}
 func (c *ContinueStatement) TokenLiteral() string { return c.Token.Literal }
 func (c *ContinueStatement) String() string       { return "continue" }
 
+type BreakStatement struct {
+	Token token.Token
+}
+
+func (b *BreakStatement) statementNode()       {}
+func (b *BreakStatement) TokenLiteral() string { return b.Token.Literal }
+func (b *BreakStatement) String() string       { return "break" }
+
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression

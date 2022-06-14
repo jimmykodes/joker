@@ -14,5 +14,6 @@ const (
 	ArrayType
 	ReturnType
 	ContinueType
+	BreakType
 	ErrorType
 )

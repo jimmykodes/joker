@@ -29,6 +29,13 @@ type Continue struct {
 func (c *Continue) Type() Type      { return ContinueType }
 func (c *Continue) Inspect() string { return "continue" }
 
+type Break struct {
+	baseObject
+}
+
+func (b *Break) Type() Type      { return BreakType }
+func (b *Break) Inspect() string { return "break" }
+
 type Return struct {
 	baseObject
 	Value Object
