@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jimmykodes/jk/object"
@@ -12,16 +13,13 @@ var builtins = map[string]*object.Builtin{
 			if len(args) != 1 {
 				return newError("invalid number of args, got %d - want 1", len(args))
 			}
-			var v int64
-			switch a := args[0].(type) {
-			case *object.String:
-				v = int64(len(a.Value))
-			case *object.Array:
-				v = int64(len(a.Elements))
-			default:
-				return newError("cannot call len() on %s", a.Type())
+			l, err := args[0].Len()
+			if errors.Is(err, object.ErrUnsupportedOperation) {
+				return newError("len() not supported on %s", args[0].Type())
+			} else if err != nil {
+				return newError(err.Error())
 			}
-			return &object.Integer{Value: v}
+			return l
 		},
 	},
 	"print": {

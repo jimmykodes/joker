@@ -12,6 +12,10 @@ type String struct {
 func (s *String) Type() Type      { return StringType }
 func (s *String) Inspect() string { return `"` + s.Value + `"` }
 
+func (s *String) Len() (*Integer, error) {
+	return &Integer{Value: int64(len(s.Value))}, nil
+}
+
 func (s *String) Add(obj Object) (Object, error) {
 	if o, ok := obj.(*String); ok {
 		return &String{Value: s.Value + o.Value}, nil

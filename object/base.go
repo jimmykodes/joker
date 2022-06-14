@@ -7,6 +7,7 @@ type Object interface {
 	Bool() (bool, error)
 	Bang() (Object, error)
 	Negative() (Object, error)
+	Len() (*Integer, error)
 
 	Add(Object) (Object, error)
 	Minus(Object) (Object, error)
@@ -27,15 +28,15 @@ type baseObject struct{}
 func (b *baseObject) Bool() (bool, error) {
 	return false, ErrUnsupportedOperation
 }
-
 func (b *baseObject) Bang() (Object, error) {
 	return nil, ErrUnsupportedOperation
 }
-
 func (b *baseObject) Negative() (Object, error) {
 	return nil, ErrUnsupportedOperation
 }
-
+func (b *baseObject) Len() (*Integer, error) {
+	return nil, ErrUnsupportedOperation
+}
 func (b *baseObject) Add(Object) (Object, error) {
 	return nil, ErrUnsupportedOperation
 }
