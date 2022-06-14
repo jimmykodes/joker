@@ -11,7 +11,6 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stmt := &ast.LetStatement{Token: p.curToken}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Ident)) {
-		fmt.Println("parse error at ident")
 		p.errors = append(p.errors, invalidToken(token.Ident, p.peekToken.Type))
 		return nil
 	}
@@ -19,7 +18,6 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
-		fmt.Println("parse error at assign")
 		p.errors = append(p.errors, invalidToken(token.Assign, p.peekToken.Type))
 		return nil
 	}

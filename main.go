@@ -32,5 +32,8 @@ func main() {
 		prog := p.ParseProgram()
 		env := object.NewEnvironment()
 		evaluator.Eval(prog, env)
+		for _, e := range p.Errors() {
+			fmt.Println(e)
+		}
 	}
 }
