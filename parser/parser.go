@@ -81,6 +81,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.Return:
 		return p.parseReturnStatement()
+	case token.Continue:
+		return p.parseContinueStatement()
 	case token.Ident:
 		if p.peekTokenIs(token.Assign) {
 			return p.parseReassignStatement()

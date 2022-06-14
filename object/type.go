@@ -13,5 +13,6 @@ const (
 	BuiltinType
 	ArrayType
 	ReturnType
+	ContinueType
 	ErrorType
 )

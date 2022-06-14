@@ -22,6 +22,13 @@ func (n *Null) Bool() (bool, error) {
 	return false, nil
 }
 
+type Continue struct {
+	baseObject
+}
+
+func (c *Continue) Type() Type      { return ContinueType }
+func (c *Continue) Inspect() string { return "continue" }
+
 type Return struct {
 	baseObject
 	Value Object

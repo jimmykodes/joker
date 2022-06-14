@@ -40,6 +40,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return r
 		}
 		return &object.Return{Value: r}
+	case *ast.ContinueStatement:
+		return &object.Continue{}
 	case *ast.ExpressionStatement:
 		return Eval(n.Expression, env)
 	case *ast.PrefixExpression:
@@ -195,7 +197,7 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 	var res object.Object
 	for _, statement := range block.Statements {
 		res = Eval(statement, env)
-		if res.Type() == object.ReturnType || res.Type() == object.ErrorType {
+		if res.Type() == object.ReturnType || res.Type() == object.ErrorType || res.Type() == object.ContinueType {
 			return res
 		}
 	}

@@ -55,6 +55,14 @@ func (rs *ReturnStatement) String() string {
 	return sb.String()
 }
 
+type ContinueStatement struct {
+	Token token.Token
+}
+
+func (c *ContinueStatement) statementNode()       {}
+func (c *ContinueStatement) TokenLiteral() string { return c.Token.Literal }
+func (c *ContinueStatement) String() string       { return "continue" }
+
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression
