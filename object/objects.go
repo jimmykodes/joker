@@ -1,7 +1,6 @@
 package object
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -9,11 +8,64 @@ import (
 )
 
 var (
-	ErrUnsupportedOperation = errors.New("unsupported operation")
-	ErrUnsupportedType      = errors.New("unsupported type for operation")
+	ErrUnsupportedType = &Error{Message: "unsupported type for operation"}
 )
 
-type Null struct{ baseObject }
+type Object interface {
+	Type() Type
+	Inspect() string
+}
+
+type Hashable interface {
+	HashKey() HashKey
+}
+
+type Adder interface {
+	Add(Object) Object
+}
+
+type Subber interface {
+	Sub(Object) Object
+}
+
+type MultDiver interface {
+	Mult(Object) Object
+	Div(Object) Object
+}
+
+type Modder interface {
+	Mod(Object) Object
+}
+
+type Lenner interface {
+	Len() *Integer
+}
+
+type Inequality interface {
+	LT(Object) Object
+	LTE(Object) Object
+	GT(Object) Object
+	GTE(Object) Object
+}
+
+type Equal interface {
+	EQ(Object) Object
+	NEQ(Object) Object
+}
+
+type Indexer interface {
+	Idx(Object) Object
+}
+
+type Booler interface {
+	Bool() *Boolean
+}
+
+type Negater interface {
+	Negative() Object
+}
+
+type Null struct{}
 
 func (n *Null) Type() Type      { return NullType }
 func (n *Null) Inspect() string { return "null" }
@@ -22,22 +74,17 @@ func (n *Null) Bool() (*Boolean, error) {
 	return False, nil
 }
 
-type Continue struct {
-	baseObject
-}
+type Continue struct{}
 
 func (c *Continue) Type() Type      { return ContinueType }
 func (c *Continue) Inspect() string { return "continue" }
 
-type Break struct {
-	baseObject
-}
+type Break struct{}
 
 func (b *Break) Type() Type      { return BreakType }
 func (b *Break) Inspect() string { return "break" }
 
 type Return struct {
-	baseObject
 	Value Object
 }
 
@@ -45,15 +92,14 @@ func (r *Return) Type() Type      { return ReturnType }
 func (r *Return) Inspect() string { return r.Value.Inspect() }
 
 type Error struct {
-	baseObject
 	Message string
 }
 
 func (e *Error) Type() Type      { return ErrorType }
 func (e *Error) Inspect() string { return e.Message }
+func (e *Error) Error() string   { return e.Message }
 
 type Function struct {
-	baseObject
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
@@ -73,7 +119,6 @@ func (f *Function) Inspect() string {
 type BuiltinFunction func(args ...Object) Object
 
 type Builtin struct {
-	baseObject
 	Fn BuiltinFunction
 }
 

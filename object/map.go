@@ -16,7 +16,6 @@ type HashPair struct {
 }
 
 type Map struct {
-	baseObject
 	Pairs map[HashKey]HashPair
 }
 
@@ -28,15 +27,16 @@ func (m *Map) Inspect() string {
 	}
 	return fmt.Sprintf("{%s}", strings.Join(pairs, ", "))
 }
-func (m *Map) Idx(obj Object) (Object, error) {
-	hk, err := obj.HashKey()
-	if err != nil {
-		return nil, err
-	}
-	p, ok := m.Pairs[*hk]
-	if !ok {
-		return nil, fmt.Errorf("key not present")
-	}
 
-	return p.Value, nil
+func (m *Map) Idx(obj Object) Object {
+	hashable, ok := obj.(Hashable)
+	if !ok {
+		return ErrUnsupportedType
+	}
+	hk := hashable.HashKey()
+	p, ok := m.Pairs[hk]
+	if !ok {
+		return &Error{Message: "key not present"}
+	}
+	return p.Value
 }

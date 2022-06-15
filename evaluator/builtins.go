@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jimmykodes/jk/object"
@@ -13,13 +12,11 @@ var builtins = map[string]*object.Builtin{
 			if len(args) != 1 {
 				return newError("invalid number of args, got %d - want 1", len(args))
 			}
-			l, err := args[0].Len()
-			if errors.Is(err, object.ErrUnsupportedOperation) {
+			l, ok := args[0].(object.Lenner)
+			if !ok {
 				return newError("len() not supported on %s", args[0].Type())
-			} else if err != nil {
-				return newError(err.Error())
 			}
-			return l
+			return l.Len()
 		},
 	},
 	"print": {

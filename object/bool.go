@@ -10,24 +10,27 @@ var (
 )
 
 type Boolean struct {
-	baseObject
 	Value bool
 }
 
 func (b *Boolean) Type() Type      { return BoolType }
 func (b *Boolean) Inspect() string { return strconv.FormatBool(b.Value) }
 
-func (b *Boolean) Bool() (*Boolean, error) {
-	if b.Value {
-		return True, nil
-	}
-	return False, nil
+func (b *Boolean) Bool() *Boolean {
+	return b
 }
 
-func (b *Boolean) HashKey() (*HashKey, error) {
-	h := &HashKey{Type: BoolType}
+func (b *Boolean) Invert() *Boolean {
+	if b == True {
+		return False
+	}
+	return True
+}
+
+func (b *Boolean) HashKey() HashKey {
+	h := HashKey{Type: BoolType}
 	if b.Value {
 		h.Value = 1
 	}
-	return h, nil
+	return h
 }

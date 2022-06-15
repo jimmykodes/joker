@@ -1,117 +1,121 @@
 package object
 
 import (
+	"fmt"
 	"hash/fnv"
 	"strings"
 )
 
 type String struct {
-	baseObject
 	Value string
 }
 
 func (s *String) Type() Type      { return StringType }
 func (s *String) Inspect() string { return `"` + s.Value + `"` }
 
-func (s *String) Bool() (*Boolean, error) {
+func (s *String) Bool() *Boolean {
 	if s.Value != "" {
-		return True, nil
+		return True
 	}
-	return False, nil
+	return False
 }
 
-func (s *String) Len() (*Integer, error) {
-	return &Integer{Value: int64(len(s.Value))}, nil
+func (s *String) Len() *Integer {
+	return &Integer{Value: int64(len(s.Value))}
 }
 
-func (s *String) HashKey() (*HashKey, error) {
+func (s *String) HashKey() HashKey {
 	h := fnv.New64a()
 	h.Write([]byte(s.Value))
-	return &HashKey{
+	return HashKey{
 		Type:  StringType,
 		Value: h.Sum64(),
-	}, nil
-}
-
-func (s *String) Add(obj Object) (Object, error) {
-	if o, ok := obj.(*String); ok {
-		return &String{Value: s.Value + o.Value}, nil
 	}
-	return nil, ErrUnsupportedType
 }
 
-func (s *String) Mult(obj Object) (Object, error) {
+func (s *String) Add(obj Object) Object {
+	if o, ok := obj.(*String); ok {
+		return &String{Value: s.Value + o.Value}
+	}
+	return ErrUnsupportedType
+}
+
+func (s *String) Mult(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
-		return &String{Value: strings.Repeat(s.Value, int(o.Value))}, nil
+		return &String{Value: strings.Repeat(s.Value, int(o.Value))}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 }
 
-func (s *String) LT(obj Object) (Object, error) {
+func (s *String) LT(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value < o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) GT(obj Object) (Object, error) {
+func (s *String) GT(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value > o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) LTE(obj Object) (Object, error) {
+func (s *String) LTE(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value <= o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) GTE(obj Object) (Object, error) {
+func (s *String) GTE(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value >= o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) EQ(obj Object) (Object, error) {
+func (s *String) EQ(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value == o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) NEQ(obj Object) (Object, error) {
+func (s *String) NEQ(obj Object) Object {
 	if o, ok := obj.(*String); ok {
 		if s.Value != o.Value {
-			return True, nil
+			return True
 		}
-		return False, nil
+		return False
 	}
-	return nil, ErrUnsupportedType
+	return ErrUnsupportedType
 }
 
-func (s *String) Idx(obj Object) (Object, error) {
-	if o, ok := obj.(*Integer); ok {
-		return &String{Value: string(s.Value[int(o.Value)])}, nil
+func (s *String) Idx(obj Object) Object {
+	o, ok := obj.(*Integer)
+	if !ok {
+		return ErrUnsupportedType
 	}
-	return nil, ErrUnsupportedType
+	if o.Value >= int64(len(s.Value)) {
+		return &Error{Message: fmt.Sprintf("index out of range [%d] with length %d", o.Value, len(s.Value))}
+	}
+	return &String{Value: string(s.Value[int(o.Value)])}
 }

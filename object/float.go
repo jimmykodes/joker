@@ -6,161 +6,163 @@ import (
 )
 
 type Float struct {
-	baseObject
 	Value float64
 }
 
 func (f *Float) Type() Type      { return FloatType }
 func (f *Float) Inspect() string { return fmt.Sprintf("%f", f.Value) }
 
-func (f *Float) Bool() (*Boolean, error) {
+func (f *Float) Bool() *Boolean {
 	if f.Value != 0 {
-		return True, nil
+		return True
 	}
-	return False, nil
+	return False
 }
 
-func (f *Float) HashKey() (*HashKey, error) {
-	return &HashKey{Type: FloatType, Value: math.Float64bits(f.Value)}, nil
+func (f *Float) HashKey() HashKey {
+	return HashKey{Type: FloatType, Value: math.Float64bits(f.Value)}
 }
+
 func (f *Float) Negative() (Object, error) {
 	return &Float{Value: -f.Value}, nil
 }
 
-func (f *Float) Add(obj Object) (Object, error) {
+func (f *Float) Add(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
-		return &Float{Value: f.Value + float64(o.Value)}, nil
+		return &Float{Value: f.Value + float64(o.Value)}
 	case *Float:
-		return &Float{Value: f.Value + o.Value}, nil
+		return &Float{Value: f.Value + o.Value}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 }
 
-func (f *Float) Minus(obj Object) (Object, error) {
+func (f *Float) Sub(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
-		return &Float{Value: f.Value - float64(o.Value)}, nil
+		return &Float{Value: f.Value - float64(o.Value)}
 	case *Float:
-		return &Float{Value: f.Value - o.Value}, nil
+		return &Float{Value: f.Value - o.Value}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 }
 
-func (f *Float) Mult(obj Object) (Object, error) {
+func (f *Float) Mult(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
-		return &Float{Value: f.Value * float64(o.Value)}, nil
+		return &Float{Value: f.Value * float64(o.Value)}
 	case *Float:
-		return &Float{Value: f.Value * o.Value}, nil
+		return &Float{Value: f.Value * o.Value}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 }
 
-func (f *Float) Div(obj Object) (Object, error) {
+func (f *Float) Div(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
-		return &Float{Value: f.Value / float64(o.Value)}, nil
+		return &Float{Value: f.Value / float64(o.Value)}
 	case *Float:
-		return &Float{Value: f.Value / o.Value}, nil
+		return &Float{Value: f.Value / o.Value}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 }
 
-func (f *Float) LT(obj Object) (Object, error) {
+func (f *Float) LT(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
 		if f.Value < float64(o.Value) {
-			return True, nil
+			return True
 		}
 	case *Float:
 		if f.Value < o.Value {
-			return True, nil
+			return True
 		}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
-	return False, nil
+	return False
 }
 
-func (f *Float) GT(obj Object) (Object, error) {
-	switch o := obj.(type) {
-	case *Integer:
-		if f.Value > float64(o.Value) {
-			return True, nil
-		}
-	case *Float:
-		if f.Value > o.Value {
-			return True, nil
-		}
-	default:
-		return nil, ErrUnsupportedType
-	}
-	return False, nil
-}
-func (f *Float) LTE(obj Object) (Object, error) {
+func (f *Float) LTE(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
 		if f.Value <= float64(o.Value) {
-			return True, nil
+			return True
 		}
 	case *Float:
 		if f.Value <= o.Value {
-			return True, nil
+			return True
 		}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
-	return False, nil
+	return False
 }
-func (f *Float) GTE(obj Object) (Object, error) {
+
+func (f *Float) GT(obj Object) Object {
+	switch o := obj.(type) {
+	case *Integer:
+		if f.Value > float64(o.Value) {
+			return True
+		}
+	case *Float:
+		if f.Value > o.Value {
+			return True
+		}
+	default:
+		return ErrUnsupportedType
+	}
+	return False
+}
+
+func (f *Float) GTE(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
 		if f.Value >= float64(o.Value) {
-			return True, nil
+			return True
 		}
 	case *Float:
 		if f.Value >= o.Value {
-			return True, nil
+			return True
 		}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
-	return False, nil
+	return False
 }
 
-func (f *Float) EQ(obj Object) (Object, error) {
+func (f *Float) EQ(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
 		if f.Value == float64(o.Value) {
-			return True, nil
+			return True
 		}
 	case *Float:
 		if f.Value == o.Value {
-			return True, nil
+			return True
 		}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
-	return False, nil
+	return False
 }
 
-func (f *Float) NEQ(obj Object) (Object, error) {
+func (f *Float) NEQ(obj Object) Object {
 	switch o := obj.(type) {
 	case *Integer:
 		if f.Value != float64(o.Value) {
-			return True, nil
+			return True
 		}
 	case *Float:
 		if f.Value != o.Value {
-			return True, nil
+			return True
 		}
 	default:
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
-	return False, nil
+	return False
 }

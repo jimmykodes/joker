@@ -6,7 +6,6 @@ import (
 )
 
 type Array struct {
-	baseObject
 	Elements []Object
 }
 
@@ -19,17 +18,17 @@ func (a *Array) Inspect() string {
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
 }
 
-func (a *Array) Len() (*Integer, error) {
-	return &Integer{Value: int64(len(a.Elements))}, nil
+func (a *Array) Len() *Integer {
+	return &Integer{Value: int64(len(a.Elements))}
 }
 
-func (a *Array) Idx(obj Object) (Object, error) {
+func (a *Array) Idx(obj Object) Object {
 	o, ok := obj.(*Integer)
 	if !ok {
-		return nil, ErrUnsupportedType
+		return ErrUnsupportedType
 	}
 	if o.Value >= int64(len(a.Elements)) {
-		return nil, fmt.Errorf("index out of range [%d] with length %d", o.Value, len(a.Elements))
+		return &Error{Message: fmt.Sprintf("index out of range [%d] with length %d", o.Value, len(a.Elements))}
 	}
-	return a.Elements[o.Value], nil
+	return a.Elements[o.Value]
 }

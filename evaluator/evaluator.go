@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jimmykodes/jk/ast"
@@ -150,15 +149,11 @@ func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Objec
 	if isError(i) {
 		return i
 	}
-	o, err := left.Idx(i)
-	if errors.Is(err, object.ErrUnsupportedType) {
-		return newError("cannot index %s with type %s", left.Type(), i.Type())
-	} else if errors.Is(err, object.ErrUnsupportedOperation) {
-		return newError("cannot index object of type %s", left.Type())
-	} else if err != nil {
-		return newError(err.Error())
+	l, ok := left.(object.Indexer)
+	if !ok {
+		return object.ErrUnsupportedType
 	}
-	return o
+	return l.Idx(i)
 }
 
 func evalMap(m *ast.MapLiteral, env *object.Environment) object.Object {
@@ -168,16 +163,15 @@ func evalMap(m *ast.MapLiteral, env *object.Environment) object.Object {
 		if isError(kv) {
 			return kv
 		}
-		kh, err := kv.HashKey()
-		if err != nil {
-			return newError(err.Error())
+		hashable, ok := kv.(object.Hashable)
+		if !ok {
+			return newError("cannot use %s as map key", kv.Type())
 		}
-
 		vv := Eval(v, env)
 		if isError(vv) {
 			return vv
 		}
-		pairs[*kh] = object.HashPair{Key: kv, Value: vv}
+		pairs[hashable.HashKey()] = object.HashPair{Key: kv, Value: vv}
 	}
 	return &object.Map{Pairs: pairs}
 }
@@ -233,74 +227,99 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 }
 
 func evalPrefix(operator string, right object.Object) object.Object {
-	var (
-		o   object.Object
-		err error
-	)
 	switch operator {
 	case "!":
-		o, err = evalBang(right)
+		return evalBang(right)
 	case "-":
-		o, err = right.Negative()
+		r, ok := right.(object.Negater)
+		if !ok {
+			return newError("unknown operator (%s) on %s", operator, right.Type())
+		}
+		return r.Negative()
 	default:
 		return newError("unknown operator %s%s", operator, right.Type())
 	}
-	if errors.Is(err, object.ErrUnsupportedOperation) {
-		return newError("unsupported operation (%s) on type %s", operator, right.Type())
-	} else if err != nil {
-		return newError(err.Error())
-	}
-	return o
 }
 
 func evalInfix(operator string, left, right object.Object) object.Object {
-	var (
-		r   object.Object
-		err error
-	)
 	switch operator {
 	case "+":
-		r, err = left.Add(right)
+		l, ok := left.(object.Adder)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.Add(right)
 	case "-":
-		r, err = left.Minus(right)
+		l, ok := left.(object.Subber)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.Sub(right)
 	case "*":
-		r, err = left.Mult(right)
+		l, ok := left.(object.MultDiver)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.Mult(right)
 	case "/":
-		r, err = left.Div(right)
+		l, ok := left.(object.MultDiver)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.Div(right)
 	case "%":
-		r, err = left.Mod(right)
+		l, ok := left.(object.Modder)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.Mod(right)
 	case "<":
-		r, err = left.LT(right)
+		l, ok := left.(object.Inequality)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.LT(right)
 	case ">":
-		r, err = left.GT(right)
+		l, ok := left.(object.Inequality)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.GT(right)
 	case "<=":
-		r, err = left.LTE(right)
+		l, ok := left.(object.Inequality)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.LTE(right)
 	case ">=":
-		r, err = left.GTE(right)
+		l, ok := left.(object.Inequality)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.GTE(right)
 	case "==":
-		r, err = left.EQ(right)
+		l, ok := left.(object.Equal)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.EQ(right)
 	case "!=":
-		r, err = left.NEQ(right)
+		l, ok := left.(object.Equal)
+		if !ok {
+			return newError("unsupported operation (%s) on %s", operator, left.Type())
+		}
+		return l.NEQ(right)
 	default:
 		return newError("unknown operator %s %s %s", left.Type(), operator, right.Type())
 	}
-	if errors.Is(err, object.ErrUnsupportedOperation) {
-		return newError("unsupported operation (%s) on %s", operator, left.Type())
-	} else if errors.Is(err, object.ErrUnsupportedType) {
-		return newError("unsupported operation (%s) between %s and %s", operator, left.Type(), right.Type())
-	} else if err != nil {
-		return newError(err.Error())
-	}
-	return r
-
 }
 
-func evalBang(obj object.Object) (object.Object, error) {
-	b, err := obj.Bool()
-	if err != nil {
-		return nil, err
+func evalBang(obj object.Object) object.Object {
+	b, ok := obj.(object.Booler)
+	if !ok {
+		return newError("unknown operator (!) on %s", obj.Type())
 	}
-	return toBoolObject(!b.Value), nil
+	return b.Bool().Invert()
 }
 
 func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
@@ -308,14 +327,11 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 	if isError(condition) {
 		return condition
 	}
-
-	b, err := condition.Bool()
-	if errors.Is(err, object.ErrUnsupportedOperation) {
+	b, ok := condition.(object.Booler)
+	if !ok {
 		return newError("cannot implicitly convert %s to bool", condition.Type())
-	} else if err != nil {
-		return newError(err.Error())
 	}
-	if b == object.True {
+	if b.Bool() == object.True {
 		return Eval(n.Consequence, env)
 	}
 	if n.Alternative != nil {
@@ -331,13 +347,11 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 		if isError(condition) {
 			return condition
 		}
-		b, err := condition.Bool()
-		if errors.Is(err, object.ErrUnsupportedOperation) {
+		b, ok := condition.(object.Booler)
+		if !ok {
 			return newError("cannot implicitly convert %s to bool", condition.Type())
-		} else if err != nil {
-			return newError(err.Error())
 		}
-		if b == object.False {
+		if b.Bool() == object.False {
 			return res
 		}
 		res = Eval(n.Body, env)
