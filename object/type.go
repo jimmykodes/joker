@@ -12,6 +12,7 @@ const (
 	FunctionType
 	BuiltinType
 	ArrayType
+	MapType
 	ReturnType
 	ContinueType
 	BreakType

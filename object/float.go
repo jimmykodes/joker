@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"math"
 )
 
 type Float struct {
@@ -17,6 +18,10 @@ func (f *Float) Bool() (*Boolean, error) {
 		return True, nil
 	}
 	return False, nil
+}
+
+func (f *Float) HashKey() (*HashKey, error) {
+	return &HashKey{Type: FloatType, Value: math.Float64bits(f.Value)}, nil
 }
 func (f *Float) Negative() (Object, error) {
 	return &Float{Value: -f.Value}, nil

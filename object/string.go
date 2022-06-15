@@ -1,6 +1,7 @@
 package object
 
 import (
+	"hash/fnv"
 	"strings"
 )
 
@@ -21,6 +22,15 @@ func (s *String) Bool() (*Boolean, error) {
 
 func (s *String) Len() (*Integer, error) {
 	return &Integer{Value: int64(len(s.Value))}, nil
+}
+
+func (s *String) HashKey() (*HashKey, error) {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+	return &HashKey{
+		Type:  StringType,
+		Value: h.Sum64(),
+	}, nil
 }
 
 func (s *String) Add(obj Object) (Object, error) {

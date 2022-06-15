@@ -16,15 +16,16 @@ func _() {
 	_ = x[FunctionType-5]
 	_ = x[BuiltinType-6]
 	_ = x[ArrayType-7]
-	_ = x[ReturnType-8]
-	_ = x[ContinueType-9]
-	_ = x[BreakType-10]
-	_ = x[ErrorType-11]
+	_ = x[MapType-8]
+	_ = x[ReturnType-9]
+	_ = x[ContinueType-10]
+	_ = x[BreakType-11]
+	_ = x[ErrorType-12]
 }
 
-const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeBuiltinTypeArrayTypeReturnTypeContinueTypeBreakTypeErrorType"
+const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeBuiltinTypeArrayTypeMapTypeReturnTypeContinueTypeBreakTypeErrorType"
 
-var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 69, 78, 88, 100, 109, 118}
+var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 69, 78, 85, 95, 107, 116, 125}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

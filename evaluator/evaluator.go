@@ -96,6 +96,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			elems[i] = Eval(element, env)
 		}
 		return &object.Array{Elements: elems}
+	case *ast.MapLiteral:
+		return evalMap(n, env)
 	default:
 		return newError("invalid node type: %T", node)
 	}
@@ -157,6 +159,27 @@ func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Objec
 		return newError(err.Error())
 	}
 	return o
+}
+
+func evalMap(m *ast.MapLiteral, env *object.Environment) object.Object {
+	pairs := make(map[object.HashKey]object.HashPair)
+	for k, v := range m.Pairs {
+		kv := Eval(k, env)
+		if isError(kv) {
+			return kv
+		}
+		kh, err := kv.HashKey()
+		if err != nil {
+			return newError(err.Error())
+		}
+
+		vv := Eval(v, env)
+		if isError(vv) {
+			return vv
+		}
+		pairs[*kh] = object.HashPair{Key: kv, Value: vv}
+	}
+	return &object.Map{Pairs: pairs}
 }
 
 func evalIdent(ident *ast.Identifier, env *object.Environment) object.Object {

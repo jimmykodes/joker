@@ -61,6 +61,26 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	a.Elements = p.parseExpressionList(token.RBrack)
 	return a
 }
+func (p *Parser) parseHashLiteral() ast.Expression {
+	h := &ast.MapLiteral{Token: p.curToken, Pairs: make(map[ast.Expression]ast.Expression)}
+	for !p.peekTokenIs(token.RBrace) {
+		p.nextToken()
+		key := p.parseExpression(Lowest)
+		if !p.assertAndAdvance(p.peekTokenIs(token.Colon)) {
+			p.errors = append(p.errors, fmt.Errorf("missing required ':'"))
+			return nil
+		}
+		p.nextToken()
+		val := p.parseExpression(Lowest)
+		h.Pairs[key] = val
+		if !p.peekTokenIs(token.RBrace, token.Comma) {
+			p.errors = append(p.errors, fmt.Errorf("missing required ',' or '}'"))
+			return nil
+		}
+	}
+	p.nextToken()
+	return h
+}
 
 func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 	var list []ast.Expression

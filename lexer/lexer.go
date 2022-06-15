@@ -78,6 +78,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newFixedToken(token.Comma)
 	case ';':
 		tok = newFixedToken(token.SemiCol)
+	case ':':
+		tok = newFixedToken(token.Colon)
 	case '"':
 		l.readChar()
 		tok.Literal = l.readMultiple(func(b byte) bool { return b != '"' })

@@ -49,9 +49,10 @@ const (
 	Div    // /
 	Mod    // %
 
-	QUOTE   // "
+	Quote   // "
 	Comma   // ,
 	SemiCol // ;
+	Colon   // :
 )
 
 var tokens = [...]string{
@@ -91,9 +92,10 @@ var tokens = [...]string{
 	Mult:     "*",
 	Div:      "/",
 	Mod:      "%",
-	QUOTE:    `"`,
+	Quote:    `"`,
 	Comma:    ",",
 	SemiCol:  ";",
+	Colon:    ":",
 }
 
 func (t Type) String() string {

@@ -31,6 +31,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.Float:  p.parseFloatLiteral,
 		token.String: p.parseStringLiteral,
 		token.LBrack: p.parseArrayLiteral,
+		token.LBrace: p.parseHashLiteral,
 		token.True:   p.parseBoolean,
 		token.False:  p.parseBoolean,
 		token.LParen: p.parseGroupedExpression,

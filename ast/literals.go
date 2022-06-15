@@ -82,3 +82,25 @@ func (a *ArrayLiteral) String() string {
 	sb.WriteString("]")
 	return sb.String()
 }
+
+type MapLiteral struct {
+	Token token.Token
+	Pairs map[Expression]Expression
+}
+
+func (m *MapLiteral) expressionNode()      {}
+func (m *MapLiteral) TokenLiteral() string { return m.Token.Literal }
+func (m *MapLiteral) String() string {
+	var sb strings.Builder
+	sb.WriteString("{")
+	var final bool
+	for key, val := range m.Pairs {
+		final = true
+		fmt.Fprintf(&sb, "\n\t%s: %s,", key, val)
+	}
+	if final {
+		sb.WriteString("\n")
+	}
+	sb.WriteString("}")
+	return sb.String()
+}

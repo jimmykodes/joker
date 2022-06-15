@@ -6,6 +6,7 @@ type Object interface {
 
 	Negative() (Object, error)
 	Bool() (*Boolean, error)
+	HashKey() (*HashKey, error)
 	Len() (*Integer, error)
 
 	Add(Object) (Object, error)
@@ -28,6 +29,9 @@ func (b *baseObject) Bool() (*Boolean, error) {
 	return nil, ErrUnsupportedOperation
 }
 func (b *baseObject) Negative() (Object, error) {
+	return nil, ErrUnsupportedOperation
+}
+func (b *baseObject) HashKey() (*HashKey, error) {
 	return nil, ErrUnsupportedOperation
 }
 func (b *baseObject) Len() (*Integer, error) {

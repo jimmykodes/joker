@@ -23,3 +23,11 @@ func (b *Boolean) Bool() (*Boolean, error) {
 	}
 	return False, nil
 }
+
+func (b *Boolean) HashKey() (*HashKey, error) {
+	h := &HashKey{Type: BoolType}
+	if b.Value {
+		h.Value = 1
+	}
+	return h, nil
+}

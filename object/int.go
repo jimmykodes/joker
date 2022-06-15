@@ -23,6 +23,10 @@ func (i *Integer) Negative() (Object, error) {
 	return &Integer{Value: -i.Value}, nil
 }
 
+func (i *Integer) HashKey() (*HashKey, error) {
+	return &HashKey{Type: IntegerType, Value: uint64(i.Value)}, nil
+}
+
 func (i *Integer) Add(obj Object) (Object, error) {
 	switch o := obj.(type) {
 	case *Integer:
