@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/jimmykodes/jk/ast"
@@ -31,7 +30,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 	exp := p.parseExpression(Lowest)
 	if !p.assertAndAdvance(p.peekTokenIs(token.RParen)) {
-		p.errors = append(p.errors, fmt.Errorf("missing expected closing paren"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.RParen, p.peekToken.Type))
 		return nil
 	}
 	return exp
@@ -67,14 +66,20 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		p.nextToken()
 		key := p.parseExpression(Lowest)
 		if !p.assertAndAdvance(p.peekTokenIs(token.Colon)) {
-			p.errors = append(p.errors, fmt.Errorf("missing required ':'"))
+			p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.Colon, p.peekToken.Type))
 			return nil
 		}
 		p.nextToken()
 		val := p.parseExpression(Lowest)
 		h.Pairs[key] = val
 		if !p.peekTokenIs(token.RBrace, token.Comma) {
-			p.errors = append(p.errors, fmt.Errorf("missing required ',' or '}'"))
+			p.errors = append(p.errors, newParseError(
+				p.curToken.Line,
+				"invalid token. expected: %s or %s - got: %s",
+				token.Comma,
+				token.RBrace,
+				p.peekToken.Type,
+			))
 			return nil
 		}
 	}
@@ -95,7 +100,7 @@ func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 		list = append(list, p.parseExpression(Lowest))
 	}
 	if !p.assertAndAdvance(p.peekTokenIs(end)) {
-		p.errors = append(p.errors, fmt.Errorf("missing end token"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, end, p.peekToken.Type))
 		return nil
 	}
 	return list
@@ -131,7 +136,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	p.nextToken()
 	exp.Condition = p.parseExpression(Lowest)
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
-		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.LBrace, p.peekToken.Type))
 		return nil
 	}
 	exp.Consequence = p.parseBlockStatement()
@@ -142,7 +147,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
-		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.LBrace, p.peekToken.Type))
 		return nil
 	}
 
@@ -156,7 +161,7 @@ func (p *Parser) parseWhileExpression() ast.Expression {
 	p.nextToken()
 	exp.Condition = p.parseExpression(Lowest)
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
-		p.errors = append(p.errors, fmt.Errorf("missing expected bracket"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.LBrace, p.peekToken.Type))
 		return nil
 	}
 	exp.Body = p.parseBlockStatement()
@@ -166,7 +171,7 @@ func (p *Parser) parseWhileExpression() ast.Expression {
 func (p *Parser) parseFuncExpression() ast.Expression {
 	exp := &ast.FunctionLiteral{Token: p.curToken}
 	if !p.assertAndAdvance(p.peekTokenIs(token.LParen)) {
-		p.errors = append(p.errors, fmt.Errorf("missing required left paren"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.LParen, p.peekToken.Type))
 		return nil
 	}
 
@@ -175,14 +180,14 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 	for i, param := range params {
 		cast, ok := param.(*ast.Identifier)
 		if !ok {
-			p.errors = append(p.errors, fmt.Errorf("invalid type for func param. got %T - want %T", param, &ast.Identifier{}))
+			p.errors = append(p.errors, newParseError(p.curToken.Line, "invalid type for func param. got %T - want %T", param, &ast.Identifier{}))
 			return nil
 		}
 		exp.Parameters[i] = cast
 	}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.LBrace)) {
-		p.errors = append(p.errors, fmt.Errorf("missing required left brace"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.LBrace, p.peekToken.Type))
 		return nil
 	}
 
@@ -204,7 +209,7 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 	p.nextToken()
 	e.Index = p.parseExpression(Lowest)
 	if !p.assertAndAdvance(p.peekTokenIs(token.RBrack)) {
-		p.errors = append(p.errors, fmt.Errorf("missing closing bracket"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.RBrack, p.peekToken.Type))
 		return nil
 	}
 	return e

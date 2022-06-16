@@ -5,7 +5,7 @@ import (
 )
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input}
+	l := &Lexer{input: input, lineNum: 1}
 	l.readChar()
 	return l
 }
@@ -14,6 +14,7 @@ type Lexer struct {
 	input        string
 	position     int
 	readPosition int
+	lineNum      int
 	ch           byte
 }
 
@@ -27,75 +28,78 @@ func (l *Lexer) NextToken() token.Token {
 	case '<':
 		if next := l.peekChar(); next == '=' {
 			l.advancePos()
-			tok = newFixedToken(token.LTE)
+			tok = newFixedToken(token.LTE, l.lineNum)
 		} else {
-			tok = newFixedToken(token.LT)
+			tok = newFixedToken(token.LT, l.lineNum)
 		}
 	case '>':
 		if next := l.peekChar(); next == '=' {
 			l.advancePos()
-			tok = newFixedToken(token.GTE)
+			tok = newFixedToken(token.GTE, l.lineNum)
 		} else {
-			tok = newFixedToken(token.GT)
+			tok = newFixedToken(token.GT, l.lineNum)
 		}
 	case '!':
 		if next := l.peekChar(); next == '=' {
 			l.advancePos()
-			tok = newFixedToken(token.NEQ)
+			tok = newFixedToken(token.NEQ, l.lineNum)
 		} else {
-			tok = newFixedToken(token.NOT)
+			tok = newFixedToken(token.NOT, l.lineNum)
 		}
 	case '=':
 		if next := l.peekChar(); next == '=' {
 			l.advancePos()
-			tok = newFixedToken(token.EQ)
+			tok = newFixedToken(token.EQ, l.lineNum)
 		} else {
-			tok = newFixedToken(token.Assign)
+			tok = newFixedToken(token.Assign, l.lineNum)
 		}
 	case '(':
-		tok = newFixedToken(token.LParen)
+		tok = newFixedToken(token.LParen, l.lineNum)
 	case ')':
-		tok = newFixedToken(token.RParen)
+		tok = newFixedToken(token.RParen, l.lineNum)
 	case '{':
-		tok = newFixedToken(token.LBrace)
+		tok = newFixedToken(token.LBrace, l.lineNum)
 	case '}':
-		tok = newFixedToken(token.RBrace)
+		tok = newFixedToken(token.RBrace, l.lineNum)
 	case '[':
-		tok = newFixedToken(token.LBrack)
+		tok = newFixedToken(token.LBrack, l.lineNum)
 	case ']':
-		tok = newFixedToken(token.RBrack)
+		tok = newFixedToken(token.RBrack, l.lineNum)
 	case '+':
-		tok = newFixedToken(token.Plus)
+		tok = newFixedToken(token.Plus, l.lineNum)
 	case '-':
-		tok = newFixedToken(token.Minus)
+		tok = newFixedToken(token.Minus, l.lineNum)
 	case '*':
-		tok = newFixedToken(token.Mult)
+		tok = newFixedToken(token.Mult, l.lineNum)
 	case '/':
-		tok = newFixedToken(token.Div)
+		tok = newFixedToken(token.Div, l.lineNum)
 	case '%':
-		tok = newFixedToken(token.Mod)
+		tok = newFixedToken(token.Mod, l.lineNum)
 	case ',':
-		tok = newFixedToken(token.Comma)
+		tok = newFixedToken(token.Comma, l.lineNum)
 	case ';':
-		tok = newFixedToken(token.SemiCol)
+		tok = newFixedToken(token.SemiCol, l.lineNum)
 	case ':':
-		tok = newFixedToken(token.Colon)
+		tok = newFixedToken(token.Colon, l.lineNum)
 	case '"':
 		l.readChar()
 		tok.Literal = l.readMultiple(func(b byte) bool { return b != '"' })
 		tok.Type = token.String
+		tok.Line = l.lineNum
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readMultiple(isLetter)
 			tok.Type = token.IdentType(tok.Literal)
+			tok.Line = l.lineNum
 			return tok
 		}
 		if isDigit(l.ch) {
 			tok.Literal = l.readMultiple(isDigit)
 			tok.Type = token.NumericType(tok.Literal)
+			tok.Line = l.lineNum
 			return tok
 		}
-		tok = newToken(token.Illegal, l.ch)
+		tok = newToken(token.Illegal, l.ch, l.lineNum)
 	}
 	l.readChar()
 	return tok
@@ -131,6 +135,9 @@ func (l *Lexer) readMultiple(tester func(byte) bool) string {
 
 func (l *Lexer) stripWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		if l.ch == '\n' || l.ch == '\r' {
+			l.lineNum++
+		}
 		l.readChar()
 	}
 }
@@ -143,10 +150,10 @@ func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9' || ch == '.'
 }
 
-func newToken(t token.Type, ch byte) token.Token {
-	return token.Token{Type: t, Literal: string(ch)}
+func newToken(t token.Type, ch byte, line int) token.Token {
+	return token.Token{Type: t, Literal: string(ch), Line: line}
 }
 
-func newFixedToken(t token.Type) token.Token {
-	return token.Token{Type: t, Literal: t.String()}
+func newFixedToken(t token.Type, line int) token.Token {
+	return token.Token{Type: t, Literal: t.String(), Line: line}
 }

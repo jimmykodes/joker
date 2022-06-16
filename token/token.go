@@ -7,6 +7,7 @@ import (
 type Token struct {
 	Type    Type
 	Literal string
+	Line    int
 }
 
 var keywords = map[string]Type{

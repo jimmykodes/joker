@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/jimmykodes/jk/ast"
 	"github.com/jimmykodes/jk/lexer"
 	"github.com/jimmykodes/jk/token"
@@ -101,7 +99,7 @@ func (p *Parser) parseStatement() ast.Statement {
 func (p *Parser) parseExpression(pre Precedence) ast.Expression {
 	prefix := p.prefixParseFuncs[p.curToken.Type]
 	if prefix == nil {
-		p.errors = append(p.errors, fmt.Errorf("no prefix func found for token type: %s", p.curToken.Type))
+		p.errors = append(p.errors, newParseError(p.curToken.Line, "no prefix func found for token type: %s", p.curToken.Type))
 		return nil
 	}
 

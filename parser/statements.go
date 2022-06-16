@@ -11,14 +11,14 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stmt := &ast.LetStatement{Token: p.curToken}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Ident)) {
-		p.errors = append(p.errors, invalidToken(token.Ident, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.Ident, p.peekToken.Type))
 		return nil
 	}
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
-		p.errors = append(p.errors, invalidToken(token.Assign, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.Assign, p.peekToken.Type))
 		return nil
 	}
 
@@ -27,7 +27,7 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stmt.Value = p.parseExpression(Lowest)
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.SemiCol, p.peekToken.Type))
 		return nil
 	}
 
@@ -38,7 +38,7 @@ func (p *Parser) parseFuncStatement() ast.Statement {
 	stmt := &ast.FuncStatement{Token: p.curToken}
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.Ident)) {
-		p.errors = append(p.errors, invalidToken(token.Ident, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.Ident, p.peekToken.Type))
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func (p *Parser) parseFuncStatement() ast.Statement {
 	stmt.Fn = p.parseFuncExpression().(*ast.FunctionLiteral)
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.SemiCol, p.peekToken.Type))
 		return nil
 	}
 
@@ -55,7 +55,7 @@ func (p *Parser) parseFuncStatement() ast.Statement {
 
 func (p *Parser) parseReassignStatement() ast.Statement {
 	stmt := &ast.ReassignStatement{
-		Name: &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
+		Name: &ast.Identifier{Token: p.curToken, Value: p.peekToken.Literal},
 	}
 	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
 		p.errors = append(p.errors, fmt.Errorf("identifier not followed by assignment"))
@@ -66,7 +66,7 @@ func (p *Parser) parseReassignStatement() ast.Statement {
 	stmt.Value = p.parseExpression(Lowest)
 
 	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.SemiCol, p.peekToken.Type))
 		return nil
 	}
 
@@ -76,7 +76,7 @@ func (p *Parser) parseReassignStatement() ast.Statement {
 func (p *Parser) parseContinueStatement() ast.Statement {
 	stmt := &ast.ContinueStatement{Token: p.curToken}
 	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, fmt.Errorf("missing semicolon after continue"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.SemiCol, p.peekToken.Type))
 		return nil
 	}
 	return stmt
@@ -85,7 +85,7 @@ func (p *Parser) parseContinueStatement() ast.Statement {
 func (p *Parser) parseBreakStatement() ast.Statement {
 	stmt := &ast.BreakStatement{Token: p.curToken}
 	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, fmt.Errorf("missing semicolon after break"))
+		p.errors = append(p.errors, invalidTokenError(p.curToken.Line, token.SemiCol, p.peekToken.Type))
 		return nil
 	}
 	return stmt

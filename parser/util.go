@@ -1,14 +1,8 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/jimmykodes/jk/token"
 )
-
-func invalidToken(expected, got token.Type) error {
-	return fmt.Errorf("parser: invalid token. expected: %s - got: %s", expected, got)
-}
 
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
