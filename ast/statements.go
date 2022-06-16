@@ -24,6 +24,22 @@ func (ls *LetStatement) String() string {
 	return fmt.Sprintf("%s %s = %s;\n", ls.TokenLiteral(), ls.Name.Value, ls.Value)
 }
 
+type FuncStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Fn    *FunctionLiteral
+}
+
+func (f *FuncStatement) statementNode()       {}
+func (f *FuncStatement) TokenLiteral() string { return f.Token.Literal }
+func (f *FuncStatement) String() string {
+	params := make([]string, len(f.Fn.Parameters))
+	for i, parameter := range f.Fn.Parameters {
+		params[i] = parameter.Value
+	}
+	return fmt.Sprintf("fn %s (%s) {%s};", f.Name.Value, strings.Join(params, ", "), f.Fn.Body.String())
+}
+
 type ReassignStatement struct {
 	Token token.Token
 	Name  *Identifier

@@ -90,10 +90,12 @@ func (p *Parser) parseStatement() ast.Statement {
 		if p.peekTokenIs(token.Assign) {
 			return p.parseReassignStatement()
 		}
-		fallthrough
-	default:
-		return p.parseExpressionStatement()
+	case token.Func:
+		if p.peekTokenIs(token.Ident) {
+			return p.parseFuncStatement()
+		}
 	}
+	return p.parseExpressionStatement()
 }
 
 func (p *Parser) parseExpression(pre Precedence) ast.Expression {

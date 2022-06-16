@@ -31,6 +31,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return r
 		}
 		env.Set(n.Name.Value, r)
+	case *ast.FuncStatement:
+		f := Eval(n.Fn, env)
+		if isError(f) {
+			return f
+		}
+		env.Set(n.Name.Value, f)
 	case *ast.BlockStatement:
 		return evalBlockStatements(n, env)
 	case *ast.ReturnStatement:

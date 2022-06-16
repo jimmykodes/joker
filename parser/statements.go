@@ -34,6 +34,25 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	return stmt
 }
 
+func (p *Parser) parseFuncStatement() ast.Statement {
+	stmt := &ast.FuncStatement{Token: p.curToken}
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.Ident)) {
+		p.errors = append(p.errors, invalidToken(token.Ident, p.peekToken.Type))
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.Fn = p.parseFuncExpression().(*ast.FunctionLiteral)
+
+	if !p.assertAndAdvance(p.peekTokenIs(token.SemiCol)) {
+		p.errors = append(p.errors, invalidToken(token.SemiCol, p.peekToken.Type))
+		return nil
+	}
+
+	return stmt
+}
+
 func (p *Parser) parseReassignStatement() ast.Statement {
 	stmt := &ast.ReassignStatement{
 		Name: &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
