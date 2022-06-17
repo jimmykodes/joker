@@ -55,7 +55,7 @@ func (p *Parser) parseFuncStatement() ast.Statement {
 
 func (p *Parser) parseReassignStatement() ast.Statement {
 	stmt := &ast.ReassignStatement{
-		Name: &ast.Identifier{Token: p.curToken, Value: p.peekToken.Literal},
+		Name: &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
 	}
 	if !p.assertAndAdvance(p.peekTokenIs(token.Assign)) {
 		p.errors = append(p.errors, fmt.Errorf("identifier not followed by assignment"))

@@ -98,7 +98,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.ArrayLiteral:
 		elems := make([]object.Object, len(n.Elements))
 		for i, element := range n.Elements {
-			elems[i] = Eval(element, env)
+			elem := Eval(element, env)
+			if isError(elem) {
+				return elem
+			}
+			elems[i] = elem
 		}
 		return &object.Array{Elements: elems}
 	case *ast.MapLiteral:
@@ -222,7 +226,10 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 	var res object.Object
 	for _, statement := range block.Statements {
 		res = Eval(statement, env)
-		if res.Type() == object.ReturnType || res.Type() == object.ErrorType || res.Type() == object.BreakType {
+		if isError(res) {
+			return res
+		}
+		if res.Type() == object.ReturnType || res.Type() == object.BreakType {
 			return res
 		}
 		if res.Type() == object.ContinueType {
@@ -361,6 +368,9 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 			return res
 		}
 		res = Eval(n.Body, env)
+		if isError(res) {
+			return res
+		}
 		if res.Type() == object.ReturnType || res.Type() == object.BreakType {
 			return res
 		}

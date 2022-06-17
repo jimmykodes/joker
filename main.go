@@ -31,7 +31,10 @@ func main() {
 		p := parser.New(l)
 		prog := p.ParseProgram()
 		env := object.NewEnvironment()
-		evaluator.Eval(prog, env)
+		obj := evaluator.Eval(prog, env)
+		if obj.Type() == object.ErrorType {
+			fmt.Println(obj.Inspect())
+		}
 		for _, e := range p.Errors() {
 			fmt.Println(e)
 		}
