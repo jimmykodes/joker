@@ -2,15 +2,87 @@ package evaluator
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/jimmykodes/jk/object"
 )
 
+func nArgs(n int, args []object.Object) object.Object {
+	if len(args) != n {
+		return newError("invalid number of args. got %d - want %d", len(args), n)
+	}
+	return nil
+}
+
 var builtins = map[string]*object.Builtin{
+	"int": {
+		Fn: func(args ...object.Object) object.Object {
+			if errOb := nArgs(1, args); errOb != nil {
+				return errOb
+			}
+			switch a := args[0].(type) {
+			case *object.Integer:
+				return a
+			case *object.Float:
+				return &object.Integer{Value: int64(a.Value)}
+			case *object.String:
+				i, err := strconv.ParseInt(a.Value, 10, 64)
+				if err != nil {
+					if i, err := strconv.ParseFloat(a.Value, 64); err == nil {
+						// if we got an error trying to parse it as an integer, attempt it as a float
+						// and then cast to an int.
+						return &object.Integer{Value: int64(i)}
+					}
+					return newError("invalid input")
+				}
+				return &object.Integer{Value: i}
+			default:
+				return object.ErrUnsupportedType
+			}
+		},
+	},
+	"float": {
+		Fn: func(args ...object.Object) object.Object {
+			if errOb := nArgs(1, args); errOb != nil {
+				return errOb
+			}
+			switch a := args[0].(type) {
+			case *object.Integer:
+				return &object.Float{Value: float64(a.Value)}
+			case *object.Float:
+				return a
+			case *object.String:
+				i, err := strconv.ParseFloat(a.Value, 64)
+				if err != nil {
+					return newError("invalid input")
+				}
+				return &object.Float{Value: i}
+			default:
+				return object.ErrUnsupportedType
+			}
+		},
+	},
+	"string": {
+		Fn: func(args ...object.Object) object.Object {
+			if errOb := nArgs(1, args); errOb != nil {
+				return errOb
+			}
+			switch a := args[0].(type) {
+			case *object.Integer:
+				return &object.String{Value: strconv.FormatInt(a.Value, 10)}
+			case *object.Float:
+				return &object.String{Value: fmt.Sprintf("%v", a.Value)}
+			case *object.String:
+				return a
+			default:
+				return object.ErrUnsupportedType
+			}
+		},
+	},
 	"len": {
 		Fn: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("invalid number of args, got %d - want 1", len(args))
+			if errOb := nArgs(1, args); errOb != nil {
+				return errOb
 			}
 			l, ok := args[0].(object.Lenner)
 			if !ok {
