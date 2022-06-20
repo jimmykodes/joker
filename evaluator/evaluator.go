@@ -80,7 +80,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(err) {
 			return err
 		}
-		return applyFunc(f, args)
+		return applyFunc(f, args, env)
 	case *ast.IndexExpression:
 		return evalIndex(n, env)
 	case *ast.Identifier:
@@ -128,10 +128,10 @@ func isError(o object.Object) bool {
 	return o != nil && o.Type() == object.ErrorType
 }
 
-func applyFunc(fn object.Object, args []object.Object) object.Object {
+func applyFunc(fn object.Object, args []object.Object, env *object.Environment) object.Object {
 	switch f := fn.(type) {
 	case *object.Builtin:
-		return f.Fn(args...)
+		return f.Fn(env, args...)
 	case *object.Function:
 		if len(args) != len(f.Parameters) {
 			return newError("invalid number of args. got %d - want %d", len(args), len(f.Parameters))

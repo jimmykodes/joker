@@ -16,7 +16,7 @@ func nArgs(n int, args []object.Object) object.Object {
 
 var builtins = map[string]*object.Builtin{
 	"int": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -42,7 +42,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 	"float": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -63,7 +63,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 	"string": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -80,7 +80,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 	"len": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -92,17 +92,17 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 	"print": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			out := make([]any, len(args))
 			for i, arg := range args {
 				out[i] = arg.Inspect()
 			}
-			fmt.Println(out...)
+			fmt.Fprintln(env.Out(), out...)
 			return Null
 		},
 	},
 	"append": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			if len(args) < 2 {
 				return newError("invalid number of args, got %d, want 2+", len(args))
 			}
@@ -114,7 +114,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 	"slice": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
 			var (
 				source object.Object
 				start  int64
