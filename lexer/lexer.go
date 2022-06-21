@@ -6,7 +6,7 @@ import (
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input, lineNum: 1}
-	l.readChar()
+	l.next()
 	return l
 }
 
@@ -18,94 +18,74 @@ type Lexer struct {
 	ch           byte
 }
 
-func (l *Lexer) NextToken() token.Token {
-	l.stripWhitespace()
+func (l *Lexer) NextToken() (token.Token, int, string) {
 
-	var tok token.Token
-	switch l.ch {
-	case 0:
-		tok = token.Token{Type: token.EOF}
-	case '<':
-		if next := l.peekChar(); next == '=' {
-			l.advancePos()
-			tok = newFixedToken(token.LTE, l.lineNum)
-		} else {
-			tok = newFixedToken(token.LT, l.lineNum)
-		}
-	case '>':
-		if next := l.peekChar(); next == '=' {
-			l.advancePos()
-			tok = newFixedToken(token.GTE, l.lineNum)
-		} else {
-			tok = newFixedToken(token.GT, l.lineNum)
-		}
-	case '!':
-		if next := l.peekChar(); next == '=' {
-			l.advancePos()
-			tok = newFixedToken(token.NEQ, l.lineNum)
-		} else {
-			tok = newFixedToken(token.NOT, l.lineNum)
-		}
-	case '=':
-		if next := l.peekChar(); next == '=' {
-			l.advancePos()
-			tok = newFixedToken(token.EQ, l.lineNum)
-		} else {
-			tok = newFixedToken(token.Assign, l.lineNum)
-		}
-	case '(':
-		tok = newFixedToken(token.LParen, l.lineNum)
-	case ')':
-		tok = newFixedToken(token.RParen, l.lineNum)
-	case '{':
-		tok = newFixedToken(token.LBrace, l.lineNum)
-	case '}':
-		tok = newFixedToken(token.RBrace, l.lineNum)
-	case '[':
-		tok = newFixedToken(token.LBrack, l.lineNum)
-	case ']':
-		tok = newFixedToken(token.RBrack, l.lineNum)
-	case '+':
-		tok = newFixedToken(token.Plus, l.lineNum)
-	case '-':
-		tok = newFixedToken(token.Minus, l.lineNum)
-	case '*':
-		tok = newFixedToken(token.Mult, l.lineNum)
-	case '/':
-		tok = newFixedToken(token.Div, l.lineNum)
-	case '%':
-		tok = newFixedToken(token.Mod, l.lineNum)
-	case ',':
-		tok = newFixedToken(token.Comma, l.lineNum)
-	case ';':
-		tok = newFixedToken(token.SemiCol, l.lineNum)
-	case ':':
-		tok = newFixedToken(token.Colon, l.lineNum)
-	case '"':
-		l.readChar()
-		tok.Literal = l.readMultiple(func(b byte) bool { return b != '"' })
-		tok.Type = token.String
-		tok.Line = l.lineNum
+	l.stripWhitespace()
+	var (
+		tok token.Token
+		lit string
+	)
+	switch {
+	case isLetter(l.ch):
+		tok, lit = l.readIdent()
+		return tok, l.lineNum, lit
+	case isDigit(l.ch):
+		tok, lit = l.readNumber()
+		return tok, l.lineNum, lit
 	default:
-		if isLetter(l.ch) {
-			tok.Literal = l.readMultiple(isLetter)
-			tok.Type = token.IdentType(tok.Literal)
-			tok.Line = l.lineNum
-			return tok
+		switch l.ch {
+		case 0:
+			tok = token.EOF
+		case '<':
+			tok = l.switchEQ(token.LT, token.LTE)
+		case '>':
+			tok = l.switchEQ(token.GT, token.GTE)
+		case '!':
+			tok = l.switchEQ(token.NOT, token.NEQ)
+		case '=':
+			tok = l.switchEQ(token.Assign, token.EQ)
+		case '(':
+			tok = token.LParen
+		case ')':
+			tok = token.RParen
+		case '{':
+			tok = token.LBrace
+		case '}':
+			tok = token.RBrace
+		case '[':
+			tok = token.LBrack
+		case ']':
+			tok = token.RBrack
+		case '+':
+			tok = token.Plus
+		case '-':
+			tok = token.Minus
+		case '*':
+			tok = token.Mult
+		case '/':
+			tok = token.Div
+		case '%':
+			tok = token.Mod
+		case ',':
+			tok = token.Comma
+		case ';':
+			tok = token.SemiCol
+		case ':':
+			tok = token.Colon
+		case '"':
+			l.next()
+			lit = l.readMultiple(func(b byte) bool { return b != '"' })
+			tok = token.String
 		}
-		if isDigit(l.ch) {
-			tok.Literal = l.readMultiple(isDigit)
-			tok.Type = token.NumericType(tok.Literal)
-			tok.Line = l.lineNum
-			return tok
-		}
-		tok = newToken(token.Illegal, l.ch, l.lineNum)
 	}
-	l.readChar()
-	return tok
+	if lit == "" {
+		lit = tok.String()
+	}
+	l.next()
+	return tok, l.lineNum, lit
 }
 
-func (l *Lexer) readChar() {
+func (l *Lexer) next() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
 	} else {
@@ -128,7 +108,7 @@ func (l *Lexer) peekChar() byte {
 func (l *Lexer) readMultiple(tester func(byte) bool) string {
 	startPos := l.position
 	for tester(l.ch) && l.ch != 0 {
-		l.readChar()
+		l.next()
 	}
 	return l.input[startPos:l.position]
 }
@@ -138,22 +118,54 @@ func (l *Lexer) stripWhitespace() {
 		if l.ch == '\n' || l.ch == '\r' {
 			l.lineNum++
 		}
-		l.readChar()
+		l.next()
 	}
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z'
 }
 
 func isDigit(ch byte) bool {
-	return '0' <= ch && ch <= '9' || ch == '.'
+	return '0' <= ch && ch <= '9'
 }
 
-func newToken(t token.Type, ch byte, line int) token.Token {
-	return token.Token{Type: t, Literal: string(ch), Line: line}
+func (l *Lexer) readNumber() (token.Token, string) {
+	startPos := l.position
+	tok := token.Illegal
+
+	if l.ch != '.' {
+		tok = token.Int
+		l.readDigits()
+	}
+
+	if l.ch == '.' {
+		tok = token.Float
+		l.next()
+		l.readDigits()
+	}
+	return tok, l.input[startPos:l.position]
 }
 
-func newFixedToken(t token.Type, line int) token.Token {
-	return token.Token{Type: t, Literal: t.String(), Line: line}
+func (l *Lexer) readIdent() (token.Token, string) {
+	startPos := l.position
+	for isLetter(l.ch) || isDigit(l.ch) || l.ch == '_' {
+		l.next()
+	}
+	ident := l.input[startPos:l.position]
+	return token.Lookup(ident), ident
+}
+
+func (l *Lexer) readDigits() {
+	for isDigit(l.ch) {
+		l.next()
+	}
+}
+
+func (l *Lexer) switchEQ(tok0, tok1 token.Token) token.Token {
+	if l.peekChar() == '=' {
+		l.advancePos()
+		return tok1
+	}
+	return tok0
 }

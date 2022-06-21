@@ -18,7 +18,7 @@ const (
 	Index
 )
 
-var precedences = map[token.Type]Precedence{
+var precedences = map[token.Token]Precedence{
 	token.EQ:     EQ,
 	token.NEQ:    EQ,
 	token.LT:     LGT,
@@ -35,14 +35,14 @@ var precedences = map[token.Type]Precedence{
 }
 
 func (p *Parser) peekPrecedence() Precedence {
-	if pre, ok := precedences[p.peekToken.Type]; ok {
+	if pre, ok := precedences[p.peekToken]; ok {
 		return pre
 	}
 	return Lowest
 }
 
 func (p *Parser) curPrecedence() Precedence {
-	if pre, ok := precedences[p.curToken.Type]; ok {
+	if pre, ok := precedences[p.curToken]; ok {
 		return pre
 	}
 	return Lowest

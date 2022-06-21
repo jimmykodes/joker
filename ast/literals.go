@@ -14,7 +14,7 @@ type StringLiteral struct {
 }
 
 func (l *StringLiteral) expressionNode()      {}
-func (l *StringLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *StringLiteral) TokenLiteral() string { return l.Token.String() }
 func (l *StringLiteral) String() string       { return fmt.Sprintf(`"%s"`, l.Value) }
 
 type IntegerLiteral struct {
@@ -23,8 +23,8 @@ type IntegerLiteral struct {
 }
 
 func (l *IntegerLiteral) expressionNode()      {}
-func (l *IntegerLiteral) TokenLiteral() string { return l.Token.Literal }
-func (l *IntegerLiteral) String() string       { return l.Token.Literal }
+func (l *IntegerLiteral) TokenLiteral() string { return l.Token.String() }
+func (l *IntegerLiteral) String() string       { return strconv.FormatInt(l.Value, 10) }
 
 type FloatLiteral struct {
 	Token token.Token
@@ -32,8 +32,8 @@ type FloatLiteral struct {
 }
 
 func (l *FloatLiteral) expressionNode()      {}
-func (l *FloatLiteral) TokenLiteral() string { return l.Token.Literal }
-func (l *FloatLiteral) String() string       { return l.Token.Literal }
+func (l *FloatLiteral) TokenLiteral() string { return l.Token.String() }
+func (l *FloatLiteral) String() string       { return strconv.FormatFloat(l.Value, 'g', -1, 64) }
 
 type BooleanLiteral struct {
 	Token token.Token
@@ -41,7 +41,7 @@ type BooleanLiteral struct {
 }
 
 func (l *BooleanLiteral) expressionNode()      {}
-func (l *BooleanLiteral) TokenLiteral() string { return l.Token.Literal }
+func (l *BooleanLiteral) TokenLiteral() string { return l.Token.String() }
 func (l *BooleanLiteral) String() string       { return strconv.FormatBool(l.Value) }
 
 type FunctionLiteral struct {
@@ -51,7 +51,7 @@ type FunctionLiteral struct {
 }
 
 func (f *FunctionLiteral) expressionNode()      {}
-func (f *FunctionLiteral) TokenLiteral() string { return f.Token.Literal }
+func (f *FunctionLiteral) TokenLiteral() string { return f.Token.String() }
 func (f *FunctionLiteral) String() string {
 	var sb strings.Builder
 	sb.WriteString(f.TokenLiteral() + " (")
@@ -70,7 +70,7 @@ type ArrayLiteral struct {
 }
 
 func (a *ArrayLiteral) expressionNode()      {}
-func (a *ArrayLiteral) TokenLiteral() string { return a.Token.Literal }
+func (a *ArrayLiteral) TokenLiteral() string { return a.Token.String() }
 func (a *ArrayLiteral) String() string {
 	var sb strings.Builder
 	sb.WriteString("[")
@@ -89,7 +89,7 @@ type MapLiteral struct {
 }
 
 func (m *MapLiteral) expressionNode()      {}
-func (m *MapLiteral) TokenLiteral() string { return m.Token.Literal }
+func (m *MapLiteral) TokenLiteral() string { return m.Token.String() }
 func (m *MapLiteral) String() string {
 	var sb strings.Builder
 	sb.WriteString("{")

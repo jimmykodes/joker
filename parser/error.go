@@ -13,7 +13,7 @@ func newParseError(line int, message string, args ...any) error {
 	return fmt.Errorf("%w at line %d: %s", ErrParserError, line, fmt.Sprintf(message, args...))
 }
 
-func invalidTokenError(line int, expected, got token.Type) error {
+func invalidTokenError(line int, expected, got token.Token) error {
 	return newParseError(line, "invalid token. expected: %s - got: %s", expected, got)
 }
 

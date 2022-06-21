@@ -1,39 +1,146 @@
 package token
 
 import (
-	"strings"
+	"strconv"
 )
 
-type Token struct {
-	Type    Type
-	Literal string
-	Line    int
+type Token int
+
+const (
+	Illegal Token = iota
+	EOF
+
+	literalBeg
+	String
+	Float
+	Int
+	Ident
+	literalEnd
+
+	keywordBeg
+	Func
+	Let
+	If
+	Else
+	For
+	While
+	Continue
+	Break
+	Return
+	True
+	False
+	keywordEnd
+
+	operatorBeg
+	LT  // <
+	GT  // >
+	LTE // <=
+	GTE // >=
+	EQ  // ==
+	NEQ // !=
+	NOT // !
+
+	Assign // =
+	Plus   // +
+	Minus  // -
+	Mult   // *
+	Div    // /
+	Mod    // %
+
+	LParen // (
+	RParen // )
+	LBrace // {
+	RBrace // }
+	LBrack // [
+	RBrack // ]
+
+	Comma   // ,
+	SemiCol // ;
+	Colon   // :
+	operatorEnd
+)
+
+var tokens = [...]string{
+	Illegal:  "ILLEGAL",
+	EOF:      "EOF",
+	String:   "STRING",
+	Float:    "FLOAT",
+	Int:      "INT",
+	Ident:    "IDENT",
+	Func:     "fn",
+	Let:      "let",
+	If:       "if",
+	Else:     "else",
+	For:      "for",
+	While:    "while",
+	Continue: "continue",
+	Break:    "break",
+	Return:   "return",
+	True:     "true",
+	False:    "false",
+	LT:       "<",
+	GT:       ">",
+	LTE:      "<=",
+	GTE:      ">=",
+	EQ:       "==",
+	NEQ:      "!=",
+	NOT:      "!",
+	LParen:   "(",
+	RParen:   ")",
+	LBrace:   "{",
+	RBrace:   "}",
+	LBrack:   "[",
+	RBrack:   "]",
+	Assign:   "=",
+	Plus:     "+",
+	Minus:    "-",
+	Mult:     "*",
+	Div:      "/",
+	Mod:      "%",
+	Comma:    ",",
+	SemiCol:  ";",
+	Colon:    ":",
 }
 
-var keywords = map[string]Type{
-	"fn":       Func,
-	"let":      Let,
-	"if":       If,
-	"else":     Else,
-	"for":      For,
-	"while":    While,
-	"continue": Continue,
-	"break":    Break,
-	"return":   Return,
-	"true":     True,
-	"false":    False,
+func (t Token) String() string {
+	s := ""
+	if 0 <= t && int(t) <= len(tokens) {
+		s = tokens[t]
+	}
+	if s == "" {
+		s = "token(" + strconv.Itoa(int(t)) + ")"
+	}
+	return s
 }
 
-func IdentType(ident string) Type {
+func (t Token) IsKeyword() bool {
+	return inRange(t, keywordBeg, keywordEnd)
+}
+
+func (t Token) IsLiteral() bool {
+	return inRange(t, literalBeg, literalEnd)
+}
+
+func (t Token) IsOperator() bool {
+	return inRange(t, operatorBeg, operatorEnd)
+}
+
+var keywords map[string]Token
+
+func init() {
+	keywords = make(map[string]Token)
+	for i := keywordBeg + 1; i < keywordEnd; i++ {
+		keywords[tokens[i]] = i
+	}
+}
+
+func Lookup(ident string) Token {
 	if t, ok := keywords[ident]; ok {
 		return t
 	}
 	return Ident
 }
 
-func NumericType(ident string) Type {
-	if strings.Contains(ident, ".") {
-		return Float
-	}
-	return Int
+func inRange(item, beg, end Token) bool {
+	return beg < item && item < end
 }

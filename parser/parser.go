@@ -7,13 +7,19 @@ import (
 )
 
 type Parser struct {
-	l         *lexer.Lexer
-	errors    []error
-	curToken  token.Token
-	peekToken token.Token
+	l      *lexer.Lexer
+	errors []error
 
-	prefixParseFuncs map[token.Type]prefixParseFunc
-	infixParseFuncs  map[token.Type]infixParseFunc
+	curToken token.Token
+	curLine  int
+	curLit   string
+
+	peekToken token.Token
+	peekLine  int
+	peekLit   string
+
+	prefixParseFuncs map[token.Token]prefixParseFunc
+	infixParseFuncs  map[token.Token]infixParseFunc
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -21,7 +27,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 	p.nextToken()
 
-	p.prefixParseFuncs = map[token.Type]prefixParseFunc{
+	p.prefixParseFuncs = map[token.Token]prefixParseFunc{
 		token.Ident:  p.parseIdentifier,
 		token.NOT:    p.parsePrefixExpression,
 		token.Minus:  p.parsePrefixExpression,
@@ -38,7 +44,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.Func:   p.parseFuncExpression,
 	}
 
-	p.infixParseFuncs = map[token.Type]infixParseFunc{
+	p.infixParseFuncs = map[token.Token]infixParseFunc{
 		token.Plus:   p.parseInfixExpression,
 		token.Minus:  p.parseInfixExpression,
 		token.Mult:   p.parseInfixExpression,
@@ -61,7 +67,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog := &ast.Program{
 		Statements: make([]ast.Statement, 0),
 	}
-	for p.curToken.Type != token.EOF {
+	for p.curToken != token.EOF {
 		if stmt := p.parseStatement(); stmt != nil {
 			prog.Statements = append(prog.Statements, stmt)
 		}
@@ -75,7 +81,7 @@ func (p *Parser) Errors() []error {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
-	switch p.curToken.Type {
+	switch p.curToken {
 	case token.Let:
 		return p.parseLetStatement()
 	case token.Return:
@@ -97,16 +103,16 @@ func (p *Parser) parseStatement() ast.Statement {
 }
 
 func (p *Parser) parseExpression(pre Precedence) ast.Expression {
-	prefix := p.prefixParseFuncs[p.curToken.Type]
+	prefix := p.prefixParseFuncs[p.curToken]
 	if prefix == nil {
-		p.errors = append(p.errors, newParseError(p.curToken.Line, "no prefix func found for token type: %s", p.curToken.Type))
+		p.errors = append(p.errors, newParseError(p.curLine, "no prefix func found for token type: %s", p.curToken))
 		return nil
 	}
 
 	leftExp := prefix()
 
 	for !p.peekTokenIs(token.SemiCol) && pre < p.peekPrecedence() {
-		infix := p.infixParseFuncs[p.peekToken.Type]
+		infix := p.infixParseFuncs[p.peekToken]
 		if infix == nil {
 			return leftExp
 		}

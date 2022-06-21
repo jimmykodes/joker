@@ -19,7 +19,7 @@ type LetStatement struct {
 }
 
 func (ls *LetStatement) statementNode()       {}
-func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
+func (ls *LetStatement) TokenLiteral() string { return ls.Token.String() }
 func (ls *LetStatement) String() string {
 	return fmt.Sprintf("%s %s = %s;\n", ls.TokenLiteral(), ls.Name.Value, ls.Value)
 }
@@ -31,7 +31,7 @@ type FuncStatement struct {
 }
 
 func (f *FuncStatement) statementNode()       {}
-func (f *FuncStatement) TokenLiteral() string { return f.Token.Literal }
+func (f *FuncStatement) TokenLiteral() string { return f.Token.String() }
 func (f *FuncStatement) String() string {
 	params := make([]string, len(f.Fn.Parameters))
 	for i, parameter := range f.Fn.Parameters {
@@ -47,9 +47,9 @@ type ReassignStatement struct {
 }
 
 func (rs *ReassignStatement) statementNode()       {}
-func (rs *ReassignStatement) TokenLiteral() string { return rs.Token.Literal }
+func (rs *ReassignStatement) TokenLiteral() string { return rs.Token.String() }
 func (rs *ReassignStatement) String() string {
-	return fmt.Sprintf("%s %s %s", rs.Name.Value, rs.Token.Literal, rs.Value.String())
+	return fmt.Sprintf("%s %s %s", rs.Name.Value, rs.Token.String(), rs.Value.String())
 }
 
 type ReturnStatement struct {
@@ -58,7 +58,7 @@ type ReturnStatement struct {
 }
 
 func (rs *ReturnStatement) statementNode()       {}
-func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
+func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.String() }
 func (rs *ReturnStatement) String() string {
 	var sb strings.Builder
 	sb.WriteString(rs.TokenLiteral() + " ")
@@ -76,7 +76,7 @@ type ContinueStatement struct {
 }
 
 func (c *ContinueStatement) statementNode()       {}
-func (c *ContinueStatement) TokenLiteral() string { return c.Token.Literal }
+func (c *ContinueStatement) TokenLiteral() string { return c.Token.String() }
 func (c *ContinueStatement) String() string       { return "continue" }
 
 type BreakStatement struct {
@@ -84,7 +84,7 @@ type BreakStatement struct {
 }
 
 func (b *BreakStatement) statementNode()       {}
-func (b *BreakStatement) TokenLiteral() string { return b.Token.Literal }
+func (b *BreakStatement) TokenLiteral() string { return b.Token.String() }
 func (b *BreakStatement) String() string       { return "break" }
 
 type ExpressionStatement struct {
@@ -93,7 +93,7 @@ type ExpressionStatement struct {
 }
 
 func (es *ExpressionStatement) statementNode()       {}
-func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
+func (es *ExpressionStatement) TokenLiteral() string { return es.Token.String() }
 func (es *ExpressionStatement) String() string       { return es.Expression.String() }
 
 type BlockStatement struct {
@@ -102,7 +102,7 @@ type BlockStatement struct {
 }
 
 func (b *BlockStatement) statementNode()       {}
-func (b *BlockStatement) TokenLiteral() string { return b.Token.Literal }
+func (b *BlockStatement) TokenLiteral() string { return b.Token.String() }
 func (b *BlockStatement) String() string {
 	var sb strings.Builder
 	for _, statement := range b.Statements {
