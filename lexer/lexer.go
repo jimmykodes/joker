@@ -21,18 +21,19 @@ type Lexer struct {
 func (l *Lexer) NextToken() (token.Token, int, string) {
 
 	l.stripWhitespace()
-	var (
-		tok token.Token
-		lit string
-	)
 	switch {
 	case isLetter(l.ch):
-		tok, lit = l.readIdent()
+		tok, lit := l.readIdent()
 		return tok, l.lineNum, lit
 	case isDigit(l.ch):
-		tok, lit = l.readNumber()
+		tok, lit := l.readNumber()
 		return tok, l.lineNum, lit
 	default:
+		var (
+			lit          string
+			tok          = token.Illegal
+			litFromToken = true
+		)
 		switch l.ch {
 		case 0:
 			tok = token.EOF
@@ -76,13 +77,14 @@ func (l *Lexer) NextToken() (token.Token, int, string) {
 			l.next()
 			lit = l.readMultiple(func(b byte) bool { return b != '"' })
 			tok = token.String
+			litFromToken = false
 		}
+		if litFromToken {
+			lit = tok.String()
+		}
+		l.next()
+		return tok, l.lineNum, lit
 	}
-	if lit == "" {
-		lit = tok.String()
-	}
-	l.next()
-	return tok, l.lineNum, lit
 }
 
 func (l *Lexer) next() {
