@@ -24,7 +24,7 @@ func (p *Parser) parseLetStatement() ast.Statement {
 
 	p.nextToken()
 
-	stmt.Value = p.parseExpression(Lowest)
+	stmt.Value = p.parseExpression(token.LowestPrecedence)
 
 	if !p.expect(p.peekTokenIs(token.SemiCol)) {
 		p.errors = append(p.errors, invalidTokenError(p.curLine, token.SemiCol, p.peekToken))
@@ -63,7 +63,7 @@ func (p *Parser) parseReassignStatement() ast.Statement {
 	}
 	p.nextToken()
 
-	stmt.Value = p.parseExpression(Lowest)
+	stmt.Value = p.parseExpression(token.LowestPrecedence)
 
 	if !p.expect(p.peekTokenIs(token.SemiCol)) {
 		p.errors = append(p.errors, invalidTokenError(p.curLine, token.SemiCol, p.peekToken))
@@ -95,7 +95,7 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 
 	p.nextToken()
-	stmt.Value = p.parseExpression(Lowest)
+	stmt.Value = p.parseExpression(token.LowestPrecedence)
 	if p.peekTokenIs(token.SemiCol) {
 		p.nextToken()
 	}
@@ -106,7 +106,7 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 func (p *Parser) parseExpressionStatement() ast.Statement {
 	stmt := &ast.ExpressionStatement{
 		Token:      p.curToken,
-		Expression: p.parseExpression(Lowest),
+		Expression: p.parseExpression(token.LowestPrecedence),
 	}
 	if p.peekTokenIs(token.SemiCol) {
 		p.nextToken()

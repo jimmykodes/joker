@@ -125,6 +125,39 @@ func (t Token) IsOperator() bool {
 	return inRange(t, operatorBeg, operatorEnd)
 }
 
+type Precedence uint
+
+const (
+	_ Precedence = iota
+	LowestPrecedence
+	EQPrecedence
+	LGTPrecedence
+	SumPrecedence
+	ProductPrecedence
+	PrefixPrecedence
+	CallPrecedence
+	IndexPrecedence
+)
+
+func (t Token) Precedence() Precedence {
+	switch t {
+	case EQ, NEQ:
+		return EQPrecedence
+	case LT, LTE, GT, GTE:
+		return LGTPrecedence
+	case Minus, Plus:
+		return SumPrecedence
+	case Div, Mult, Mod:
+		return ProductPrecedence
+	case LParen:
+		return CallPrecedence
+	case LBrack:
+		return IndexPrecedence
+	default:
+		return LowestPrecedence
+	}
+}
+
 var keywords map[string]Token
 
 func init() {

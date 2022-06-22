@@ -102,7 +102,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	return p.parseExpressionStatement()
 }
 
-func (p *Parser) parseExpression(pre Precedence) ast.Expression {
+func (p *Parser) parseExpression(pre token.Precedence) ast.Expression {
 	prefix := p.prefixParseFuncs[p.curToken]
 	if prefix == nil {
 		p.errors = append(p.errors, newParseError(p.curLine, "no prefix func found for token type: %s", p.curToken))
@@ -111,7 +111,7 @@ func (p *Parser) parseExpression(pre Precedence) ast.Expression {
 
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.SemiCol) && pre < p.peekPrecedence() {
+	for !p.peekTokenIs(token.SemiCol) && pre < p.peekToken.Precedence() {
 		infix := p.infixParseFuncs[p.peekToken]
 		if infix == nil {
 			return leftExp
