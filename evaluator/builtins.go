@@ -91,6 +91,23 @@ var builtins = map[string]*object.Builtin{
 			return l.Len()
 		},
 	},
+	"del": {
+		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+			if err := nArgs(2, args); err != nil {
+				return err
+			}
+			m, ok := args[0].(*object.Map)
+			if !ok {
+				return newError("invalid type for del. got %s, want %s", args[0].Type(), object.MapType)
+			}
+			k, ok := args[1].(object.Hashable)
+			if !ok {
+				return newError("invalid key type")
+			}
+			delete(m.Pairs, k.HashKey())
+			return Null
+		},
+	},
 	"print": {
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			out := make([]any, len(args))
