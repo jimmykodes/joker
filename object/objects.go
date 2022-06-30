@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jimmykodes/jk/ast"
+	"github.com/jimmykodes/joker/ast"
 )
 
 var (

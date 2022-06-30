@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/token"
 )
 
 type StringLiteral struct {

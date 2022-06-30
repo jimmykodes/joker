@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/jimmykodes/jk/object"
+	"github.com/jimmykodes/joker/object"
 )
 
 func nArgs(n int, args []object.Object) object.Object {

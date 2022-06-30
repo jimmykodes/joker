@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/token"
 )
 
 func (p *Parser) nextToken() {

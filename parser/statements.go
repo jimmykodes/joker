@@ -3,8 +3,8 @@ package parser
 import (
 	"fmt"
 
-	"github.com/jimmykodes/jk/ast"
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/token"
 )
 
 func (p *Parser) parseLetStatement() ast.Statement {

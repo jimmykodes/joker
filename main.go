@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/jimmykodes/jk/evaluator"
-	"github.com/jimmykodes/jk/lexer"
-	"github.com/jimmykodes/jk/object"
-	"github.com/jimmykodes/jk/parser"
-	"github.com/jimmykodes/jk/repl"
+	"github.com/jimmykodes/joker/evaluator"
+	"github.com/jimmykodes/joker/lexer"
+	"github.com/jimmykodes/joker/object"
+	"github.com/jimmykodes/joker/parser"
+	"github.com/jimmykodes/joker/repl"
 )
 
 func main() {

@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/token"
 )
 
 func New(input string) *Lexer {

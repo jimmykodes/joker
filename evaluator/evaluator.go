@@ -3,8 +3,8 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/jimmykodes/jk/ast"
-	"github.com/jimmykodes/jk/object"
+	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/object"
 )
 
 var (

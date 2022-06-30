@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/jimmykodes/jk/ast"
-	"github.com/jimmykodes/jk/lexer"
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/lexer"
+	"github.com/jimmykodes/joker/token"
 )
 
 type Parser struct {

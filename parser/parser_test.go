@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/jimmykodes/jk/lexer"
+	"github.com/jimmykodes/joker/lexer"
 )
 
 func TestParser_ParseProgram(t *testing.T) {

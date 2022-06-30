@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jimmykodes/jk/token"
+	"github.com/jimmykodes/joker/token"
 )
 
 var ErrParserError = errors.New("parser error")
