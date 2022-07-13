@@ -129,6 +129,49 @@ import (
 // 		})
 // 	}
 // }
+
+func TestLexer(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  []token.Token
+	}{
+
+		{
+			name:  "basic",
+			input: "let x = 12;",
+			want: []token.Token{
+				token.Let,
+				token.Ident,
+				token.Assign,
+				token.Int,
+				token.SemiCol,
+			},
+		},
+		{
+			name:  "import",
+			input: `import "test"`,
+			want:  []token.Token{token.Import, token.String},
+		},
+		{
+			name:  "dot",
+			input: "strings.join",
+			want:  []token.Token{token.Ident, token.Dot, token.Ident},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			l := New(test.input)
+			for _, w := range test.want {
+				tok, _, _ := l.NextToken()
+				if tok != w {
+					t.Errorf("invalid token - got %s - want %s", tok, w)
+				}
+			}
+		})
+	}
+}
+
 func TestLexer_readNumber(t *testing.T) {
 	tests := []struct {
 		name    string

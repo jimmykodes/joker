@@ -65,6 +65,10 @@ type Negater interface {
 	Negative() Object
 }
 
+type Accessor interface {
+	Access() *Environment
+}
+
 type Null struct{}
 
 func (n *Null) Type() Type      { return NullType }

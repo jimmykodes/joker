@@ -2,9 +2,13 @@ package evaluator
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/lexer"
 	"github.com/jimmykodes/joker/object"
+	"github.com/jimmykodes/joker/parser"
 )
 
 var (
@@ -57,6 +61,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return r
 		}
 		return evalPrefix(n.Operator, r)
+	case *ast.AccessExpression:
+		l := Eval(n.Left, env)
+		a, ok := l.(object.Accessor)
+		if !ok {
+			return newError("cannot access member of %s", l.Type())
+		}
+		subE := a.Access()
+		return Eval(n.Right, subE)
 	case *ast.InfixExpression:
 		l := Eval(n.Left, env)
 		if isError(l) {
@@ -107,6 +119,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Array{Elements: elems}
 	case *ast.MapLiteral:
 		return evalMap(n, env)
+	case *ast.ImportExpression:
+		return evalImport(n, env)
 	default:
 		return newError("invalid node type: %T", node)
 	}
@@ -148,6 +162,21 @@ func applyFunc(fn object.Object, args []object.Object, env *object.Environment) 
 	default:
 		return newError("cannot call a non-function: %s", fn.Type())
 	}
+}
+
+func evalImport(node *ast.ImportExpression, env *object.Environment) object.Object {
+	subEnv := object.NewEnvironment()
+	data, err := os.ReadFile(node.File + ".jk")
+	if err != nil {
+		return newError("error importing file: %s: %s", node.File, err)
+	}
+	l := lexer.New(string(data))
+	p := parser.New(l)
+	prog := p.ParseProgram()
+	Eval(prog, subEnv)
+	i := &object.Import{File: node.File, Env: subEnv}
+	env.Set(filepath.Base(node.File), i)
+	return i
 }
 
 func evalIndex(index *ast.IndexExpression, env *object.Environment) object.Object {

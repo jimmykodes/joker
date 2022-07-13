@@ -50,6 +50,25 @@ func (e *InfixExpression) String() string {
 
 // todo: postfix Expression
 
+type AccessExpression struct {
+	Token token.Token
+	Left  Expression
+	Right Expression
+}
+
+func (a *AccessExpression) expressionNode()      {}
+func (a *AccessExpression) TokenLiteral() string { return a.Token.String() }
+func (a *AccessExpression) String() string       { return a.Left.String() + "." + a.Right.String() }
+
+type ImportExpression struct {
+	Token token.Token
+	File  string
+}
+
+func (i *ImportExpression) expressionNode()      {}
+func (i *ImportExpression) TokenLiteral() string { return i.Token.String() }
+func (i *ImportExpression) String() string       { return i.Token.String() + " " + i.File + ";" }
+
 type IfExpression struct {
 	Token       token.Token
 	Condition   Expression
