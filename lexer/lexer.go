@@ -67,6 +67,8 @@ func (l *Lexer) NextToken() (token.Token, int, string) {
 			tok = token.Div
 		case '%':
 			tok = token.Mod
+		case '.':
+			tok = token.Dot
 		case ',':
 			tok = token.Comma
 		case ';':
