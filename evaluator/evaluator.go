@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jimmykodes/joker/ast"
 	"github.com/jimmykodes/joker/lexer"
@@ -165,15 +166,25 @@ func applyFunc(fn object.Object, args []object.Object, env *object.Environment) 
 }
 
 func evalImport(node *ast.ImportExpression, env *object.Environment) object.Object {
-	subEnv := object.NewEnvironment()
+	subEnv := object.NewEnvironment(object.EncloseOuterOption(env))
 	data, err := os.ReadFile(node.File + ".jk")
 	if err != nil {
 		return newError("error importing file: %s: %s", node.File, err)
 	}
 	l := lexer.New(string(data))
 	p := parser.New(l)
+	if errs := p.Errors(); len(errs) > 0 {
+		var sb strings.Builder
+		for _, e := range errs {
+			sb.WriteString(e.Error() + "\n")
+		}
+		return newError(sb.String())
+	}
 	prog := p.ParseProgram()
-	Eval(prog, subEnv)
+	out := Eval(prog, subEnv)
+	if isError(out) {
+		return out
+	}
 	i := &object.Import{File: node.File, Env: subEnv}
 	env.Set(filepath.Base(node.File), i)
 	return i

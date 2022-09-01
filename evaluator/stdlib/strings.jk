@@ -1,0 +1,13 @@
+fn join(elems, sep) {
+    if len(elems) == 0 {
+        return "";
+    }
+    let out = "";
+    let i = 0;
+    while i < len(elems) - 1 {
+        out = out + elems[i] + sep;
+        i = i + 1;
+    }
+    out = out + elems[len(elems) - 1];
+    return out;
+};
