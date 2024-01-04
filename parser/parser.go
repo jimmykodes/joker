@@ -29,7 +29,6 @@ func New(l *lexer.Lexer) *Parser {
 
 	p.prefixParseFuncs = map[token.Token]prefixParseFunc{
 		token.Ident:  p.parseIdentifier,
-		token.Import: p.parseImport,
 		token.NOT:    p.parsePrefixExpression,
 		token.Minus:  p.parsePrefixExpression,
 		token.Int:    p.parseIntegerLiteral,
@@ -57,7 +56,6 @@ func New(l *lexer.Lexer) *Parser {
 		token.GTE:    p.parseInfixExpression,
 		token.EQ:     p.parseInfixExpression,
 		token.NEQ:    p.parseInfixExpression,
-		token.Dot:    p.parseAccessExpression,
 		token.LParen: p.parseCallExpression,
 		token.LBrack: p.parseIndexExpression,
 	}

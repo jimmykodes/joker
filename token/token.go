@@ -29,7 +29,6 @@ const (
 	Return
 	True
 	False
-	Import
 	keywordEnd
 
 	operatorBeg
@@ -56,7 +55,6 @@ const (
 	RBrack // ]
 
 	Comma   // ,
-	Dot     // .
 	SemiCol // ;
 	Colon   // :
 	operatorEnd
@@ -80,7 +78,6 @@ var tokens = [...]string{
 	Return:   "return",
 	True:     "true",
 	False:    "false",
-	Import:   "import",
 	LT:       "<",
 	GT:       ">",
 	LTE:      "<=",
@@ -101,7 +98,6 @@ var tokens = [...]string{
 	Div:      "/",
 	Mod:      "%",
 	Comma:    ",",
-	Dot:      ".",
 	SemiCol:  ";",
 	Colon:    ":",
 }
@@ -139,7 +135,6 @@ const (
 	SumPrecedence
 	ProductPrecedence
 	PrefixPrecedence
-	DotPrecedence
 	CallPrecedence
 	IndexPrecedence
 )
@@ -154,8 +149,6 @@ func (t Token) Precedence() Precedence {
 		return SumPrecedence
 	case Div, Mult, Mod:
 		return ProductPrecedence
-	case Dot:
-		return DotPrecedence
 	case LParen:
 		return CallPrecedence
 	case LBrack:

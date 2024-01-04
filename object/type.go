@@ -17,5 +17,4 @@ const (
 	ContinueType
 	BreakType
 	ErrorType
-	ImportType
 )

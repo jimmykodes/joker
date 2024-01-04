@@ -12,19 +12,6 @@ type (
 	infixParseFunc  func(ast.Expression) ast.Expression
 )
 
-func (p *Parser) parseImport() ast.Expression {
-	exp := &ast.ImportExpression{
-		Token: p.curToken,
-	}
-
-	if !p.expect(p.peekTokenIs(token.String)) {
-		p.errors = append(p.errors, invalidTokenError(p.curLine, token.String, p.peekToken))
-		return nil
-	}
-	exp.File = p.curLit
-	return exp
-}
-
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curLit}
 }
@@ -46,17 +33,6 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 		p.errors = append(p.errors, invalidTokenError(p.curLine, token.RParen, p.peekToken))
 		return nil
 	}
-	return exp
-}
-
-func (p *Parser) parseAccessExpression(left ast.Expression) ast.Expression {
-	exp := &ast.AccessExpression{
-		Token: p.curToken,
-		Left:  left,
-	}
-	pre := p.curToken.Precedence()
-	p.nextToken()
-	exp.Right = p.parseExpression(pre)
 	return exp
 }
 

@@ -8,7 +8,7 @@ func TestIdentType(t *testing.T) {
 	tests := []struct {
 		name  string
 		ident string
-		want  Token
+		want  Type
 	}{
 		{
 			name:  "parses let",
@@ -21,11 +21,6 @@ func TestIdentType(t *testing.T) {
 			want:  Func,
 		},
 		{
-			name:  "import",
-			ident: "import",
-			want:  Import,
-		},
-		{
 			name:  "parses idents",
 			ident: "my_var",
 			want:  Ident,
@@ -33,8 +28,34 @@ func TestIdentType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Lookup(tt.ident); got != tt.want {
+			if got := IdentType(tt.ident); got != tt.want {
 				t.Errorf("LookupIdent() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNumericType(t *testing.T) {
+	tests := []struct {
+		name  string
+		ident string
+		want  Type
+	}{
+		{
+			name:  "parses int",
+			ident: "123",
+			want:  Int,
+		},
+		{
+			name:  "parses float",
+			ident: "123.5",
+			want:  Float,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NumericType(tt.ident); got != tt.want {
+				t.Errorf("NumericType() = %v, want %v", got, tt.want)
 			}
 		})
 	}

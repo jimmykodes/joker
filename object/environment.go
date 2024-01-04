@@ -3,7 +3,6 @@ package object
 import (
 	"io"
 	"os"
-	"sort"
 )
 
 func NewEnvironment(opts ...EnvOption) *Environment {
@@ -32,7 +31,6 @@ func WithOut(out io.Writer) EnvOption {
 
 type Environment struct {
 	store map[string]Object
-	keys  []string
 	outer *Environment
 	out   io.Writer
 }
@@ -47,14 +45,6 @@ func (e *Environment) Get(name string) (Object, bool) {
 
 func (e *Environment) Set(name string, val Object) {
 	e.store[name] = val
-	e.keys = append(e.keys, name)
-}
-
-func (e *Environment) Keys() []string {
-	if !sort.StringsAreSorted(e.keys) {
-		sort.Strings(e.keys)
-	}
-	return e.keys
 }
 
 func (e *Environment) Out() io.Writer {

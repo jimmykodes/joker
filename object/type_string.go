@@ -21,12 +21,11 @@ func _() {
 	_ = x[ContinueType-10]
 	_ = x[BreakType-11]
 	_ = x[ErrorType-12]
-	_ = x[ImportType-13]
 }
 
-const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeBuiltinTypeArrayTypeMapTypeReturnTypeContinueTypeBreakTypeErrorTypeImportType"
+const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeBuiltinTypeArrayTypeMapTypeReturnTypeContinueTypeBreakTypeErrorType"
 
-var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 69, 78, 85, 95, 107, 116, 125, 135}
+var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 69, 78, 85, 95, 107, 116, 125}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

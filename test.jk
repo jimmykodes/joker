@@ -1,5 +1,0 @@
-import "evaluator/stdlib/strings";
-
-let join = fn (sep) {
-    return strings.join(["a", "b", "c"], sep);
-};
