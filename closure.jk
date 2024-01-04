@@ -1,0 +1,15 @@
+fn adder(a) {
+  let acc = 0;
+  fn add() {
+    acc = acc + a;
+    return acc;
+  }
+  return add;
+}
+
+let a = adder(10);
+let i = 0;
+while i < 10 {
+  i = i + 1;
+  print(a());
+}

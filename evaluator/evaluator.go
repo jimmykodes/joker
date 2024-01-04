@@ -7,9 +7,7 @@ import (
 	"github.com/jimmykodes/joker/object"
 )
 
-var (
-	Null = &object.Null{}
-)
+var Null = &object.Null{}
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch n := node.(type) {
