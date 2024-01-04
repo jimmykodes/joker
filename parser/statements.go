@@ -45,11 +45,6 @@ func (p *Parser) parseFuncStatement() ast.Statement {
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curLit}
 	stmt.Fn = p.parseFuncExpression().(*ast.FunctionLiteral)
 
-	if !p.expect(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, invalidTokenError(p.curLine, token.SemiCol, p.peekToken))
-		return nil
-	}
-
 	return stmt
 }
 

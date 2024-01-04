@@ -19,7 +19,6 @@ type Lexer struct {
 }
 
 func (l *Lexer) NextToken() (token.Token, int, string) {
-
 	l.stripWhitespace()
 	switch {
 	case isLetter(l.ch):
@@ -95,6 +94,7 @@ func (l *Lexer) next() {
 	}
 	l.advancePos()
 }
+
 func (l *Lexer) advancePos() {
 	l.position = l.readPosition
 	l.readPosition++
