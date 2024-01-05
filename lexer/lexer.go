@@ -72,6 +72,11 @@ func (l *Lexer) NextToken() (token.Token, int, string) {
 			tok = token.SemiCol
 		case ':':
 			tok = l.switchEQ(token.Colon, token.Define)
+		case '#':
+			l.next()
+			lit = l.readMultiple(func(b byte) bool { return !(b == '\n' || b == '\r') })
+			tok = token.Comment
+			litFromToken = false
 		case '"':
 			l.next()
 			lit = l.readMultiple(func(b byte) bool { return b != '"' })

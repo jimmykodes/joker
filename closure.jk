@@ -1,11 +1,13 @@
-fn adder(a) {
-  acc := 0;
+#!/usr/bin/env joker
 
-  fn add() {
+fn adder(a) {
+  acc := 0; # initialize the accumulator at 0
+
+  return fn() {
+    # each time the function is called, add a to the accumulator
     acc = acc + a;
     return acc;
   }
-  return add;
 }
 
 let a = adder(10);

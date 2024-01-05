@@ -40,13 +40,14 @@ const (
 	NEQ // !=
 	NOT // !
 
-	Assign // =
-	Define // :=
-	Plus   // +
-	Minus  // -
-	Mult   // *
-	Div    // /
-	Mod    // %
+	Assign  // =
+	Define  // :=
+	Plus    // +
+	Minus   // -
+	Mult    // *
+	Div     // /
+	Mod     // %
+	Comment // #
 
 	LParen // (
 	RParen // )
@@ -99,6 +100,7 @@ var tokens = [...]string{
 	Mult:     "*",
 	Div:      "/",
 	Mod:      "%",
+	Comment:  "#",
 	Comma:    ",",
 	SemiCol:  ";",
 	Colon:    ":",

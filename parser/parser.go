@@ -28,20 +28,21 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 
 	p.prefixParseFuncs = map[token.Token]prefixParseFunc{
-		token.Ident:  p.parseIdentifier,
-		token.NOT:    p.parsePrefixExpression,
-		token.Minus:  p.parsePrefixExpression,
-		token.Int:    p.parseIntegerLiteral,
-		token.Float:  p.parseFloatLiteral,
-		token.String: p.parseStringLiteral,
-		token.LBrack: p.parseArrayLiteral,
-		token.LBrace: p.parseHashLiteral,
-		token.True:   p.parseBoolean,
-		token.False:  p.parseBoolean,
-		token.LParen: p.parseGroupedExpression,
-		token.If:     p.parseIfExpression,
-		token.While:  p.parseWhileExpression,
-		token.Func:   p.parseFuncExpression,
+		token.Ident:   p.parseIdentifier,
+		token.NOT:     p.parsePrefixExpression,
+		token.Minus:   p.parsePrefixExpression,
+		token.Comment: p.parseCommentLiteral,
+		token.Int:     p.parseIntegerLiteral,
+		token.Float:   p.parseFloatLiteral,
+		token.String:  p.parseStringLiteral,
+		token.LBrack:  p.parseArrayLiteral,
+		token.LBrace:  p.parseHashLiteral,
+		token.True:    p.parseBoolean,
+		token.False:   p.parseBoolean,
+		token.LParen:  p.parseGroupedExpression,
+		token.If:      p.parseIfExpression,
+		token.While:   p.parseWhileExpression,
+		token.Func:    p.parseFuncExpression,
 	}
 
 	p.infixParseFuncs = map[token.Token]infixParseFunc{
