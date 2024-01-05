@@ -17,6 +17,15 @@ func (l *StringLiteral) expressionNode()      {}
 func (l *StringLiteral) TokenLiteral() string { return l.Token.String() }
 func (l *StringLiteral) String() string       { return fmt.Sprintf(`"%s"`, l.Value) }
 
+type CommentLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (l *CommentLiteral) expressionNode()      {}
+func (l *CommentLiteral) TokenLiteral() string { return l.Token.String() }
+func (l *CommentLiteral) String() string       { return fmt.Sprintf("%s %s", l.TokenLiteral(), l.Value) }
+
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64

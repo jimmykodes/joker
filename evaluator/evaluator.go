@@ -113,6 +113,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Array{Elements: elems}
 	case *ast.MapLiteral:
 		return evalMap(n, env)
+	case *ast.CommentLiteral:
+		return Null
 	default:
 		return newError("invalid node type: %T", node)
 	}

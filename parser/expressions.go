@@ -48,6 +48,13 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseCommentLiteral() ast.Expression {
+	return &ast.CommentLiteral{
+		Token: p.curToken,
+		Value: p.curLit,
+	}
+}
+
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{
 		Token: p.curToken,
@@ -60,6 +67,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	a.Elements = p.parseExpressionList(token.RBrack)
 	return a
 }
+
 func (p *Parser) parseHashLiteral() ast.Expression {
 	h := &ast.MapLiteral{Token: p.curToken, Pairs: make(map[ast.Expression]ast.Expression)}
 	for !p.peekTokenIs(token.RBrace) {

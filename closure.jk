@@ -1,3 +1,5 @@
+#!/usr/bin/env joker
+
 fn adder(a) {
   acc := 0;
 
