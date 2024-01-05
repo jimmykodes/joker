@@ -12,7 +12,10 @@ fn main(n) {
   let i = 0;
   let out = [];
 
-  while i < n {
+  while true {
+    if i == n {
+      break;
+    }
     out = append(out, fib(i));
     i = i + 1;
   }
@@ -20,3 +23,5 @@ fn main(n) {
   print(out);
 }
 
+
+main(10);

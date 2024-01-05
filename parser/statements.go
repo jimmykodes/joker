@@ -101,9 +101,8 @@ func (p *Parser) parseContinueStatement() ast.Statement {
 
 func (p *Parser) parseBreakStatement() ast.Statement {
 	stmt := &ast.BreakStatement{Token: p.curToken}
-	if !p.expect(p.peekTokenIs(token.SemiCol)) {
-		p.errors = append(p.errors, invalidTokenError(p.curLine, token.SemiCol, p.peekToken))
-		return nil
+	if p.peekTokenIs(token.SemiCol) {
+		p.nextToken()
 	}
 	return stmt
 }

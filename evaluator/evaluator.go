@@ -375,12 +375,16 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 		if b.Bool() == object.False {
 			return res
 		}
-		res = Eval(n.Body, env)
-		if isError(res) {
+		loopRes := Eval(n.Body, env)
+		if isError(loopRes) {
+			return loopRes
+		}
+		if loopRes.Type() == object.ReturnType {
+			return loopRes
+		}
+		if loopRes.Type() == object.BreakType {
 			return res
 		}
-		if res.Type() == object.ReturnType || res.Type() == object.BreakType {
-			return res
-		}
+		res = loopRes
 	}
 }

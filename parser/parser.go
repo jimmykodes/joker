@@ -28,9 +28,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 
 	p.prefixParseFuncs = map[token.Token]prefixParseFunc{
-		token.Ident:   p.parseIdentifier,
-		token.NOT:     p.parsePrefixExpression,
-		token.Minus:   p.parsePrefixExpression,
+		// Literals
 		token.Comment: p.parseCommentLiteral,
 		token.Int:     p.parseIntegerLiteral,
 		token.Float:   p.parseFloatLiteral,
@@ -39,24 +37,35 @@ func New(l *lexer.Lexer) *Parser {
 		token.LBrace:  p.parseHashLiteral,
 		token.True:    p.parseBoolean,
 		token.False:   p.parseBoolean,
-		token.LParen:  p.parseGroupedExpression,
-		token.If:      p.parseIfExpression,
-		token.While:   p.parseWhileExpression,
-		token.Func:    p.parseFuncExpression,
+		// Expressions
+		token.Ident:  p.parseIdentifier,
+		token.NOT:    p.parsePrefixExpression,
+		token.Minus:  p.parsePrefixExpression,
+		token.LParen: p.parseGroupedExpression,
+		token.If:     p.parseIfExpression,
+		token.While:  p.parseWhileExpression,
+		token.Func:   p.parseFuncExpression,
 	}
 
 	p.infixParseFuncs = map[token.Token]infixParseFunc{
-		token.Plus:   p.parseInfixExpression,
-		token.Minus:  p.parseInfixExpression,
-		token.Mult:   p.parseInfixExpression,
-		token.Div:    p.parseInfixExpression,
-		token.Mod:    p.parseInfixExpression,
-		token.LT:     p.parseInfixExpression,
-		token.GT:     p.parseInfixExpression,
-		token.LTE:    p.parseInfixExpression,
-		token.GTE:    p.parseInfixExpression,
-		token.EQ:     p.parseInfixExpression,
-		token.NEQ:    p.parseInfixExpression,
+		// additive
+		token.Plus:  p.parseInfixExpression,
+		token.Minus: p.parseInfixExpression,
+
+		// multiplicative
+		token.Mult: p.parseInfixExpression,
+		token.Div:  p.parseInfixExpression,
+		token.Mod:  p.parseInfixExpression,
+
+		// comparative
+		token.LT:  p.parseInfixExpression,
+		token.GT:  p.parseInfixExpression,
+		token.LTE: p.parseInfixExpression,
+		token.GTE: p.parseInfixExpression,
+		token.EQ:  p.parseInfixExpression,
+		token.NEQ: p.parseInfixExpression,
+
+		// calling
 		token.LParen: p.parseCallExpression,
 		token.LBrack: p.parseIndexExpression,
 	}
