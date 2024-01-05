@@ -90,6 +90,9 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 			))
 			return nil
 		}
+		if p.peekTokenIs(token.Comma) {
+			p.nextToken()
+		}
 	}
 	p.nextToken()
 	return h
