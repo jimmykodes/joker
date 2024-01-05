@@ -100,12 +100,14 @@ func (c *CallExpression) expressionNode()      {}
 func (c *CallExpression) TokenLiteral() string { return c.Token.String() }
 func (c *CallExpression) String() string {
 	var sb strings.Builder
-	sb.WriteString(c.Function.String() + c.Token.String())
+	sb.WriteString(c.Function.String())
+	sb.WriteRune('(')
 	args := make([]string, len(c.Arguments))
 	for i, arg := range c.Arguments {
 		args[i] = arg.String()
 	}
-	sb.WriteString(strings.Join(args, ", ") + ")")
+	sb.WriteString(strings.Join(args, ", "))
+	sb.WriteRune(')')
 	return sb.String()
 }
 

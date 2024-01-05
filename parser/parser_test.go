@@ -7,7 +7,6 @@ import (
 )
 
 func TestParser_ParseProgram(t *testing.T) {
-
 	tests := []struct {
 		name          string
 		input         string
@@ -99,10 +98,16 @@ func TestParser_ParseProgram(t *testing.T) {
 			programText:   "fn (a, b, c) {\n\treturn (a + b);\n}\n",
 		},
 		{
-			name:          "func call",
+			name:          "func call with sub args",
 			input:         "add(2 + 5, 3 * 9)",
 			numStatements: 1,
 			programText:   "add((2 + 5), (3 * 9))",
+		},
+		{
+			name:          "func call",
+			input:         "add(2, 9)",
+			numStatements: 1,
+			programText:   "add(2, 9)",
 		},
 	}
 	for _, tt := range tests {
