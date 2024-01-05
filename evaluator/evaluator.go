@@ -244,11 +244,8 @@ func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) obj
 		if isError(res) {
 			return res
 		}
-		if res.Type() == object.ReturnType || res.Type() == object.BreakType {
+		if res.Type() == object.ReturnType || res.Type() == object.BreakType || res.Type() == object.ContinueType {
 			return res
-		}
-		if res.Type() == object.ContinueType {
-			return Null
 		}
 	}
 	return res
@@ -369,7 +366,7 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 }
 
 func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
-	var res object.Object
+	var res object.Object = &object.Null{}
 	for {
 		condition := Eval(n.Condition, env)
 		if isError(condition) {
@@ -392,6 +389,8 @@ func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {
 		if loopRes.Type() == object.BreakType {
 			return res
 		}
-		res = loopRes
+		if loopRes.Type() != object.ContinueType {
+			res = loopRes
+		}
 	}
 }

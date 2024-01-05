@@ -13,11 +13,16 @@ fn main(n) {
   let out = [];
 
   while true {
-    if i == n {
+    i = i + 1;
+    if i % 2 == 0 {
+      print("skipping", i);
+      continue;
+    }
+    if i >= n {
       break;
     }
+    print("processing", i);
     out = append(out, fib(i));
-    i = i + 1;
   }
 
   print(out);
