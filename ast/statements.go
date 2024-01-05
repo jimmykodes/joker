@@ -12,6 +12,18 @@ type Statement interface {
 	statementNode()
 }
 
+type DefineStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (ds *DefineStatement) statementNode()       {}
+func (ds *DefineStatement) TokenLiteral() string { return ds.Token.String() }
+func (ds *DefineStatement) String() string {
+	return fmt.Sprintf("%s %s %s;\n", ds.Name.Value, ds.TokenLiteral(), ds.Value)
+}
+
 type LetStatement struct {
 	Token token.Token
 	Name  *Identifier

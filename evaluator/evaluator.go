@@ -14,6 +14,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Program:
 		return evalProgram(n, env)
 	case *ast.LetStatement:
+		// TODO: check if redefining already existing var
+		r := Eval(n.Value, env)
+		if isError(r) {
+			return r
+		}
+		env.Set(n.Name.Value, r)
+	case *ast.DefineStatement:
+		// TODO: check if redefining already existing var
 		r := Eval(n.Value, env)
 		if isError(r) {
 			return r
