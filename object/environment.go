@@ -43,10 +43,19 @@ func (e *Environment) Get(name string) (Object, bool) {
 	return o, ok
 }
 
-func (e *Environment) Set(name string, val Object) {
+func (e *Environment) GetLocal(name string) (Object, bool) {
+	obj, ok := e.store[name]
+	return obj, ok
+}
+
+func (e *Environment) Define(name string, val Object) {
+	e.store[name] = val
+}
+
+func (e *Environment) Assign(name string, val Object) {
 	if e.outer != nil {
 		if _, ok := e.outer.Get(name); ok {
-			e.outer.Set(name, val)
+			e.outer.Assign(name, val)
 			return
 		}
 	}

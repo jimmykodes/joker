@@ -7,9 +7,7 @@ import (
 	"github.com/jimmykodes/joker/ast"
 )
 
-var (
-	ErrUnsupportedType = &Error{Message: "unsupported type for operation"}
-)
+var ErrUnsupportedType = &Error{Message: "unsupported type for operation"}
 
 type Object interface {
 	Type() Type

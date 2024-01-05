@@ -14,19 +14,23 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Program:
 		return evalProgram(n, env)
 	case *ast.LetStatement:
-		// TODO: check if redefining already existing var
+		if _, ok := env.GetLocal(n.Name.Value); ok {
+			return newError("variable already initialized: %s", n.Name.Value)
+		}
 		r := Eval(n.Value, env)
 		if isError(r) {
 			return r
 		}
-		env.Set(n.Name.Value, r)
+		env.Define(n.Name.Value, r)
 	case *ast.DefineStatement:
-		// TODO: check if redefining already existing var
+		if _, ok := env.GetLocal(n.Name.Value); ok {
+			return newError("variable already initialized: %s", n.Name.Value)
+		}
 		r := Eval(n.Value, env)
 		if isError(r) {
 			return r
 		}
-		env.Set(n.Name.Value, r)
+		env.Define(n.Name.Value, r)
 	case *ast.ReassignStatement:
 		_, ok := env.Get(n.Name.Value)
 		if !ok {
@@ -36,13 +40,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(r) {
 			return r
 		}
-		env.Set(n.Name.Value, r)
+		env.Assign(n.Name.Value, r)
 	case *ast.FuncStatement:
+		if obj, ok := env.GetLocal(n.Name.Value); ok && obj.Type() != object.FunctionType {
+			return newError("declaring function with already initialized name: %s", n.Name.Value)
+		}
 		f := Eval(n.Fn, env)
 		if isError(f) {
 			return f
 		}
-		env.Set(n.Name.Value, f)
+		env.Define(n.Name.Value, f)
 	case *ast.BlockStatement:
 		return evalBlockStatements(n, env)
 	case *ast.ReturnStatement:
@@ -146,7 +153,7 @@ func applyFunc(fn object.Object, args []object.Object, env *object.Environment) 
 		}
 		wrappedEnv := object.NewEnvironment(object.EncloseOuterOption(f.Env))
 		for i, parameter := range f.Parameters {
-			wrappedEnv.Set(parameter.Value, args[i])
+			wrappedEnv.Define(parameter.Value, args[i])
 		}
 		ret := Eval(f.Body, wrappedEnv)
 		if r, ok := ret.(*object.Return); ok {
