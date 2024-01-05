@@ -41,6 +41,7 @@ const (
 	NOT // !
 
 	Assign // =
+	Define // :=
 	Plus   // +
 	Minus  // -
 	Mult   // *
@@ -92,6 +93,7 @@ var tokens = [...]string{
 	LBrack:   "[",
 	RBrack:   "]",
 	Assign:   "=",
+	Define:   ":=",
 	Plus:     "+",
 	Minus:    "-",
 	Mult:     "*",

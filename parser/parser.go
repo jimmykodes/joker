@@ -94,6 +94,9 @@ func (p *Parser) parseStatement() ast.Statement {
 		if p.peekTokenIs(token.Assign) {
 			return p.parseReassignStatement()
 		}
+		if p.peekTokenIs(token.Define) {
+			return p.parseDefineStatement()
+		}
 	case token.Func:
 		if p.peekTokenIs(token.Ident) {
 			return p.parseFuncStatement()

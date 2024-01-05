@@ -7,6 +7,27 @@ import (
 	"github.com/jimmykodes/joker/token"
 )
 
+func (p *Parser) parseDefineStatement() ast.Statement {
+	stmt := &ast.DefineStatement{
+		Name: &ast.Identifier{Token: p.curToken, Value: p.curLit},
+	}
+	if !p.expect(p.peekTokenIs(token.Define)) {
+		p.errors = append(p.errors, fmt.Errorf("identifier not followed by assignment or definition"))
+		return nil
+	}
+	stmt.Token = p.curToken
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(token.LowestPrecedence)
+
+	if !p.expect(p.peekTokenIs(token.SemiCol)) {
+		p.errors = append(p.errors, invalidTokenError(p.curLine, token.SemiCol, p.peekToken))
+		return nil
+	}
+
+	return stmt
+}
+
 func (p *Parser) parseLetStatement() ast.Statement {
 	stmt := &ast.LetStatement{Token: p.curToken}
 
@@ -56,6 +77,7 @@ func (p *Parser) parseReassignStatement() ast.Statement {
 		p.errors = append(p.errors, fmt.Errorf("identifier not followed by assignment"))
 		return nil
 	}
+	stmt.Token = p.curToken
 	p.nextToken()
 
 	stmt.Value = p.parseExpression(token.LowestPrecedence)
