@@ -35,59 +35,10 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.constants[constIdx]); err != nil {
 				return err
 			}
-		case code.OpAdd:
+		case code.OpAdd, code.OpSub, code.OpMult, code.OpDiv, code.OpMod:
 			r := vm.pop()
 			l := vm.pop()
-
-			left, ok := l.(object.Adder)
-			if !ok {
-				return fmt.Errorf("invalid object on stack, %s does not implement add", l.Type())
-			}
-			if err := vm.push(left.Add(r)); err != nil {
-				return err
-			}
-		case code.OpSub:
-			r := vm.pop()
-			l := vm.pop()
-
-			left, ok := l.(object.Subber)
-			if !ok {
-				return fmt.Errorf("invalid object on stack, %s does not implement sub", l.Type())
-			}
-			if err := vm.push(left.Sub(r)); err != nil {
-				return err
-			}
-		case code.OpMult:
-			r := vm.pop()
-			l := vm.pop()
-
-			left, ok := l.(object.MultDiver)
-			if !ok {
-				return fmt.Errorf("invalid object on stack, %s does not implement multiplication", l.Type())
-			}
-			if err := vm.push(left.Mult(r)); err != nil {
-				return err
-			}
-		case code.OpDiv:
-			r := vm.pop()
-			l := vm.pop()
-
-			left, ok := l.(object.MultDiver)
-			if !ok {
-				return fmt.Errorf("invalid object on stack, %s does not implement division", l.Type())
-			}
-			if err := vm.push(left.Div(r)); err != nil {
-				return err
-			}
-		case code.OpMod:
-			r := vm.pop()
-			l := vm.pop()
-
-			left, ok := l.(object.Modder)
-			if !ok {
-				return fmt.Errorf("invalid object on stack, %s does not implement modular division", l.Type())
-			}
-			if err := vm.push(left.Mod(r)); err != nil {
+			if err := vm.executeBinaryOperation(op, l, r); err != nil {
 				return err
 			}
 
@@ -96,6 +47,51 @@ func (vm *VM) Run() error {
 		}
 	}
 	return nil
+}
+
+func (vm *VM) executeBinaryOperation(op code.Opcode, l, r object.Object) error {
+	var res object.Object
+	switch op {
+
+	case code.OpAdd:
+		left, ok := l.(object.Adder)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement add", l.Type())
+		}
+		res = left.Add(r)
+	case code.OpSub:
+
+		left, ok := l.(object.Subber)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement sub", l.Type())
+		}
+		res = left.Sub(r)
+	case code.OpMult:
+
+		left, ok := l.(object.MultDiver)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement multiplication", l.Type())
+		}
+		res = left.Mult(r)
+	case code.OpDiv:
+
+		left, ok := l.(object.MultDiver)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement division", l.Type())
+		}
+		res = left.Div(r)
+	case code.OpMod:
+
+		left, ok := l.(object.Modder)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement modular division", l.Type())
+		}
+		res = left.Mod(r)
+	default:
+		return fmt.Errorf("invalid op: %q", op)
+
+	}
+	return vm.push(res)
 }
 
 func (vm *VM) StackTop() object.Object {
