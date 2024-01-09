@@ -14,7 +14,7 @@ import (
 
 func main() {
 	if len(os.Args) == 1 {
-		repl.Start(os.Stdin, os.Stdout)
+		repl.StartVM(os.Stdin, os.Stdout)
 	} else {
 		file := os.Args[1]
 		f, err := os.Open(file)
