@@ -67,7 +67,7 @@ func StartVM(in io.Reader, out io.Writer) {
 			fmt.Fprintf(out, "VM Error: %s\n", err)
 			continue
 		}
-		stackTop := machine.StackTop()
+		stackTop := machine.LastPoppedStackElem()
 		if stackTop != nil {
 			fmt.Fprintln(out, stackTop.Inspect())
 		}
