@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+
 	"github.com/jimmykodes/joker/ast"
 	"github.com/jimmykodes/joker/code"
 	"github.com/jimmykodes/joker/object"
@@ -33,6 +35,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		if err := c.Compile(node.Right); err != nil {
 			return err
+		}
+		switch node.Operator {
+		case "+":
+			c.emit(code.OpAdd)
+		default:
+			return fmt.Errorf("unknown operator: %s", node.Operator)
 		}
 	case *ast.IntegerLiteral:
 		obj := &object.Integer{Value: node.Value}

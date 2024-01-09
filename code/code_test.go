@@ -16,6 +16,11 @@ func TestMake(t *testing.T) {
 			operands: []int{math.MaxUint16 - 1},
 			want:     []byte{byte(OpConstant), 0xFF, 0xFE},
 		},
+		{
+			op:       OpAdd,
+			operands: []int{},
+			want:     []byte{byte(OpAdd)},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

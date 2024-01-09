@@ -5,5 +5,6 @@ type Opcode byte
 //go:generate stringer -type Opcode
 const (
 	OpConstant Opcode = iota
+	OpAdd
 	lastOpcode
 )

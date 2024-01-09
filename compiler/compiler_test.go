@@ -25,6 +25,7 @@ func TestStringArithmetic(t *testing.T) {
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpConstant, 1),
+				code.Make(code.OpAdd),
 			},
 		},
 	}
@@ -39,6 +40,7 @@ func TestFloatArithmetic(t *testing.T) {
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpConstant, 1),
+				code.Make(code.OpAdd),
 			},
 		},
 	}
@@ -53,6 +55,7 @@ func TestIntegerArithmetic(t *testing.T) {
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpConstant, 1),
+				code.Make(code.OpAdd),
 			},
 		},
 	}
@@ -68,24 +71,22 @@ func parse(input string) *ast.Program {
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 	t.Helper()
 	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			program := parse(tt.input)
-			compiler := New()
-			err := compiler.Compile(program)
-			if err != nil {
-				t.Fatalf("compiler error: %s", err)
-			}
-			bytecode := compiler.Bytecode()
-			err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
-			if err != nil {
-				t.Fatalf("test instructions failed: %s", err)
-			}
+		program := parse(tt.input)
+		compiler := New()
+		err := compiler.Compile(program)
+		if err != nil {
+			t.Fatalf("compiler error: %s", err)
+		}
+		bytecode := compiler.Bytecode()
+		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
+		if err != nil {
+			t.Fatalf("test instructions failed: %s", err)
+		}
 
-			err = testConstants(tt.expectedConstants, bytecode.Constants)
-			if err != nil {
-				t.Fatalf("test constants failed: %s", err)
-			}
-		})
+		err = testConstants(tt.expectedConstants, bytecode.Constants)
+		if err != nil {
+			t.Fatalf("test constants failed: %s", err)
+		}
 	}
 }
 

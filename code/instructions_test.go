@@ -4,13 +4,13 @@ import "testing"
 
 func TestInstructionsString(t *testing.T) {
 	inst := []Instructions{
-		Make(OpConstant, 1),
+		Make(OpAdd),
 		Make(OpConstant, 2),
 		Make(OpConstant, 65535),
 	}
-	expect := `0000 OpConstant 1
-0003 OpConstant 2
-0006 OpConstant 65535
+	expect := `0000 OpAdd
+0001 OpConstant 2
+0004 OpConstant 65535
 `
 	var joined Instructions
 	for _, ins := range inst {

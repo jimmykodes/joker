@@ -20,7 +20,26 @@ func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTestCase{
 		{"1", 1},
 		{"2", 2},
-		{"1 + 2", 2}, // FIXME
+		{"1 + 2", 3},
+	}
+	runVmTests(t, tests)
+}
+
+func TestFloatArithmetic(t *testing.T) {
+	tests := []vmTestCase{
+		{"1.0", 1.0},
+		{"2.5", 2.5},
+		{"1.0 + 2.5", 3.5},
+		{"1 + 2.5", 3.5},
+	}
+	runVmTests(t, tests)
+}
+
+func TestStringArithmetic(t *testing.T) {
+	tests := []vmTestCase{
+		{`"test"`, "test"},
+		{`"taco"`, "taco"},
+		{`"test" + "taco"`, "testtaco"},
 	}
 	runVmTests(t, tests)
 }

@@ -9,11 +9,13 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[OpConstant-0]
+	_ = x[OpAdd-1]
+	_ = x[lastOpcode-2]
 }
 
-const _Opcode_name = "OpConstant"
+const _Opcode_name = "OpConstantOpAddlastOpcode"
 
-var _Opcode_index = [...]uint8{0, 10}
+var _Opcode_index = [...]uint8{0, 10, 15, 25}
 
 func (i Opcode) String() string {
 	if i >= Opcode(len(_Opcode_index)-1) {
