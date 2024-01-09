@@ -1,9 +1,6 @@
 package code
 
-type (
-	Instructions []byte
-	Opcode       byte
-)
+type Opcode byte
 
 //go:generate stringer -type Opcode
 const (
