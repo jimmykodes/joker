@@ -6,5 +6,6 @@ type Opcode byte
 const (
 	OpConstant Opcode = iota
 	OpAdd
+	OpPop
 	lastOpcode
 )

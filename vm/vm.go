@@ -38,11 +38,16 @@ func (vm *VM) Run() error {
 		case code.OpAdd:
 			r := vm.pop()
 			l := vm.pop()
+
 			left, ok := l.(object.Adder)
 			if !ok {
 				return fmt.Errorf("invalid object on stack, %s does not implement add", l.Type())
 			}
-			return vm.push(left.Add(r))
+			if err := vm.push(left.Add(r)); err != nil {
+				return err
+			}
+		case code.OpPop:
+			vm.pop()
 		}
 	}
 	return nil
@@ -54,6 +59,10 @@ func (vm *VM) StackTop() object.Object {
 	}
 
 	return vm.stack[vm.sp-1]
+}
+
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.sp]
 }
 
 func (vm *VM) push(obj object.Object) error {

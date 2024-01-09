@@ -21,6 +21,11 @@ func TestMake(t *testing.T) {
 			operands: []int{},
 			want:     []byte{byte(OpAdd)},
 		},
+		{
+			op:       OpPop,
+			operands: []int{},
+			want:     []byte{byte(OpPop)},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

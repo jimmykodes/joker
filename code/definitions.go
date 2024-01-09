@@ -10,6 +10,7 @@ type Definition struct {
 var definitions = [lastOpcode]*Definition{
 	OpConstant: {OpConstant.String(), []int{2}},
 	OpAdd:      {OpAdd.String(), []int{}},
+	OpPop:      {OpPop.String(), []int{}},
 }
 
 // Lookup will return the Definition of the provided opcode, or an error

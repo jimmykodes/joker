@@ -30,7 +30,7 @@ func TestFloatArithmetic(t *testing.T) {
 		{"1.0", 1.0},
 		{"2.5", 2.5},
 		{"1.0 + 2.5", 3.5},
-		{"1 + 2.5", 3.5},
+		{"2 + 2.5", 4.5},
 	}
 	runVmTests(t, tests)
 }
@@ -48,17 +48,24 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
 	for _, tt := range tests {
-		program := parse(tt.input)
-		comp := compiler.New()
-		if err := comp.Compile(program); err != nil {
-			t.Fatalf("compiler error: %s", err)
-		}
-		vm := New(comp.Bytecode())
-		if err := vm.Run(); err != nil {
-			t.Fatalf("vm error: %s", err)
-		}
-		stackElem := vm.StackTop()
-		testExpectedObject(t, tt.expected, stackElem)
+		t.Run(tt.input, func(t *testing.T) {
+			program := parse(tt.input)
+
+			comp := compiler.New()
+			if err := comp.Compile(program); err != nil {
+				t.Errorf("compiler error: %s", err)
+				return
+			}
+
+			vm := New(comp.Bytecode())
+			fmt.Println(vm.instructions)
+			if err := vm.Run(); err != nil {
+				t.Errorf("vm error: %s", err)
+				return
+			}
+			stackElem := vm.LastPoppedStackElem()
+			testExpectedObject(t, tt.expected, stackElem)
+		})
 	}
 }
 
@@ -69,6 +76,17 @@ func testExpectedObject(t *testing.T, want any, got object.Object) {
 		if err := testIntegerObject(int64(want), got); err != nil {
 			t.Errorf("testIntegerObject failed: %s", err)
 		}
+	case float64:
+		if err := testFloatObject(want, got); err != nil {
+			t.Errorf("testFloatObject failed: %s", err)
+		}
+	case string:
+		if err := testStringObject(want, got); err != nil {
+			t.Errorf("testStringObject failed: %s", err)
+		}
+	default:
+		t.Errorf("missing test for type: %T", want)
+
 	}
 }
 
@@ -79,6 +97,28 @@ func testIntegerObject(want int64, got object.Object) error {
 	}
 	if result.Value != want {
 		return fmt.Errorf("incorrect value: got %d - want %d", result.Value, want)
+	}
+	return nil
+}
+
+func testStringObject(want string, got object.Object) error {
+	result, ok := got.(*object.String)
+	if !ok {
+		return fmt.Errorf("object not a string. got %T (%v)", got, got)
+	}
+	if result.Value != want {
+		return fmt.Errorf("incorrect value: got %s - want %s", result.Value, want)
+	}
+	return nil
+}
+
+func testFloatObject(want float64, got object.Object) error {
+	result, ok := got.(*object.Float)
+	if !ok {
+		return fmt.Errorf("object not a float. got %T (%v)", got, got)
+	}
+	if result.Value != want {
+		return fmt.Errorf("incorrect value: got %f - want %f", result.Value, want)
 	}
 	return nil
 }
