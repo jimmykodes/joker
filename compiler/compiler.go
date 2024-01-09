@@ -38,8 +38,18 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		switch node.Operator {
+
 		case "+":
 			c.emit(code.OpAdd)
+		case "-":
+			c.emit(code.OpSub)
+		case "*":
+			c.emit(code.OpMult)
+		case "/":
+			c.emit(code.OpDiv)
+		case "%":
+			c.emit(code.OpMod)
+
 		default:
 			return fmt.Errorf("unknown operator: %s", node.Operator)
 		}

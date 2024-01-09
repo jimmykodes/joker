@@ -4,8 +4,16 @@ type Opcode byte
 
 //go:generate stringer -type Opcode
 const (
+	// stack manipulation
 	OpConstant Opcode = iota
-	OpAdd
 	OpPop
+
+	// arithmetic
+	OpAdd
+	OpSub
+	OpMult
+	OpDiv
+	OpMod
+
 	lastOpcode
 )

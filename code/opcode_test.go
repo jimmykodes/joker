@@ -12,6 +12,10 @@ func TestReadOperands(t *testing.T) {
 	}{
 		{OpConstant, []int{65535}, 2},
 		{OpAdd, []int{}, 0},
+		{OpSub, []int{}, 0},
+		{OpMult, []int{}, 0},
+		{OpDiv, []int{}, 0},
+		{OpMod, []int{}, 0},
 		{OpPop, []int{}, 0},
 	}
 	for _, tt := range tests {

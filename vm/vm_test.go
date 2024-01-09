@@ -21,6 +21,10 @@ func TestIntegerArithmetic(t *testing.T) {
 		{"1", 1},
 		{"2", 2},
 		{"1 + 2", 3},
+		{"4 - 3", 1},
+		{"6 / 3", 2},
+		{"3 * 4", 12},
+		{"15 % 7", 1},
 	}
 	runVmTests(t, tests)
 }
@@ -31,6 +35,9 @@ func TestFloatArithmetic(t *testing.T) {
 		{"2.5", 2.5},
 		{"1.0 + 2.5", 3.5},
 		{"2 + 2.5", 4.5},
+		{"4.0 - 3", 1.0},
+		{"6.0 / 4.0", 1.5},
+		{"3.0 * 4", 12.0},
 	}
 	runVmTests(t, tests)
 }
@@ -58,11 +65,11 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			}
 
 			vm := New(comp.Bytecode())
-			fmt.Println(vm.instructions)
 			if err := vm.Run(); err != nil {
 				t.Errorf("vm error: %s", err)
 				return
 			}
+
 			stackElem := vm.LastPoppedStackElem()
 			testExpectedObject(t, tt.expected, stackElem)
 		})

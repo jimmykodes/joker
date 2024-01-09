@@ -8,9 +8,16 @@ type Definition struct {
 }
 
 var definitions = [lastOpcode]*Definition{
+	// stack manipulation
 	OpConstant: {OpConstant.String(), []int{2}},
-	OpAdd:      {OpAdd.String(), []int{}},
 	OpPop:      {OpPop.String(), []int{}},
+
+	// arithmetic
+	OpAdd:  {OpAdd.String(), []int{}},
+	OpSub:  {OpSub.String(), []int{}},
+	OpMult: {OpMult.String(), []int{}},
+	OpDiv:  {OpDiv.String(), []int{}},
+	OpMod:  {OpMod.String(), []int{}},
 }
 
 // Lookup will return the Definition of the provided opcode, or an error
