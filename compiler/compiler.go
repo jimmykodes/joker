@@ -25,6 +25,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+
+		// expressions
 	case *ast.ExpressionStatement:
 		if err := c.Compile(node.Expression); err != nil {
 			return err
@@ -53,6 +55,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		default:
 			return fmt.Errorf("unknown operator: %s", node.Operator)
 		}
+
+		// Literals
 	case *ast.IntegerLiteral:
 		obj := &object.Integer{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(obj))
@@ -62,6 +66,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.StringLiteral:
 		obj := &object.String{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(obj))
+	case *ast.BooleanLiteral:
+		if node.Value {
+			c.emit(code.OpTrue)
+		} else {
+			c.emit(code.OpFalse)
+		}
 
 	}
 	return nil

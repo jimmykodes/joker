@@ -41,6 +41,14 @@ func (vm *VM) Run() error {
 			if err := vm.executeBinaryOperation(op, l, r); err != nil {
 				return err
 			}
+		case code.OpTrue:
+			if err := vm.push(object.True); err != nil {
+				return err
+			}
+		case code.OpFalse:
+			if err := vm.push(object.False); err != nil {
+				return err
+			}
 
 		case code.OpPop:
 			vm.pop()
@@ -52,7 +60,6 @@ func (vm *VM) Run() error {
 func (vm *VM) executeBinaryOperation(op code.Opcode, l, r object.Object) error {
 	var res object.Object
 	switch op {
-
 	case code.OpAdd:
 		left, ok := l.(object.Adder)
 		if !ok {
@@ -60,33 +67,30 @@ func (vm *VM) executeBinaryOperation(op code.Opcode, l, r object.Object) error {
 		}
 		res = left.Add(r)
 	case code.OpSub:
-
 		left, ok := l.(object.Subber)
 		if !ok {
 			return fmt.Errorf("invalid object on stack, %s does not implement sub", l.Type())
 		}
 		res = left.Sub(r)
 	case code.OpMult:
-
 		left, ok := l.(object.MultDiver)
 		if !ok {
 			return fmt.Errorf("invalid object on stack, %s does not implement multiplication", l.Type())
 		}
 		res = left.Mult(r)
 	case code.OpDiv:
-
 		left, ok := l.(object.MultDiver)
 		if !ok {
 			return fmt.Errorf("invalid object on stack, %s does not implement division", l.Type())
 		}
 		res = left.Div(r)
 	case code.OpMod:
-
 		left, ok := l.(object.Modder)
 		if !ok {
 			return fmt.Errorf("invalid object on stack, %s does not implement modular division", l.Type())
 		}
 		res = left.Mod(r)
+
 	default:
 		return fmt.Errorf("invalid op: %q", op)
 

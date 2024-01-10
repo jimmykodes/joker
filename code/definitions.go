@@ -18,6 +18,10 @@ var definitions = [lastOpcode]*Definition{
 	OpMult: {OpMult.String(), []int{}},
 	OpDiv:  {OpDiv.String(), []int{}},
 	OpMod:  {OpMod.String(), []int{}},
+
+	// bools
+	OpTrue:  {OpTrue.String(), []int{}},
+	OpFalse: {OpFalse.String(), []int{}},
 }
 
 // Lookup will return the Definition of the provided opcode, or an error

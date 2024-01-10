@@ -10,13 +10,20 @@ func TestReadOperands(t *testing.T) {
 		operands  []int
 		bytesRead int
 	}{
+		// stack mod
 		{OpConstant, []int{65535}, 2},
+		{OpPop, []int{}, 0},
+
+		// arithmetic
 		{OpAdd, []int{}, 0},
 		{OpSub, []int{}, 0},
 		{OpMult, []int{}, 0},
 		{OpDiv, []int{}, 0},
 		{OpMod, []int{}, 0},
-		{OpPop, []int{}, 0},
+
+		// bool
+		{OpTrue, []int{}, 0},
+		{OpFalse, []int{}, 0},
 	}
 	for _, tt := range tests {
 		instruction := Make(tt.op, tt.operands...)

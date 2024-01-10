@@ -11,21 +11,20 @@ func TestMake(t *testing.T) {
 		operands []int
 		want     []byte
 	}{
-		{
-			op:       OpConstant,
-			operands: []int{math.MaxUint16 - 1},
-			want:     []byte{byte(OpConstant), 0xFF, 0xFE},
-		},
-		{
-			op:       OpAdd,
-			operands: []int{},
-			want:     []byte{byte(OpAdd)},
-		},
-		{
-			op:       OpPop,
-			operands: []int{},
-			want:     []byte{byte(OpPop)},
-		},
+		// stack mod
+		{OpConstant, []int{math.MaxUint16 - 1}, []byte{byte(OpConstant), 0xFF, 0xFE}},
+		{OpPop, []int{}, []byte{byte(OpPop)}},
+
+		// arithmetic
+		{OpAdd, []int{}, []byte{byte(OpAdd)}},
+		{OpSub, []int{}, []byte{byte(OpSub)}},
+		{OpMult, []int{}, []byte{byte(OpMult)}},
+		{OpDiv, []int{}, []byte{byte(OpDiv)}},
+		{OpMod, []int{}, []byte{byte(OpMod)}},
+
+		// bool
+		{OpTrue, []int{}, []byte{byte(OpTrue)}},
+		{OpFalse, []int{}, []byte{byte(OpFalse)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

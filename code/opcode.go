@@ -15,5 +15,9 @@ const (
 	OpDiv
 	OpMod
 
+	// bool
+	OpTrue
+	OpFalse
+
 	lastOpcode
 )

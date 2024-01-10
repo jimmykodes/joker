@@ -51,6 +51,14 @@ func TestStringArithmetic(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestBooleanExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{"false", false},
+		{"true", true},
+	}
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -91,6 +99,10 @@ func testExpectedObject(t *testing.T, want any, got object.Object) {
 		if err := testStringObject(want, got); err != nil {
 			t.Errorf("testStringObject failed: %s", err)
 		}
+	case bool:
+		if err := testBoolObject(want, got); err != nil {
+			t.Errorf("testBoolObject failed: %s", err)
+		}
 	default:
 		t.Errorf("missing test for type: %T", want)
 
@@ -126,6 +138,19 @@ func testFloatObject(want float64, got object.Object) error {
 	}
 	if result.Value != want {
 		return fmt.Errorf("incorrect value: got %f - want %f", result.Value, want)
+	}
+	return nil
+}
+
+func testBoolObject(want bool, got object.Object) error {
+	if want {
+		if got != object.True {
+			return fmt.Errorf("invalid value: got %v - want %v", got, want)
+		}
+	} else {
+		if got != object.False {
+			return fmt.Errorf("invalid value: got %v - want %v", got, want)
+		}
 	}
 	return nil
 }
