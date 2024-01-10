@@ -20,6 +20,20 @@ func (b *Boolean) Bool() *Boolean {
 	return b
 }
 
+func (b *Boolean) EQ(right Object) Object {
+	if b == right {
+		return True
+	}
+	return False
+}
+
+func (b *Boolean) NEQ(right Object) Object {
+	if b != right {
+		return True
+	}
+	return False
+}
+
 func (b *Boolean) Invert() *Boolean {
 	if b == True {
 		return False

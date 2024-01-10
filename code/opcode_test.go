@@ -24,6 +24,12 @@ func TestReadOperands(t *testing.T) {
 		// bool
 		{OpTrue, []int{}, 0},
 		{OpFalse, []int{}, 0},
+
+		// comparison
+		{OpEQ, []int{}, 0},
+		{OpNEQ, []int{}, 0},
+		{OpGT, []int{}, 0},
+		{OpGTE, []int{}, 0},
 	}
 	for _, tt := range tests {
 		instruction := Make(tt.op, tt.operands...)

@@ -22,6 +22,12 @@ var definitions = [lastOpcode]*Definition{
 	// bools
 	OpTrue:  {OpTrue.String(), []int{}},
 	OpFalse: {OpFalse.String(), []int{}},
+
+	// comparisons
+	OpEQ:  {OpEQ.String(), []int{}},
+	OpNEQ: {OpNEQ.String(), []int{}},
+	OpGT:  {OpGT.String(), []int{}},
+	OpGTE: {OpGTE.String(), []int{}},
 }
 
 // Lookup will return the Definition of the provided opcode, or an error

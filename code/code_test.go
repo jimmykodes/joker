@@ -25,6 +25,12 @@ func TestMake(t *testing.T) {
 		// bool
 		{OpTrue, []int{}, []byte{byte(OpTrue)}},
 		{OpFalse, []int{}, []byte{byte(OpFalse)}},
+
+		// comparison
+		{OpEQ, []int{}, []byte{byte(OpEQ)}},
+		{OpNEQ, []int{}, []byte{byte(OpNEQ)}},
+		{OpGT, []int{}, []byte{byte(OpGT)}},
+		{OpGTE, []int{}, []byte{byte(OpGTE)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

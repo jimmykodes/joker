@@ -19,5 +19,11 @@ const (
 	OpTrue
 	OpFalse
 
+	// Comparison
+	OpEQ
+	OpNEQ
+	OpGT
+	OpGTE
+
 	lastOpcode
 )

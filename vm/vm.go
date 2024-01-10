@@ -35,10 +35,8 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.constants[constIdx]); err != nil {
 				return err
 			}
-		case code.OpAdd, code.OpSub, code.OpMult, code.OpDiv, code.OpMod:
-			r := vm.pop()
-			l := vm.pop()
-			if err := vm.executeBinaryOperation(op, l, r); err != nil {
+		case code.OpAdd, code.OpSub, code.OpMult, code.OpDiv, code.OpMod, code.OpEQ, code.OpNEQ, code.OpGT, code.OpGTE:
+			if err := vm.executeBinaryOperation(op); err != nil {
 				return err
 			}
 		case code.OpTrue:
@@ -57,7 +55,8 @@ func (vm *VM) Run() error {
 	return nil
 }
 
-func (vm *VM) executeBinaryOperation(op code.Opcode, l, r object.Object) error {
+func (vm *VM) executeBinaryOperation(op code.Opcode) error {
+	r, l := vm.pop(), vm.pop()
 	var res object.Object
 	switch op {
 	case code.OpAdd:
@@ -90,7 +89,30 @@ func (vm *VM) executeBinaryOperation(op code.Opcode, l, r object.Object) error {
 			return fmt.Errorf("invalid object on stack, %s does not implement modular division", l.Type())
 		}
 		res = left.Mod(r)
-
+	case code.OpEQ:
+		left, ok := l.(object.Equal)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement equality", l.Type())
+		}
+		res = left.EQ(r)
+	case code.OpNEQ:
+		left, ok := l.(object.Equal)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement inequality", l.Type())
+		}
+		res = left.NEQ(r)
+	case code.OpGT:
+		left, ok := l.(object.Inequality)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement comparison", l.Type())
+		}
+		res = left.GT(r)
+	case code.OpGTE:
+		left, ok := l.(object.Inequality)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement comparison", l.Type())
+		}
+		res = left.GTE(r)
 	default:
 		return fmt.Errorf("invalid op: %q", op)
 
