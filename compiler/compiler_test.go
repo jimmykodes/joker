@@ -85,6 +85,17 @@ func TestFloatArithmetic(t *testing.T) {
 				code.Make(code.OpPop),
 			},
 		},
+		{
+			input:             "-1.0 - 2.0",
+			expectedConstants: []any{1.0, 2.0},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpMinus),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpSub),
+				code.Make(code.OpPop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }
@@ -141,6 +152,17 @@ func TestIntegerArithmetic(t *testing.T) {
 				code.Make(code.OpPop),
 			},
 		},
+		{
+			input:             "-1 - 2",
+			expectedConstants: []any{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpMinus),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpSub),
+				code.Make(code.OpPop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }
@@ -160,6 +182,24 @@ func TestBooleanExpressions(t *testing.T) {
 			expectedConstants: []any{},
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpFalse),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "!true",
+			expectedConstants: []any{},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpTrue),
+				code.Make(code.OpBang),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "!false",
+			expectedConstants: []any{},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpFalse),
+				code.Make(code.OpBang),
 				code.Make(code.OpPop),
 			},
 		},

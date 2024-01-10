@@ -31,6 +31,10 @@ func TestMake(t *testing.T) {
 		{OpNEQ, []int{}, []byte{byte(OpNEQ)}},
 		{OpGT, []int{}, []byte{byte(OpGT)}},
 		{OpGTE, []int{}, []byte{byte(OpGTE)}},
+
+		// prefix
+		{OpMinus, []int{}, []byte{byte(OpMinus)}},
+		{OpBang, []int{}, []byte{byte(OpBang)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

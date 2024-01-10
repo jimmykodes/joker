@@ -39,6 +39,11 @@ func (vm *VM) Run() error {
 			if err := vm.executeBinaryOperation(op); err != nil {
 				return err
 			}
+		case code.OpBang, code.OpMinus:
+			if err := vm.executePrefixOperator(op); err != nil {
+				return err
+			}
+
 		case code.OpTrue:
 			if err := vm.push(object.True); err != nil {
 				return err
@@ -116,6 +121,28 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 	default:
 		return fmt.Errorf("invalid op: %q", op)
 
+	}
+	return vm.push(res)
+}
+
+func (vm *VM) executePrefixOperator(op code.Opcode) error {
+	r := vm.pop()
+	var res object.Object
+	switch op {
+	case code.OpMinus:
+		right, ok := r.(object.Negater)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement negation", r.Type())
+		}
+		res = right.Negative()
+	case code.OpBang:
+		right, ok := r.(object.Booler)
+		if !ok {
+			return fmt.Errorf("invalid object on stack, %s does not implement ! inversion", r.Type())
+		}
+		res = right.Bool().Invert()
+	default:
+		return fmt.Errorf("invalid op: %q", op)
 	}
 	return vm.push(res)
 }

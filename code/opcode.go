@@ -25,5 +25,9 @@ const (
 	OpGT
 	OpGTE
 
+	// prefix
+	OpMinus
+	OpBang
+
 	lastOpcode
 )

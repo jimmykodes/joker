@@ -7,27 +7,16 @@ type Definition struct {
 	OperandWidths []int
 }
 
-var definitions = [lastOpcode]*Definition{
-	// stack manipulation
-	OpConstant: {OpConstant.String(), []int{2}},
-	OpPop:      {OpPop.String(), []int{}},
+var opWidths = [lastOpcode][]int{
+	OpConstant: {2},
+}
 
-	// arithmetic
-	OpAdd:  {OpAdd.String(), []int{}},
-	OpSub:  {OpSub.String(), []int{}},
-	OpMult: {OpMult.String(), []int{}},
-	OpDiv:  {OpDiv.String(), []int{}},
-	OpMod:  {OpMod.String(), []int{}},
+var definitions = [lastOpcode]*Definition{}
 
-	// bools
-	OpTrue:  {OpTrue.String(), []int{}},
-	OpFalse: {OpFalse.String(), []int{}},
-
-	// comparisons
-	OpEQ:  {OpEQ.String(), []int{}},
-	OpNEQ: {OpNEQ.String(), []int{}},
-	OpGT:  {OpGT.String(), []int{}},
-	OpGTE: {OpGTE.String(), []int{}},
+func init() {
+	for i := OpConstant; i < lastOpcode; i++ {
+		definitions[i] = &Definition{i.String(), opWidths[i]}
+	}
 }
 
 // Lookup will return the Definition of the provided opcode, or an error

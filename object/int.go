@@ -18,8 +18,8 @@ func (i *Integer) Bool() *Boolean {
 	return False
 }
 
-func (i *Integer) Negative() (Object, error) {
-	return &Integer{Value: -i.Value}, nil
+func (i *Integer) Negative() Object {
+	return &Integer{Value: -i.Value}
 }
 
 func (i *Integer) HashKey() HashKey {

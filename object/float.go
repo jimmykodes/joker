@@ -23,8 +23,8 @@ func (f *Float) HashKey() HashKey {
 	return HashKey{Type: FloatType, Value: math.Float64bits(f.Value)}
 }
 
-func (f *Float) Negative() (Object, error) {
-	return &Float{Value: -f.Value}, nil
+func (f *Float) Negative() Object {
+	return &Float{Value: -f.Value}
 }
 
 func (f *Float) Add(obj Object) Object {

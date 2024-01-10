@@ -18,10 +18,12 @@ type vmTestCase struct {
 
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTestCase{
+		{"-1", -1},
 		{"1", 1},
 		{"2", 2},
 		{"1 + 2", 3},
 		{"4 - 3", 1},
+		{"-4 - 3", -7},
 		{"6 / 3", 2},
 		{"3 * 4", 12},
 		{"15 % 7", 1},
@@ -31,6 +33,7 @@ func TestIntegerArithmetic(t *testing.T) {
 
 func TestFloatArithmetic(t *testing.T) {
 	tests := []vmTestCase{
+		{"-1.0", -1.0},
 		{"1.0", 1.0},
 		{"2.5", 2.5},
 		{"1.0 + 2.5", 3.5},
@@ -38,6 +41,7 @@ func TestFloatArithmetic(t *testing.T) {
 		{"4.0 - 3", 1.0},
 		{"6.0 / 4.0", 1.5},
 		{"3.0 * 4", 12.0},
+		{"-3.0 * 4", -12.0},
 	}
 	runVmTests(t, tests)
 }
@@ -80,7 +84,6 @@ func TestBooleanExpressions(t *testing.T) {
 		{"1 != 1", false},
 		{"2 != 1", true},
 
-		//
 		{"(1 < 2) == true", true},
 		{"(1 < 2) == false", false},
 
@@ -98,6 +101,15 @@ func TestBooleanExpressions(t *testing.T) {
 
 		{"(1 != 2) == true", true},
 		{"(1 != 2) == false", false},
+
+		{"!false", true},
+		{"!true", false},
+		{"!!false", false},
+		{"!!true", true},
+		{"!(2 != 1)", false},
+		{"!(2 == 1)", true},
+		{"!((1 < 2) == true)", false},
+		{"!((1 < 2) == false)", true},
 	}
 	runVmTests(t, tests)
 }
