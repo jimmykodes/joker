@@ -8,13 +8,15 @@ type Definition struct {
 }
 
 var opWidths = [lastOpcode][]int{
-	OpConstant: {2},
+	OpConstant:      {2},
+	OpJump:          {2},
+	OpJumpNotTruthy: {2},
 }
 
 var definitions = [lastOpcode]*Definition{}
 
 func init() {
-	for i := OpConstant; i < lastOpcode; i++ {
+	for i := Opcode(0); i < lastOpcode; i++ {
 		definitions[i] = &Definition{i.String(), opWidths[i]}
 	}
 }

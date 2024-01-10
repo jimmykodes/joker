@@ -11,6 +11,11 @@ import (
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
+
+	// ultInst is the last (ultimate) instruction emitted
+	ultInst EmittedInstruction
+	// prenultInst is the second to last (penultimate) instruction emitted
+	prenultInst EmittedInstruction
 }
 
 func New() *Compiler {
@@ -26,12 +31,20 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 
-		// expressions
+	case *ast.BlockStatement:
+		for _, s := range node.Statements {
+			if err := c.Compile(s); err != nil {
+				return err
+			}
+		}
+
 	case *ast.ExpressionStatement:
 		if err := c.Compile(node.Expression); err != nil {
 			return err
 		}
 		c.emit(code.OpPop)
+
+		// expressions
 	case *ast.InfixExpression:
 		if node.Operator == "<" || node.Operator == "<=" {
 			if err := c.Compile(node.Right); err != nil {
@@ -92,6 +105,39 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return fmt.Errorf("unknown operator %s", node.Operator)
 		}
 
+		// Conditionals
+	case *ast.IfExpression:
+		if err := c.Compile(node.Condition); err != nil {
+			return err
+		}
+		jmpNTPos := c.emit(code.OpJumpNotTruthy, 0)
+		if err := c.Compile(node.Consequence); err != nil {
+			return err
+		}
+
+		if c.ultInst.Opcode == code.OpPop {
+			c.removeLastInstruction()
+		}
+
+		if node.Alternative == nil {
+			// if there is no alternative block, we'll just to this current position
+			c.replaceOperand(jmpNTPos, len(c.instructions))
+		} else {
+			jmpPos := c.emit(code.OpJump, 0)
+
+			// since there is an alternative, the not truthy jump should be _after_ the always jump code
+			c.replaceOperand(jmpNTPos, len(c.instructions))
+
+			if err := c.Compile(node.Alternative); err != nil {
+				return err
+			}
+
+			if c.ultInst.Opcode == code.OpPop {
+				c.removeLastInstruction()
+			}
+			c.replaceOperand(jmpPos, len(c.instructions))
+		}
+
 		// Literals
 	case *ast.IntegerLiteral:
 		obj := &object.Integer{Value: node.Value}
@@ -120,10 +166,33 @@ func (c *Compiler) Bytecode() *Bytecode {
 	}
 }
 
+func (c *Compiler) removeLastInstruction() {
+	c.instructions = c.instructions[:c.ultInst.Position]
+	c.ultInst = c.prenultInst
+}
+
+func (c *Compiler) replaceInstruction(pos int, inst code.Instructions) {
+	for i, n := range inst {
+		c.instructions[pos+i] = n
+	}
+}
+
+func (c *Compiler) replaceOperand(pos int, operand int) {
+	op := code.Opcode(c.instructions[pos])
+	newInst := code.Make(op, operand)
+	c.replaceInstruction(pos, newInst)
+}
+
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	ins := code.Make(op, operands...)
 	pos := c.addInstruction(ins)
+	c.setUltInst(op, pos)
 	return pos
+}
+
+func (c *Compiler) setUltInst(op code.Opcode, pos int) {
+	c.prenultInst = c.ultInst
+	c.ultInst = EmittedInstruction{Opcode: op, Position: pos}
 }
 
 func (c *Compiler) addInstruction(ins code.Instructions) int {
@@ -140,4 +209,9 @@ func (c *Compiler) addConstant(obj object.Object) int {
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
+}
+
+type EmittedInstruction struct {
+	Opcode   code.Opcode
+	Position int
 }

@@ -10,6 +10,8 @@ func TestInstructionsString(t *testing.T) {
 		Make(OpPop),
 		Make(OpTrue),
 		Make(OpFalse),
+		Make(OpBang),
+		Make(OpMinus),
 	}
 	expect := `0000 OpAdd
 0001 OpConstant 2
@@ -17,6 +19,8 @@ func TestInstructionsString(t *testing.T) {
 0007 OpPop
 0008 OpTrue
 0009 OpFalse
+0010 OpBang
+0011 OpMinus
 `
 	var joined Instructions
 	for _, ins := range inst {

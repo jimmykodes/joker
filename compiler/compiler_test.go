@@ -17,6 +17,52 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestConditionals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "if true { 10 }; 3333;",
+			expectedConstants: []any{10, 3333},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.Make(code.OpTrue),
+				// 0001
+				code.Make(code.OpJumpNotTruthy, 7),
+				// 0004
+				code.Make(code.OpConstant, 0),
+				// 0007
+				code.Make(code.OpPop),
+				// 0008
+				code.Make(code.OpConstant, 1),
+				// 0011
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "if true { 10 } else { 12 }; 3333;",
+			expectedConstants: []any{10, 12, 3333},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.Make(code.OpTrue),
+				// 0001
+				code.Make(code.OpJumpNotTruthy, 10),
+				// 0004
+				code.Make(code.OpConstant, 0),
+				// 0007
+				code.Make(code.OpJump, 13),
+				// 0010
+				code.Make(code.OpConstant, 1),
+				// 0011
+				code.Make(code.OpPop),
+				// 0012
+				code.Make(code.OpConstant, 2),
+				// 0013
+				code.Make(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestStringArithmetic(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -308,7 +354,7 @@ func testInstructions(want []code.Instructions, got code.Instructions) error {
 	}
 	for i, ins := range joined {
 		if ins != got[i] {
-			return fmt.Errorf("mismatched instruction at %d: got %q - want %q", i, code.Opcode(got[i]), code.Opcode(ins))
+			return fmt.Errorf("mismatched instruction at %d:\ngot  %q\nwant %q", i, got, joined)
 		}
 	}
 	return nil

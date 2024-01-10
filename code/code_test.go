@@ -35,6 +35,10 @@ func TestMake(t *testing.T) {
 		// prefix
 		{OpMinus, []int{}, []byte{byte(OpMinus)}},
 		{OpBang, []int{}, []byte{byte(OpBang)}},
+
+		// jump
+		{OpJump, []int{math.MaxUint16 - 1}, []byte{byte(OpJump), 0xFF, 0xFE}},
+		{OpJumpNotTruthy, []int{math.MaxUint16 - 1}, []byte{byte(OpJumpNotTruthy), 0xFF, 0xFE}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {
@@ -45,7 +49,7 @@ func TestMake(t *testing.T) {
 			}
 			for i, b := range tt.want {
 				if instruction[i] != b {
-					t.Errorf("incorrect byte at pos %d: got %d - want %d", i, instruction[i], b)
+					t.Errorf("incorrect instruction at pos %d: got %s - want %s", i, Opcode(instruction[i]), Opcode(b))
 				}
 			}
 		})

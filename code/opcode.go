@@ -29,5 +29,9 @@ const (
 	OpMinus
 	OpBang
 
+	// jump
+	OpJump
+	OpJumpNotTruthy
+
 	lastOpcode
 )

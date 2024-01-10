@@ -35,15 +35,20 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.constants[constIdx]); err != nil {
 				return err
 			}
+
+			// infix
 		case code.OpAdd, code.OpSub, code.OpMult, code.OpDiv, code.OpMod, code.OpEQ, code.OpNEQ, code.OpGT, code.OpGTE:
 			if err := vm.executeBinaryOperation(op); err != nil {
 				return err
 			}
+
+			// prefix
 		case code.OpBang, code.OpMinus:
 			if err := vm.executePrefixOperator(op); err != nil {
 				return err
 			}
 
+			// bools
 		case code.OpTrue:
 			if err := vm.push(object.True); err != nil {
 				return err
@@ -51,6 +56,19 @@ func (vm *VM) Run() error {
 		case code.OpFalse:
 			if err := vm.push(object.False); err != nil {
 				return err
+			}
+
+			// jumps
+		case code.OpJump:
+			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip = pos - 1
+		case code.OpJumpNotTruthy:
+			condition := vm.pop()
+			if condition == object.False {
+				pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+				ip = pos - 1
+			} else {
+				ip += 2
 			}
 
 		case code.OpPop:

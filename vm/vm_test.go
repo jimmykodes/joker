@@ -16,6 +16,13 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestConditionals(t *testing.T) {
+	tests := []vmTestCase{
+		{"if true { 10 } else { 12 }", 10},
+	}
+	runVmTests(t, tests)
+}
+
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTestCase{
 		{"-1", -1},
