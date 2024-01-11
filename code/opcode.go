@@ -18,6 +18,7 @@ const (
 	// bool
 	OpTrue
 	OpFalse
+	OpNull
 
 	// Comparison
 	OpEQ

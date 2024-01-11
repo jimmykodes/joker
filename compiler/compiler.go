@@ -110,7 +110,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Condition); err != nil {
 			return err
 		}
+
 		jmpNTPos := c.emit(code.OpJumpNotTruthy, 0)
+
 		if err := c.Compile(node.Consequence); err != nil {
 			return err
 		}
@@ -118,16 +120,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if c.ultInst.Opcode == code.OpPop {
 			c.removeLastInstruction()
 		}
+		jmpPos := c.emit(code.OpJump, 0)
+
+		c.replaceOperand(jmpNTPos, len(c.instructions))
 
 		if node.Alternative == nil {
-			// if there is no alternative block, we'll just to this current position
-			c.replaceOperand(jmpNTPos, len(c.instructions))
+			c.emit(code.OpNull)
 		} else {
-			jmpPos := c.emit(code.OpJump, 0)
-
-			// since there is an alternative, the not truthy jump should be _after_ the always jump code
-			c.replaceOperand(jmpNTPos, len(c.instructions))
-
 			if err := c.Compile(node.Alternative); err != nil {
 				return err
 			}
@@ -135,8 +134,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if c.ultInst.Opcode == code.OpPop {
 				c.removeLastInstruction()
 			}
-			c.replaceOperand(jmpPos, len(c.instructions))
 		}
+
+		c.replaceOperand(jmpPos, len(c.instructions))
 
 		// Literals
 	case *ast.IntegerLiteral:

@@ -19,6 +19,9 @@ type vmTestCase struct {
 func TestConditionals(t *testing.T) {
 	tests := []vmTestCase{
 		{"if true { 10 } else { 12 }", 10},
+		{"if false { 10 } else { 12 }", 12},
+		{"if 1 > 2 { 10 }", Null},
+		{"if false { 10 }", Null},
 	}
 	runVmTests(t, tests)
 }
@@ -117,6 +120,7 @@ func TestBooleanExpressions(t *testing.T) {
 		{"!(2 == 1)", true},
 		{"!((1 < 2) == true)", false},
 		{"!((1 < 2) == false)", true},
+		{"!(if false { 5; })", true},
 	}
 	runVmTests(t, tests)
 }
@@ -164,6 +168,10 @@ func testExpectedObject(t *testing.T, want any, got object.Object) {
 	case bool:
 		if err := testBoolObject(want, got); err != nil {
 			t.Errorf("testBoolObject failed: %s", err)
+		}
+	case *object.Null:
+		if got != Null {
+			t.Errorf("object is not Null: %T (%v)", got, got)
 		}
 	default:
 		t.Errorf("missing test for type: %T", want)

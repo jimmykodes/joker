@@ -10,6 +10,8 @@ import (
 
 const StackSize = 2048
 
+var Null = &object.Null{}
+
 type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
@@ -57,6 +59,10 @@ func (vm *VM) Run() error {
 			if err := vm.push(object.False); err != nil {
 				return err
 			}
+		case code.OpNull:
+			if err := vm.push(Null); err != nil {
+				return err
+			}
 
 			// jumps
 		case code.OpJump:
@@ -73,6 +79,9 @@ func (vm *VM) Run() error {
 
 		case code.OpPop:
 			vm.pop()
+
+		default:
+			return fmt.Errorf("invalid op: %q", op)
 		}
 	}
 	return nil

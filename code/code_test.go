@@ -25,6 +25,7 @@ func TestMake(t *testing.T) {
 		// bool
 		{OpTrue, []int{}, []byte{byte(OpTrue)}},
 		{OpFalse, []int{}, []byte{byte(OpFalse)}},
+		{OpNull, []int{}, []byte{byte(OpNull)}},
 
 		// comparison
 		{OpEQ, []int{}, []byte{byte(OpEQ)}},

@@ -24,6 +24,7 @@ func TestReadOperands(t *testing.T) {
 		// bool
 		{OpTrue, []int{}, 0},
 		{OpFalse, []int{}, 0},
+		{OpNull, []int{}, 0},
 
 		// comparison
 		{OpEQ, []int{}, 0},

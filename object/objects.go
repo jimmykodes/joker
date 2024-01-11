@@ -63,15 +63,6 @@ type Negater interface {
 	Negative() Object
 }
 
-type Null struct{}
-
-func (n *Null) Type() Type      { return NullType }
-func (n *Null) Inspect() string { return "null" }
-
-func (n *Null) Bool() (*Boolean, error) {
-	return False, nil
-}
-
 type Continue struct{}
 
 func (c *Continue) Type() Type      { return ContinueType }
