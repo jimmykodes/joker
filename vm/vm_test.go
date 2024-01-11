@@ -20,6 +20,8 @@ func TestConditionals(t *testing.T) {
 	tests := []vmTestCase{
 		{"if true { 10 } else { 12 }", 10},
 		{"if false { 10 } else { 12 }", 12},
+		{"if (if true { 10; }) { 10 } else { 12 }", 10},
+		{"if (if false { 10; }) { 10 } else { 12 }", 12},
 		{"if 1 > 2 { 10 }", Null},
 		{"if false { 10 }", Null},
 	}

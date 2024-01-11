@@ -70,7 +70,7 @@ func (vm *VM) Run() error {
 			ip = pos - 1
 		case code.OpJumpNotTruthy:
 			condition := vm.pop()
-			if condition == object.False {
+			if condition == object.False || condition == Null {
 				pos := int(code.ReadUint16(vm.instructions[ip+1:]))
 				ip = pos - 1
 			} else {
