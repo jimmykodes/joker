@@ -11,6 +11,8 @@ var opWidths = [lastOpcode][]int{
 	OpConstant:      {2},
 	OpJump:          {2},
 	OpJumpNotTruthy: {2},
+	OpSetGlobal:     {2},
+	OpGetGlobal:     {2},
 }
 
 var definitions = [lastOpcode]*Definition{}

@@ -39,6 +39,10 @@ func TestReadOperands(t *testing.T) {
 		// jump
 		{OpJump, []int{12}, 2},
 		{OpJumpNotTruthy, []int{22}, 2},
+
+		// variables
+		{OpSetGlobal, []int{65535}, 2},
+		{OpGetGlobal, []int{65535}, 2},
 	}
 	for _, tt := range tests {
 		instruction := Make(tt.op, tt.operands...)

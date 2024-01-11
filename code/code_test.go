@@ -40,6 +40,10 @@ func TestMake(t *testing.T) {
 		// jump
 		{OpJump, []int{math.MaxUint16 - 1}, []byte{byte(OpJump), 0xFF, 0xFE}},
 		{OpJumpNotTruthy, []int{math.MaxUint16 - 1}, []byte{byte(OpJumpNotTruthy), 0xFF, 0xFE}},
+
+		// variables
+		{OpSetGlobal, []int{math.MaxUint16 - 1}, []byte{byte(OpSetGlobal), 0xFF, 0xFE}},
+		{OpGetGlobal, []int{math.MaxUint16 - 1}, []byte{byte(OpGetGlobal), 0xFF, 0xFE}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

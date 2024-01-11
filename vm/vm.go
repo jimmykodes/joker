@@ -2,19 +2,24 @@ package vm
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/jimmykodes/joker/code"
 	"github.com/jimmykodes/joker/compiler"
 	"github.com/jimmykodes/joker/object"
 )
 
-const StackSize = 2048
+const (
+	GlobalSize = math.MaxUint16
+	StackSize  = 2048
+)
 
 var Null = &object.Null{}
 
 type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
+	globals      [GlobalSize]object.Object
 
 	stack [StackSize]object.Object
 	sp    int
@@ -31,12 +36,15 @@ func (vm *VM) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
 		op := code.Opcode(vm.instructions[ip])
 		switch op {
+		// stack manipulation
 		case code.OpConstant:
 			constIdx := code.ReadUint16(vm.instructions[ip+1:])
 			ip += 2
 			if err := vm.push(vm.constants[constIdx]); err != nil {
 				return err
 			}
+		case code.OpPop:
+			vm.pop()
 
 			// infix
 		case code.OpAdd, code.OpSub, code.OpMult, code.OpDiv, code.OpMod, code.OpEQ, code.OpNEQ, code.OpGT, code.OpGTE:
@@ -77,8 +85,17 @@ func (vm *VM) Run() error {
 				ip += 2
 			}
 
-		case code.OpPop:
-			vm.pop()
+			// variables
+		case code.OpSetGlobal:
+			idx := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			vm.globals[idx] = vm.pop()
+		case code.OpGetGlobal:
+			idx := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			if err := vm.push(vm.globals[idx]); err != nil {
+				return err
+			}
 
 		default:
 			return fmt.Errorf("invalid op: %q", op)

@@ -42,6 +42,7 @@ func Start(in io.Reader, out io.Writer) {
 
 func StartVM(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	comp := compiler.New()
 	for {
 		fmt.Fprint(out, Prompt)
 		if scanned := scanner.Scan(); !scanned {
@@ -57,7 +58,6 @@ func StartVM(in io.Reader, out io.Writer) {
 			}
 			continue
 		}
-		comp := compiler.New()
 		if err := comp.Compile(prog); err != nil {
 			fmt.Fprintf(out, "Compile Error: %s\n", err)
 			continue

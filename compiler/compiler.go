@@ -11,6 +11,7 @@ import (
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
+	symbolTable  *SymbolTable
 
 	// ultInst is the last (ultimate) instruction emitted
 	ultInst EmittedInstruction
@@ -19,7 +20,9 @@ type Compiler struct {
 }
 
 func New() *Compiler {
-	return &Compiler{}
+	return &Compiler{
+		symbolTable: NewSymbolTable(),
+	}
 }
 
 func (c *Compiler) Compile(node ast.Node) error {
@@ -43,6 +46,27 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		c.emit(code.OpPop)
+
+	case *ast.Identifier:
+		sym, ok := c.symbolTable.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("could not resolve identifier: %s", node.Value)
+		}
+		c.emit(code.OpGetGlobal, sym.Index)
+
+	case *ast.LetStatement:
+		if err := c.Compile(node.Value); err != nil {
+			return err
+		}
+		sym := c.symbolTable.Define(node.Name.Value)
+		c.emit(code.OpSetGlobal, sym.Index)
+
+	case *ast.DefineStatement:
+		if err := c.Compile(node.Value); err != nil {
+			return err
+		}
+		sym := c.symbolTable.Define(node.Name.Value)
+		c.emit(code.OpSetGlobal, sym.Index)
 
 		// expressions
 	case *ast.InfixExpression:

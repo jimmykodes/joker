@@ -34,5 +34,9 @@ const (
 	OpJump
 	OpJumpNotTruthy
 
+	// variables
+	OpSetGlobal
+	OpGetGlobal
+
 	lastOpcode
 )
