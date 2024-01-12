@@ -10,6 +10,7 @@ const (
 	BoolType
 	StringType
 	FunctionType
+	CompiledFunctionType
 	BuiltinType
 	ArrayType
 	MapType

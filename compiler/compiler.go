@@ -8,20 +8,26 @@ import (
 	"github.com/jimmykodes/joker/object"
 )
 
-type Compiler struct {
+type CompilationScope struct {
 	instructions code.Instructions
-	constants    []object.Object
-	symbolTable  *SymbolTable
-
 	// ultInst is the last (ultimate) instruction emitted
 	ultInst EmittedInstruction
-	// prenultInst is the second to last (penultimate) instruction emitted
-	prenultInst EmittedInstruction
+	// penultInst is the second to last (penultimate) instruction emitted
+	penultInst EmittedInstruction
+}
+
+type Compiler struct {
+	constants   []object.Object
+	symbolTable *SymbolTable
+
+	scopes   []CompilationScope
+	scopeIdx int
 }
 
 func New() *Compiler {
 	return &Compiler{
 		symbolTable: NewSymbolTable(),
+		scopes:      []CompilationScope{{}},
 	}
 }
 
@@ -150,12 +156,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		if c.ultInst.Opcode == code.OpPop {
-			c.removeLastInstruction()
-		}
+		c.removeLastInstruction(code.OpPop)
 		jmpPos := c.emit(code.OpJump, 0)
 
-		c.replaceOperand(jmpNTPos, len(c.instructions))
+		c.replaceOperand(jmpNTPos, len(c.scopes[c.scopeIdx].instructions))
 
 		if node.Alternative == nil {
 			c.emit(code.OpNull)
@@ -164,12 +168,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 
-			if c.ultInst.Opcode == code.OpPop {
-				c.removeLastInstruction()
-			}
+			c.removeLastInstruction(code.OpPop)
 		}
 
-		c.replaceOperand(jmpPos, len(c.instructions))
+		c.replaceOperand(jmpPos, len(c.scopes[c.scopeIdx].instructions))
 
 		// Literals
 	case *ast.IntegerLiteral:
@@ -205,6 +207,25 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpMap, len(node.Pairs))
 
+	case *ast.FunctionLiteral:
+		c.enterScope()
+		if err := c.Compile(node.Body); err != nil {
+			return err
+		}
+		if c.scopes[c.scopeIdx].ultInst.Opcode != code.OpReturn {
+			c.emit(code.OpNull)
+			c.emit(code.OpReturn)
+		}
+		scope := c.leaveScope()
+
+		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions})
+		c.emit(code.OpConstant, cf)
+	case *ast.ReturnStatement:
+		if err := c.Compile(node.Value); err != nil {
+			return err
+		}
+		c.emit(code.OpReturn)
+
 	default:
 		return fmt.Errorf("unknown node: %T", node)
 
@@ -214,24 +235,41 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 func (c *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
-		Instructions: c.instructions,
+		Instructions: c.scopes[0].instructions,
 		Constants:    c.constants,
 	}
 }
 
-func (c *Compiler) removeLastInstruction() {
-	c.instructions = c.instructions[:c.ultInst.Position]
-	c.ultInst = c.prenultInst
+func (c *Compiler) enterScope() {
+	c.scopes = append(c.scopes, CompilationScope{})
+	c.scopeIdx++
+}
+
+func (c *Compiler) leaveScope() CompilationScope {
+	scope := c.scopes[c.scopeIdx]
+	c.scopes = c.scopes[:c.scopeIdx]
+	c.scopeIdx--
+	return scope
+}
+
+func (c *Compiler) removeLastInstruction(op code.Opcode) {
+	scope := c.scopes[c.scopeIdx]
+	if scope.ultInst.Opcode != op {
+		return
+	}
+	scope.instructions = scope.instructions[:scope.ultInst.Position]
+	scope.ultInst = scope.penultInst
+	c.scopes[c.scopeIdx] = scope
 }
 
 func (c *Compiler) replaceInstruction(pos int, inst code.Instructions) {
 	for i, n := range inst {
-		c.instructions[pos+i] = n
+		c.scopes[c.scopeIdx].instructions[pos+i] = n
 	}
 }
 
 func (c *Compiler) replaceOperand(pos int, operand int) {
-	op := code.Opcode(c.instructions[pos])
+	op := code.Opcode(c.scopes[c.scopeIdx].instructions[pos])
 	newInst := code.Instruction(op, operand)
 	c.replaceInstruction(pos, newInst)
 }
@@ -244,13 +282,13 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 }
 
 func (c *Compiler) setUltInst(op code.Opcode, pos int) {
-	c.prenultInst = c.ultInst
-	c.ultInst = EmittedInstruction{Opcode: op, Position: pos}
+	c.scopes[c.scopeIdx].penultInst = c.scopes[c.scopeIdx].ultInst
+	c.scopes[c.scopeIdx].ultInst = EmittedInstruction{Opcode: op, Position: pos}
 }
 
 func (c *Compiler) addInstruction(ins code.Instructions) int {
-	pos := len(c.instructions)
-	c.instructions = append(c.instructions, ins...)
+	pos := len(c.scopes[c.scopeIdx].instructions)
+	c.scopes[c.scopeIdx].instructions = append(c.scopes[c.scopeIdx].instructions, ins...)
 	return pos
 }
 

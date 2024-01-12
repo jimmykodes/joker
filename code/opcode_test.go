@@ -50,6 +50,10 @@ func TestReadOperands(t *testing.T) {
 
 		// Access
 		{OpIndex, []int{}, 0},
+
+		// Functions
+		{OpCall, []int{}, 0},
+		{OpReturn, []int{}, 0},
 	}
 	for _, tt := range tests {
 		instruction := Instruction(tt.op, tt.operands...)

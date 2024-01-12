@@ -47,6 +47,10 @@ const (
 	// Access
 	OpIndex
 
+	// Function
+	OpCall
+	OpReturn
+
 	lastOpcode
 )
 
