@@ -116,8 +116,10 @@ func (vm *VM) Run() error {
 
 			pairs := make(map[object.HashKey]object.HashPair, numElems)
 			for i := 0; i < numElems; i++ {
-				val := vm.stack[vm.sp-i]
-				key := vm.stack[vm.sp-i-1]
+				offset := vm.sp - (i * 2)
+
+				val := vm.stack[offset-1]
+				key := vm.stack[offset-2]
 				hashKey, ok := key.(object.Hashable)
 				if !ok {
 					return fmt.Errorf("invalid object on stack, %s is not hashable and cannot be used as a map key", key.Type())
