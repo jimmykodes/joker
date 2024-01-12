@@ -16,6 +16,16 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestIndex(t *testing.T) {
+	tests := []vmTestCase{
+		{"{1:12}[1]", 12},
+		{"{2:12}[1+1]", 12},
+		{"[4, 5, 6][0]", 4},
+		{"[4, 5, 6][1+1]", 6},
+	}
+	runVmTests(t, tests)
+}
+
 func TestMaps(t *testing.T) {
 	tests := []vmTestCase{
 		{"{}", map[any]any{}},
@@ -281,6 +291,8 @@ func testMapObject(t *testing.T, want map[any]any, got object.Object) {
 	if len(want) != len(result.Pairs) {
 		t.Errorf("invalid length: got %d - want %d", len(want), len(result.Pairs))
 	}
+	// TODO: fix these tests, since i'm not going to sort the keys in the compiler, cause I
+	//  don't want to waste the overhead for a purely testing feature
 	// for _, pair := range result.Pairs {
 	// 	key := pair.Key
 	// 	value := pair.Value

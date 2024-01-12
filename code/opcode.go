@@ -44,6 +44,9 @@ const (
 	OpArray
 	OpMap
 
+	// Access
+	OpIndex
+
 	lastOpcode
 )
 

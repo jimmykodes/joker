@@ -17,6 +17,68 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestIndexExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "[1, 2, 3][2]",
+			expectedConstants: []any{1, 2, 3, 2},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpArray, 3),
+				code.Instruction(code.OpConstant, 3),
+				code.Instruction(code.OpIndex),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             "[1, 2, 3][1 + 1]",
+			expectedConstants: []any{1, 2, 3, 1, 1},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpArray, 3),
+				code.Instruction(code.OpConstant, 3),
+				code.Instruction(code.OpConstant, 4),
+				code.Instruction(code.OpAdd),
+				code.Instruction(code.OpIndex),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             "{1: 12}[1]",
+			expectedConstants: []any{1, 12, 1},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpMap, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpIndex),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             `{"foo": "bar", "baz": "bing"}["fo"+"o"]`,
+			expectedConstants: []any{"foo", "bar", "baz", "bing", "fo", "o"},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpConstant, 3),
+				code.Instruction(code.OpMap, 2),
+				code.Instruction(code.OpConstant, 4),
+				code.Instruction(code.OpConstant, 5),
+				code.Instruction(code.OpAdd),
+				code.Instruction(code.OpIndex),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestDictLiterals(t *testing.T) {
 	tests := []compilerTestCase{
 		{

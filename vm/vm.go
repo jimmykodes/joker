@@ -96,6 +96,8 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.globals[idx]); err != nil {
 				return err
 			}
+
+			// Composites
 		case code.OpArray:
 			numElems := int(code.ReadUint16(vm.instructions[ip+1:]))
 			ip += 2
@@ -129,6 +131,19 @@ func (vm *VM) Run() error {
 			vm.sp -= numElems * 2
 
 			if err := vm.push(&object.Map{Pairs: pairs}); err != nil {
+				return err
+			}
+
+			// Access
+		case code.OpIndex:
+			idx := vm.pop()
+			obj := vm.pop()
+
+			res, ok := obj.(object.Indexer)
+			if !ok {
+				return fmt.Errorf("invalid object on stack: %s is not indexable", obj.Type())
+			}
+			if err := vm.push(res.Idx(idx)); err != nil {
 				return err
 			}
 

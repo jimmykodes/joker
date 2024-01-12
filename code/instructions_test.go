@@ -10,7 +10,7 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpAdd),
 		Instruction(OpConstant, 2),
 		Instruction(OpConstant, 65535),
-		Instruction(OpPop),
+		Instruction(OpSub),
 		Instruction(OpTrue),
 		Instruction(OpFalse),
 		Instruction(OpBang),
@@ -20,11 +20,13 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpGetGlobal, 65535),
 		Instruction(OpArray, 88),
 		Instruction(OpMap, 4),
+		Instruction(OpIndex),
+		Instruction(OpPop),
 	}
 	expect := `0000 OpAdd
 0001 OpConstant 2
 0004 OpConstant 65535
-0007 OpPop
+0007 OpSub
 0008 OpTrue
 0009 OpFalse
 0010 OpBang
@@ -34,6 +36,8 @@ func TestInstructionsString(t *testing.T) {
 0016 OpGetGlobal 65535
 0019 OpArray 88
 0022 OpMap 4
+0025 OpIndex
+0026 OpPop
 `
 	var joined Instructions
 	for _, ins := range inst {
