@@ -40,8 +40,9 @@ const (
 	OpSetGlobal
 	OpGetGlobal
 
-	// Array
+	// Composites
 	OpArray
+	OpMap
 
 	lastOpcode
 )
@@ -53,6 +54,7 @@ var opWidths = [lastOpcode][]int{
 	OpSetGlobal:     {2},
 	OpGetGlobal:     {2},
 	OpArray:         {2},
+	OpMap:           {2},
 }
 
 func OpWidths(op byte) ([]int, error) {

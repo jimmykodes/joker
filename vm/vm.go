@@ -110,6 +110,25 @@ func (vm *VM) Run() error {
 			if err := vm.push(&object.Array{Elements: elems}); err != nil {
 				return err
 			}
+		case code.OpMap:
+			numElems := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			pairs := make(map[object.HashKey]object.HashPair, numElems)
+			for i := 0; i < numElems; i++ {
+				val := vm.stack[vm.sp-i]
+				key := vm.stack[vm.sp-i-1]
+				hashKey, ok := key.(object.Hashable)
+				if !ok {
+					return fmt.Errorf("invalid object on stack, %s is not hashable and cannot be used as a map key", key.Type())
+				}
+				pairs[hashKey.HashKey()] = object.HashPair{Key: key, Value: val}
+			}
+			vm.sp -= numElems * 2
+
+			if err := vm.push(&object.Map{Pairs: pairs}); err != nil {
+				return err
+			}
 
 		default:
 			return fmt.Errorf("invalid op: %q", op)

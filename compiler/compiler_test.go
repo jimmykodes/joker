@@ -17,6 +17,42 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestDictLiterals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "{}",
+			expectedConstants: []any{},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpMap, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             "{1: 12}",
+			expectedConstants: []any{1, 12},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpMap, 1),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             `{"test": 12, "thing": 44}`,
+			expectedConstants: []any{"test", 12, "thing", 44},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpConstant, 3),
+				code.Instruction(code.OpMap, 2),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestArrayLiterals(t *testing.T) {
 	tests := []compilerTestCase{
 		{

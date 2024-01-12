@@ -16,6 +16,15 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestMaps(t *testing.T) {
+	tests := []vmTestCase{
+		{"{}", map[any]any{}},
+		{"{1: 12}", map[any]any{1: 12}},
+		{`{"test": 12, "taco": 44}`, map[any]any{"test": 12, "taco": 44}},
+	}
+	runVmTests(t, tests)
+}
+
 func TestArrays(t *testing.T) {
 	tests := []vmTestCase{
 		{"[]", []any{}},
@@ -196,6 +205,8 @@ func testExpectedObject(t *testing.T, want any, got object.Object) {
 		}
 	case []any:
 		testArrayObject(t, want, got)
+	case map[any]any:
+		testMapObject(t, want, got)
 	default:
 		t.Errorf("missing test for type: %T", want)
 
@@ -258,6 +269,22 @@ func testArrayObject(t *testing.T, want []any, got object.Object) {
 	for i, w := range want {
 		testExpectedObject(t, w, result.Elements[i])
 	}
+}
+
+func testMapObject(t *testing.T, want map[any]any, got object.Object) {
+	t.Helper()
+	result, ok := got.(*object.Map)
+	if !ok {
+		t.Errorf("object not a map. got %T (%v)", got, got)
+		return
+	}
+	if len(want) != len(result.Pairs) {
+		t.Errorf("invalid length: got %d - want %d", len(want), len(result.Pairs))
+	}
+	// for _, pair := range result.Pairs {
+	// 	key := pair.Key
+	// 	value := pair.Value
+	// }
 }
 
 func parse(input string) *ast.Program {

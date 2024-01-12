@@ -19,6 +19,7 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpSetGlobal, 2),
 		Instruction(OpGetGlobal, 65535),
 		Instruction(OpArray, 88),
+		Instruction(OpMap, 4),
 	}
 	expect := `0000 OpAdd
 0001 OpConstant 2
@@ -32,6 +33,7 @@ func TestInstructionsString(t *testing.T) {
 0013 OpSetGlobal 2
 0016 OpGetGlobal 65535
 0019 OpArray 88
+0022 OpMap 4
 `
 	var joined Instructions
 	for _, ins := range inst {
@@ -82,8 +84,9 @@ func TestInstruction(t *testing.T) {
 		{OpSetGlobal, []int{math.MaxUint16 - 1}, []byte{byte(OpSetGlobal), 0xFF, 0xFE}},
 		{OpGetGlobal, []int{math.MaxUint16 - 1}, []byte{byte(OpGetGlobal), 0xFF, 0xFE}},
 
-		// Array
+		// Composites
 		{OpArray, []int{math.MaxUint16 - 1}, []byte{byte(OpArray), 0xFF, 0xFE}},
+		{OpMap, []int{math.MaxUint16 - 1}, []byte{byte(OpMap), 0xFF, 0xFE}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

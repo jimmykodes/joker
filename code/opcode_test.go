@@ -44,8 +44,9 @@ func TestReadOperands(t *testing.T) {
 		{OpSetGlobal, []int{65535}, 2},
 		{OpGetGlobal, []int{65535}, 2},
 
-		// Array
+		// Composite
 		{OpArray, []int{65535}, 2},
+		{OpMap, []int{44}, 2},
 	}
 	for _, tt := range tests {
 		instruction := Instruction(tt.op, tt.operands...)

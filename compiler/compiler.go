@@ -185,6 +185,16 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 		c.emit(code.OpArray, len(node.Elements))
+	case *ast.MapLiteral:
+		for k, v := range node.Pairs {
+			if err := c.Compile(k); err != nil {
+				return err
+			}
+			if err := c.Compile(v); err != nil {
+				return err
+			}
+		}
+		c.emit(code.OpMap, len(node.Pairs))
 
 	default:
 		return fmt.Errorf("unknown node: %T", node)
