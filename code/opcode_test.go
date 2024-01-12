@@ -45,12 +45,12 @@ func TestReadOperands(t *testing.T) {
 		{OpGetGlobal, []int{65535}, 2},
 	}
 	for _, tt := range tests {
-		instruction := Make(tt.op, tt.operands...)
-		def, err := Lookup(byte(tt.op))
+		instruction := Instruction(tt.op, tt.operands...)
+		widths, err := OpWidths(byte(tt.op))
 		if err != nil {
 			t.Fatalf("definition not found: %s", err)
 		}
-		operandsRead, n := ReadOperands(def, instruction[1:])
+		operandsRead, n := ReadOperands(widths, instruction[1:])
 		if n != tt.bytesRead {
 			t.Fatalf("invalid bytes read: got %d - want %d", n, tt.bytesRead)
 		}

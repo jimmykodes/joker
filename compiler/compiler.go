@@ -203,12 +203,12 @@ func (c *Compiler) replaceInstruction(pos int, inst code.Instructions) {
 
 func (c *Compiler) replaceOperand(pos int, operand int) {
 	op := code.Opcode(c.instructions[pos])
-	newInst := code.Make(op, operand)
+	newInst := code.Instruction(op, operand)
 	c.replaceInstruction(pos, newInst)
 }
 
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {
-	ins := code.Make(op, operands...)
+	ins := code.Instruction(op, operands...)
 	pos := c.addInstruction(ins)
 	c.setUltInst(op, pos)
 	return pos
