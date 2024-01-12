@@ -178,6 +178,16 @@ func (c *Compiler) Compile(node ast.Node) error {
 		} else {
 			c.emit(code.OpFalse)
 		}
+	case *ast.ArrayLiteral:
+		for _, elem := range node.Elements {
+			if err := c.Compile(elem); err != nil {
+				return err
+			}
+		}
+		c.emit(code.OpArray, len(node.Elements))
+
+	default:
+		return fmt.Errorf("unknown node: %T", node)
 
 	}
 	return nil

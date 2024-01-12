@@ -17,6 +17,48 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestArrayLiterals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "[]",
+			expectedConstants: []any{},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpArray, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             "[1, 2, 3]",
+			expectedConstants: []any{1, 2, 3},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpArray, 3),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input:             "[1+2, 3+4, 5+6]",
+			expectedConstants: []any{1, 2, 3, 4, 5, 6},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpAdd),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpConstant, 3),
+				code.Instruction(code.OpAdd),
+				code.Instruction(code.OpConstant, 4),
+				code.Instruction(code.OpConstant, 5),
+				code.Instruction(code.OpAdd),
+				code.Instruction(code.OpArray, 3),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestGlobalLetStatements(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -432,17 +474,20 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 		compiler := New()
 		err := compiler.Compile(program)
 		if err != nil {
-			t.Fatalf("compiler error: %s", err)
+			t.Errorf("compiler error: %s", err)
+			continue
 		}
 		bytecode := compiler.Bytecode()
 		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
 		if err != nil {
-			t.Fatalf("test instructions failed: %s", err)
+			t.Errorf("test instructions failed: %s", err)
+			continue
 		}
 
 		err = testConstants(tt.expectedConstants, bytecode.Constants)
 		if err != nil {
-			t.Fatalf("test constants failed: %s", err)
+			t.Errorf("test constants failed: %s", err)
+			continue
 		}
 	}
 }

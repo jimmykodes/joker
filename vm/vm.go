@@ -96,6 +96,20 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.globals[idx]); err != nil {
 				return err
 			}
+		case code.OpArray:
+			numElems := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			elems := make([]object.Object, 0, numElems)
+			for i := vm.sp - numElems; i < vm.sp; i++ {
+				elems = append(elems, vm.stack[i])
+			}
+
+			vm.sp -= numElems
+
+			if err := vm.push(&object.Array{Elements: elems}); err != nil {
+				return err
+			}
 
 		default:
 			return fmt.Errorf("invalid op: %q", op)

@@ -16,6 +16,16 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestArrays(t *testing.T) {
+	tests := []vmTestCase{
+		{"[]", []any{}},
+		{"[1, 2]", []any{1, 2}},
+		{`[1+2, "test"]`, []any{3, "test"}},
+		{`x := 10; [1+2, "test", x]`, []any{3, "test", 10}},
+	}
+	runVmTests(t, tests)
+}
+
 func TestGlobalVariableDefs(t *testing.T) {
 	tests := []vmTestCase{
 		{"let one = 1; one", 1},
@@ -184,6 +194,8 @@ func testExpectedObject(t *testing.T, want any, got object.Object) {
 		if got != Null {
 			t.Errorf("object is not Null: %T (%v)", got, got)
 		}
+	case []any:
+		testArrayObject(t, want, got)
 	default:
 		t.Errorf("missing test for type: %T", want)
 
@@ -234,6 +246,18 @@ func testBoolObject(want bool, got object.Object) error {
 		}
 	}
 	return nil
+}
+
+func testArrayObject(t *testing.T, want []any, got object.Object) {
+	t.Helper()
+	result, ok := got.(*object.Array)
+	if !ok {
+		t.Errorf("object not an array. got %T (%v)", got, got)
+		return
+	}
+	for i, w := range want {
+		testExpectedObject(t, w, result.Elements[i])
+	}
 }
 
 func parse(input string) *ast.Program {

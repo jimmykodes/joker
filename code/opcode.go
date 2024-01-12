@@ -40,6 +40,9 @@ const (
 	OpSetGlobal
 	OpGetGlobal
 
+	// Array
+	OpArray
+
 	lastOpcode
 )
 
@@ -49,6 +52,7 @@ var opWidths = [lastOpcode][]int{
 	OpJumpNotTruthy: {2},
 	OpSetGlobal:     {2},
 	OpGetGlobal:     {2},
+	OpArray:         {2},
 }
 
 func OpWidths(op byte) ([]int, error) {
