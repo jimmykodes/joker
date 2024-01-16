@@ -17,6 +17,76 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestFunctionCalls(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      fn onePlusTwo() { return 1 + 2; }
+      onePlusTwo();
+      `,
+			expectedConstants: []any{
+				1,
+				2,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 0),
+					code.Instruction(code.OpConstant, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpCall),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      let onePlusTwo = fn() { return 1 + 2; };
+      onePlusTwo();
+      `,
+			expectedConstants: []any{
+				1,
+				2,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 0),
+					code.Instruction(code.OpConstant, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpCall),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `fn() { return 1 + 2; }()`,
+			expectedConstants: []any{
+				1,
+				2,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 0),
+					code.Instruction(code.OpConstant, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpCall),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestFunctions(t *testing.T) {
 	tests := []compilerTestCase{
 		{

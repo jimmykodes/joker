@@ -74,7 +74,20 @@ func (c *Compiler) Compile(node ast.Node) error {
 		sym := c.symbolTable.Define(node.Name.Value)
 		c.emit(code.OpSetGlobal, sym.Index)
 
-		// expressions
+	case *ast.FuncStatement:
+		if err := c.Compile(node.Fn); err != nil {
+			return err
+		}
+		sym := c.symbolTable.Define(node.Name.Value)
+		c.emit(code.OpSetGlobal, sym.Index)
+
+	// expressions
+	case *ast.CallExpression:
+		if err := c.Compile(node.Function); err != nil {
+			return err
+		}
+		c.emit(code.OpCall)
+
 	case *ast.InfixExpression:
 		if node.Operator == "<" || node.Operator == "<=" {
 			if err := c.Compile(node.Right); err != nil {
