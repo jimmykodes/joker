@@ -16,6 +16,52 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestFuncCall(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `fn fivePlusTen() { return 5 + 10; }
+      fivePlusTen();`,
+			expected: 15,
+		},
+		{
+			input: `
+      fn one() { return 1; }
+      fn two() { return 2; }
+      one() + two();`,
+			expected: 3,
+		},
+		{
+			input: `
+      fn early() { return "bird"; "test" }
+      early();`,
+			expected: "bird",
+		},
+		{
+			input: `
+      fn early() { "bird"; }
+      early();`,
+			expected: Null,
+		},
+		{
+			input: `
+      fn one() { return 1; }
+      fn two() { return 1 + one(); }
+      two();
+      `,
+			expected: 2,
+		},
+		{
+			input: `
+      fn one() { return 1; }
+      fn oneCaller() { return one; }
+      oneCaller()();
+      `,
+			expected: 1,
+		},
+	}
+	runVmTests(t, tests)
+}
+
 func TestIndex(t *testing.T) {
 	tests := []vmTestCase{
 		{"{1:12}[1]", 12},
