@@ -58,6 +58,13 @@ func TestFuncCall(t *testing.T) {
       `,
 			expected: 1,
 		},
+		{
+			input: `
+      fn one() { let one = 1; return one; }
+      one();
+      `,
+			expected: 1,
+		},
 	}
 	runVmTests(t, tests)
 }

@@ -31,7 +31,7 @@ type VM struct {
 func New(bytecode *compiler.Bytecode) *VM {
 	vm := &VM{constants: bytecode.Constants}
 
-	vm.pushFrame(NewFrame(bytecode.Instructions))
+	vm.pushFrame(NewFrame(bytecode.Instructions, 0))
 
 	return vm
 }
@@ -112,6 +112,21 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpSetLocal:
+			idx := code.ReadUint8(ins[ip+1:])
+			fr := vm.currentFrame()
+			fr.ip++
+			vm.stack[fr.basePointer+int(idx)] = vm.pop()
+
+		case code.OpGetLocal:
+			idx := code.ReadUint8(ins[ip+1:])
+			fr := vm.currentFrame()
+			fr.ip++
+
+			if err := vm.push(vm.stack[fr.basePointer+int(idx)]); err != nil {
+				return err
+			}
+
 			// Composites
 		case code.OpArray:
 			numElems := int(code.ReadUint16(ins[ip+1:]))
@@ -169,11 +184,14 @@ func (vm *VM) Run() error {
 			if !ok {
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
 			}
-			vm.pushFrame(NewFrame(res.Instructions))
+			fr := NewFrame(res.Instructions, vm.sp)
+			vm.pushFrame(fr)
+			vm.sp = fr.basePointer + res.NumLocals
 
 		case code.OpReturn:
 			val := vm.pop()
-			vm.popFrame()
+			fr := vm.popFrame()
+			vm.sp = fr.basePointer
 			if err := vm.push(val); err != nil {
 				return err
 			}

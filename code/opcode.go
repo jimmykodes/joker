@@ -39,6 +39,8 @@ const (
 	// variables
 	OpSetGlobal
 	OpGetGlobal
+	OpSetLocal
+	OpGetLocal
 
 	// Composites
 	OpArray
@@ -60,6 +62,8 @@ var opWidths = [lastOpcode][]int{
 	OpJumpNotTruthy: {2},
 	OpSetGlobal:     {2},
 	OpGetGlobal:     {2},
+	OpSetLocal:      {1},
+	OpGetLocal:      {1},
 	OpArray:         {2},
 	OpMap:           {2},
 }

@@ -36,6 +36,7 @@ func (b *Builtin) Inspect() string { return "builtin function" }
 
 type CompiledFunction struct {
 	Instructions code.Instructions
+	NumLocals    int
 }
 
 func (f *CompiledFunction) Type() Type { return CompiledFunctionType }

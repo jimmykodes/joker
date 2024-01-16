@@ -17,6 +17,76 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestVarScopes(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      let num = 255;
+      fn() { return num; }`,
+			expectedConstants: []any{
+				255,
+				[]code.Instructions{
+					code.Instruction(code.OpGetGlobal, 0),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      fn() {
+        let num = 255;
+        return num; 
+      }`,
+			expectedConstants: []any{
+				255,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 0),
+					code.Instruction(code.OpSetLocal, 0),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      fn() {
+        let a = 10;
+        let b = 5;
+        return a + b; 
+      }`,
+			expectedConstants: []any{
+				10,
+				5,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 0),
+					code.Instruction(code.OpSetLocal, 0),
+					code.Instruction(code.OpConstant, 1),
+					code.Instruction(code.OpSetLocal, 1),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpGetLocal, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestFunctionCalls(t *testing.T) {
 	tests := []compilerTestCase{
 		{

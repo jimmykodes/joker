@@ -6,6 +6,10 @@ func TestDefine(t *testing.T) {
 	expected := map[string]Symbol{
 		"a": {"a", GlobalScope, 0},
 		"b": {"b", GlobalScope, 1},
+		"c": {"c", LocalScope, 0},
+		"d": {"d", LocalScope, 1},
+		"e": {"e", LocalScope, 0},
+		"f": {"f", LocalScope, 1},
 	}
 	global := NewSymbolTable()
 
@@ -18,26 +22,81 @@ func TestDefine(t *testing.T) {
 	if b != expected["b"] {
 		t.Errorf("invalid value for a: got %v - want %v", b, expected["b"])
 	}
+
+	local1 := NewSymbolTable(OuterSymbolTable(global))
+
+	if c := local1.Define("c"); c != expected["c"] {
+		t.Errorf("invalid value for c: got %v - want %v", c, expected["c"])
+	}
+
+	if d := local1.Define("d"); d != expected["d"] {
+		t.Errorf("invalid value for d: got %v - want %v", d, expected["d"])
+	}
+
+	local2 := NewSymbolTable(OuterSymbolTable(local1))
+
+	if e := local2.Define("e"); e != expected["e"] {
+		t.Errorf("invalid value for e: got %v - want %v", e, expected["e"])
+	}
+	if f := local2.Define("f"); f != expected["f"] {
+		t.Errorf("invalid value for f: got %v - want %v", f, expected["f"])
+	}
 }
 
-func TestResolveGlobal(t *testing.T) {
+func TestResolve(t *testing.T) {
 	global := NewSymbolTable()
+	local1 := NewSymbolTable(OuterSymbolTable(global))
+	local2 := NewSymbolTable(OuterSymbolTable(local1))
 
 	global.Define("a")
 	global.Define("b")
+	local1.Define("c")
+	local1.Define("d")
+	local2.Define("e")
+	local2.Define("f")
 
-	expected := []Symbol{
-		{"a", GlobalScope, 0},
-		{"b", GlobalScope, 1},
+	expected := []struct {
+		st      *SymbolTable
+		symbols []Symbol
+	}{
+		{
+			st: global,
+			symbols: []Symbol{
+				{"a", GlobalScope, 0},
+				{"b", GlobalScope, 1},
+			},
+		},
+		{
+			st: local1,
+			symbols: []Symbol{
+				{"a", GlobalScope, 0},
+				{"b", GlobalScope, 1},
+				{"c", LocalScope, 0},
+				{"d", LocalScope, 1},
+			},
+		},
+		{
+			st: local2,
+			symbols: []Symbol{
+				{"a", GlobalScope, 0},
+				{"b", GlobalScope, 1},
+				{"c", LocalScope, 0},
+				{"d", LocalScope, 1},
+				{"e", LocalScope, 0},
+				{"f", LocalScope, 1},
+			},
+		},
 	}
-	for _, sym := range expected {
-		res, ok := global.Resolve(sym.Name)
-		if !ok {
-			t.Errorf("could not resolve name: %s", sym.Name)
-			continue
-		}
-		if res != sym {
-			t.Errorf("invalid value for name %s: got %+v - want %+v", sym.Name, res, sym)
+	for _, tt := range expected {
+		for _, sym := range tt.symbols {
+			res, ok := tt.st.Resolve(sym.Name)
+			if !ok {
+				t.Errorf("could not resolve name: %s", sym.Name)
+				continue
+			}
+			if res != sym {
+				t.Errorf("invalid value for name %s: got %+v - want %+v", sym.Name, res, sym)
+			}
 		}
 	}
 }

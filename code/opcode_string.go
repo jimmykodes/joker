@@ -28,17 +28,19 @@ func _() {
 	_ = x[OpJumpNotTruthy-17]
 	_ = x[OpSetGlobal-18]
 	_ = x[OpGetGlobal-19]
-	_ = x[OpArray-20]
-	_ = x[OpMap-21]
-	_ = x[OpIndex-22]
-	_ = x[OpCall-23]
-	_ = x[OpReturn-24]
-	_ = x[lastOpcode-25]
+	_ = x[OpSetLocal-20]
+	_ = x[OpGetLocal-21]
+	_ = x[OpArray-22]
+	_ = x[OpMap-23]
+	_ = x[OpIndex-24]
+	_ = x[OpCall-25]
+	_ = x[OpReturn-26]
+	_ = x[lastOpcode-27]
 }
 
-const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpGetGlobalOpArrayOpMapOpIndexOpCallOpReturnlastOpcode"
+const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpGetGlobalOpSetLocalOpGetLocalOpArrayOpMapOpIndexOpCallOpReturnlastOpcode"
 
-var _Opcode_index = [...]uint8{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 134, 141, 146, 153, 159, 167, 177}
+var _Opcode_index = [...]uint8{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 134, 144, 154, 161, 166, 173, 179, 187, 197}
 
 func (i Opcode) String() string {
 	if i >= Opcode(len(_Opcode_index)-1) {

@@ -58,28 +58,48 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok {
 			return fmt.Errorf("could not resolve identifier: %s", node.Value)
 		}
-		c.emit(code.OpGetGlobal, sym.Index)
+		switch sym.Scope {
+		case GlobalScope:
+			c.emit(code.OpGetGlobal, sym.Index)
+		case LocalScope:
+			c.emit(code.OpGetLocal, sym.Index)
+		}
 
 	case *ast.LetStatement:
 		if err := c.Compile(node.Value); err != nil {
 			return err
 		}
 		sym := c.symbolTable.Define(node.Name.Value)
-		c.emit(code.OpSetGlobal, sym.Index)
+		switch sym.Scope {
+		case GlobalScope:
+			c.emit(code.OpSetGlobal, sym.Index)
+		case LocalScope:
+			c.emit(code.OpSetLocal, sym.Index)
+		}
 
 	case *ast.DefineStatement:
 		if err := c.Compile(node.Value); err != nil {
 			return err
 		}
 		sym := c.symbolTable.Define(node.Name.Value)
-		c.emit(code.OpSetGlobal, sym.Index)
+		switch sym.Scope {
+		case GlobalScope:
+			c.emit(code.OpSetGlobal, sym.Index)
+		case LocalScope:
+			c.emit(code.OpSetLocal, sym.Index)
+		}
 
 	case *ast.FuncStatement:
 		if err := c.Compile(node.Fn); err != nil {
 			return err
 		}
 		sym := c.symbolTable.Define(node.Name.Value)
-		c.emit(code.OpSetGlobal, sym.Index)
+		switch sym.Scope {
+		case GlobalScope:
+			c.emit(code.OpSetGlobal, sym.Index)
+		case LocalScope:
+			c.emit(code.OpSetLocal, sym.Index)
+		}
 
 	// expressions
 	case *ast.CallExpression:
@@ -229,9 +249,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpNull)
 			c.emit(code.OpReturn)
 		}
+		numLocals := len(c.symbolTable.store)
 		scope := c.leaveScope()
 
-		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions})
+		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions, NumLocals: numLocals})
 		c.emit(code.OpConstant, cf)
 	case *ast.ReturnStatement:
 		if err := c.Compile(node.Value); err != nil {
@@ -254,11 +275,13 @@ func (c *Compiler) Bytecode() *Bytecode {
 }
 
 func (c *Compiler) enterScope() {
+	c.symbolTable = NewSymbolTable(OuterSymbolTable(c.symbolTable))
 	c.scopes = append(c.scopes, CompilationScope{})
 	c.scopeIdx++
 }
 
 func (c *Compiler) leaveScope() CompilationScope {
+	c.symbolTable = c.symbolTable.outer
 	scope := c.scopes[c.scopeIdx]
 	c.scopes = c.scopes[:c.scopeIdx]
 	c.scopeIdx--

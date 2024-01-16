@@ -43,6 +43,8 @@ func TestReadOperands(t *testing.T) {
 		// variables
 		{OpSetGlobal, []int{65535}, 2},
 		{OpGetGlobal, []int{65535}, 2},
+		{OpSetLocal, []int{255}, 1},
+		{OpGetLocal, []int{255}, 1},
 
 		// Composite
 		{OpArray, []int{65535}, 2},
