@@ -118,6 +118,10 @@ func TestGlobalVariableDefs(t *testing.T) {
 		{"let one = 1; one", 1},
 		{"let one = 1; let two = 2; one + two", 3},
 		{"let one = 1; let two = one + one; one + two", 3},
+		{"one := 1; one", 1},
+		{"one := 1; two := 2; one + two", 3},
+		{"one := 1; two := one + one; one + two", 3},
+		{"one := 1; two := 2; three := 0; three = one + two;", 3},
 	}
 	runVmTests(t, tests)
 }

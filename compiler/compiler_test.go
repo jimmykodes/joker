@@ -461,6 +461,60 @@ func TestGlobalDefineStatements(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestReassignStatements(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      one := 1;
+      one = 2;
+      one;
+      `,
+			expectedConstants: []any{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      one := 1;
+      one;
+      `,
+			expectedConstants: []any{1},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      one := 1;
+      two := 2;
+      two = one;
+      two;
+      `,
+			expectedConstants: []any{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpSetGlobal, 1),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpSetGlobal, 1),
+				code.Instruction(code.OpGetGlobal, 1),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestConditionals(t *testing.T) {
 	tests := []compilerTestCase{
 		{
