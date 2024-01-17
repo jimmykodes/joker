@@ -179,19 +179,22 @@ func (vm *VM) Run() error {
 
 			// Function
 		case code.OpCall:
-			obj := vm.pop()
+			numElems := int(code.ReadUint8(ins[ip+1:]))
+			vm.currentFrame().ip++
+
+			obj := vm.stack[vm.sp-1-numElems]
 			res, ok := obj.(*object.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
 			}
-			fr := NewFrame(res.Instructions, vm.sp)
+			fr := NewFrame(res.Instructions, vm.sp-numElems)
 			vm.pushFrame(fr)
 			vm.sp = fr.basePointer + res.NumLocals
 
 		case code.OpReturn:
 			val := vm.pop()
 			fr := vm.popFrame()
-			vm.sp = fr.basePointer
+			vm.sp = fr.basePointer - 1
 			if err := vm.push(val); err != nil {
 				return err
 			}

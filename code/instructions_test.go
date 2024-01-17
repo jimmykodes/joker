@@ -21,7 +21,7 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpArray, 88),
 		Instruction(OpMap, 4),
 		Instruction(OpIndex),
-		Instruction(OpCall),
+		Instruction(OpCall, 1),
 		Instruction(OpReturn),
 		Instruction(OpSetLocal, 255),
 		Instruction(OpGetLocal, 255),
@@ -41,11 +41,11 @@ func TestInstructionsString(t *testing.T) {
 0019 OpArray 88
 0022 OpMap 4
 0025 OpIndex
-0026 OpCall
-0027 OpReturn
-0028 OpSetLocal 255
-0030 OpGetLocal 255
-0032 OpPop
+0026 OpCall 1
+0028 OpReturn
+0029 OpSetLocal 255
+0031 OpGetLocal 255
+0033 OpPop
 `
 	var joined Instructions
 	for _, ins := range inst {
@@ -106,7 +106,7 @@ func TestInstruction(t *testing.T) {
 		{OpIndex, []int{}, []byte{byte(OpIndex)}},
 
 		// Functions
-		{OpCall, []int{}, []byte{byte(OpCall)}},
+		{OpCall, []int{1}, []byte{byte(OpCall), 1}},
 		{OpReturn, []int{}, []byte{byte(OpReturn)}},
 	}
 	for _, tt := range tests {

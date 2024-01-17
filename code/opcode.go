@@ -66,6 +66,7 @@ var opWidths = [lastOpcode][]int{
 	OpGetLocal:      {1},
 	OpArray:         {2},
 	OpMap:           {2},
+	OpCall:          {1},
 }
 
 func OpWidths(op byte) ([]int, error) {

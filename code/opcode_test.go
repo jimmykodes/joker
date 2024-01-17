@@ -54,7 +54,7 @@ func TestReadOperands(t *testing.T) {
 		{OpIndex, []int{}, 0},
 
 		// Functions
-		{OpCall, []int{}, 0},
+		{OpCall, []int{0}, 1},
 		{OpReturn, []int{}, 0},
 	}
 	for _, tt := range tests {

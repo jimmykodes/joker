@@ -106,7 +106,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Function); err != nil {
 			return err
 		}
-		c.emit(code.OpCall)
+		for _, arg := range node.Arguments {
+			if err := c.Compile(arg); err != nil {
+				return err
+			}
+		}
+		c.emit(code.OpCall, len(node.Arguments))
 
 	case *ast.InfixExpression:
 		if node.Operator == "<" || node.Operator == "<=" {
@@ -242,9 +247,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	case *ast.FunctionLiteral:
 		c.enterScope()
+
+		for _, ident := range node.Parameters {
+			c.symbolTable.Define(ident.Value)
+		}
+
 		if err := c.Compile(node.Body); err != nil {
 			return err
 		}
+
 		if c.scopes[c.scopeIdx].ultInst.Opcode != code.OpReturn {
 			c.emit(code.OpNull)
 			c.emit(code.OpReturn)

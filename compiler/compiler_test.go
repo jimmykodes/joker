@@ -153,6 +153,29 @@ func TestFunctionCalls(t *testing.T) {
 				code.Instruction(code.OpPop),
 			},
 		},
+		{
+			input: `fn add(a, b) { return a + b; }
+		    add(12, 13);`,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpGetLocal, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+				12,
+				13,
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpGetGlobal, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpCall, 2),
+				code.Instruction(code.OpPop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }
@@ -198,21 +221,6 @@ func TestFunctions(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
-
-// func TestCallExpression(t *testing.T) {
-// 	tests := []compilerTestCase{
-// 		{
-// 			input:             "foo()",
-// 			expectedConstants: []any{},
-// 			expectedInstructions: []code.Instructions{
-// 				code.Instruction(code.OpGetGlobal, 0),
-// 				code.Instruction(code.OpCall),
-// 				code.Instruction(code.OpPop),
-// 			},
-// 		},
-// 	}
-// 	runCompilerTests(t, tests)
-// }
 
 func TestIndexExpression(t *testing.T) {
 	tests := []compilerTestCase{

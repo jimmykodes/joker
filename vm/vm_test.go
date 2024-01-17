@@ -65,6 +65,21 @@ func TestFuncCall(t *testing.T) {
       `,
 			expected: 1,
 		},
+		{
+			input: `
+      fn add(a, b) { return a + b; }
+      add(1, 2);
+      `,
+			expected: 3,
+		},
+		{
+			input: `
+      fn square(a) { return a * a; }
+      fn add(a, b) { return a + b; }
+      add(1, square(2));
+      `,
+			expected: 5,
+		},
 	}
 	runVmTests(t, tests)
 }
