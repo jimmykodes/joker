@@ -255,6 +255,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpNull)
 		c.scopes[c.scopeIdx].startPos = oldStart
+		c.scopes[c.scopeIdx].setEndPos = nil
 
 		// Literals
 	case *ast.IntegerLiteral:
