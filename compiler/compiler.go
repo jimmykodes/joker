@@ -48,6 +48,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.ExpressionStatement:
+		if _, ok := node.Expression.(*ast.CommentLiteral); ok {
+			return nil
+		}
 		if err := c.Compile(node.Expression); err != nil {
 			return err
 		}
@@ -63,6 +66,21 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpGetGlobal, sym.Index)
 		case LocalScope:
 			c.emit(code.OpGetLocal, sym.Index)
+		}
+
+	case *ast.ReassignStatement:
+		if err := c.Compile(node.Value); err != nil {
+			return err
+		}
+		sym, ok := c.symbolTable.Resolve(node.Name.Value)
+		if !ok {
+			return fmt.Errorf("cannot resolve symbol %s", node.Name.Value)
+		}
+		switch sym.Scope {
+		case GlobalScope:
+			c.emit(code.OpSetGlobal, sym.Index)
+		case LocalScope:
+			c.emit(code.OpSetLocal, sym.Index)
 		}
 
 	case *ast.LetStatement:
