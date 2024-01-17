@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/jimmykodes/joker/evaluator"
+	"github.com/jimmykodes/joker/compiler"
 	"github.com/jimmykodes/joker/lexer"
-	"github.com/jimmykodes/joker/object"
 	"github.com/jimmykodes/joker/parser"
 	"github.com/jimmykodes/joker/repl"
+	"github.com/jimmykodes/joker/vm"
 )
 
 func main() {
@@ -31,13 +31,25 @@ func main() {
 		l := lexer.New(string(progText))
 		p := parser.New(l)
 		prog := p.ParseProgram()
-		env := object.NewEnvironment()
-		obj := evaluator.Eval(prog, env)
-		if obj.Type() == object.ErrorType {
-			fmt.Println(obj.Inspect())
+		c := compiler.New()
+		if err := c.Compile(prog); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
-		for _, e := range p.Errors() {
-			fmt.Println(e)
+
+		v := vm.New(c.Bytecode())
+		if err := v.Run(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
+
+		// env := object.NewEnvironment()
+		// obj := evaluator.Eval(prog, env)
+		// if obj.Type() == object.ErrorType {
+		// 	fmt.Println(obj.Inspect())
+		// }
+		// for _, e := range p.Errors() {
+		// 	fmt.Println(e)
+		// }
 	}
 }
