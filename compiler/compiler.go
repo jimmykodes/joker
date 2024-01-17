@@ -15,6 +15,8 @@ type CompilationScope struct {
 	ultInst EmittedInstruction
 	// penultInst is the second to last (penultimate) instruction emitted
 	penultInst EmittedInstruction
+	startPos   int
+	setEndPos  []int
 }
 
 type Compiler struct {
@@ -231,7 +233,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.replaceOperand(jmpPos, len(c.scopes[c.scopeIdx].instructions))
 
 	case *ast.WhileExpression:
+		oldStart := c.scopes[c.scopeIdx].startPos
+
 		startPos := len(c.scopes[c.scopeIdx].instructions)
+		c.scopes[c.scopeIdx].startPos = startPos
+
 		if err := c.Compile(node.Condition); err != nil {
 			return err
 		}
@@ -242,8 +248,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpJump, startPos)
-		c.replaceOperand(jntPos, len(c.scopes[c.scopeIdx].instructions))
+		endPos := len(c.scopes[c.scopeIdx].instructions)
+		c.replaceOperand(jntPos, endPos)
+		for _, setEndPos := range c.scopes[c.scopeIdx].setEndPos {
+			c.replaceOperand(setEndPos, endPos)
+		}
 		c.emit(code.OpNull)
+		c.scopes[c.scopeIdx].startPos = oldStart
 
 		// Literals
 	case *ast.IntegerLiteral:
@@ -299,6 +310,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions, NumLocals: numLocals})
 		c.emit(code.OpConstant, cf)
+
 	case *ast.ReturnStatement:
 		if c.scopeIdx == 0 {
 			return fmt.Errorf("top level returns are not allowed")
@@ -307,6 +319,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		c.emit(code.OpReturn)
+
+	case *ast.BreakStatement:
+		jmpPos := c.emit(code.OpJump, 0)
+		c.scopes[c.scopeIdx].setEndPos = append(c.scopes[c.scopeIdx].setEndPos, jmpPos)
+
+	case *ast.ContinueStatement:
+		c.emit(code.OpJump, c.scopes[c.scopeIdx].startPos)
 
 	default:
 		return fmt.Errorf("unknown node: %T", node)
