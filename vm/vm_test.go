@@ -126,6 +126,86 @@ func TestGlobalVariableDefs(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestWhileLoop(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+      i := 0;
+      while i < 10 {
+        i = i + 1;
+      }
+      i;
+      `,
+			expected: 10,
+		},
+		{
+			input: `
+      fn acc(num) {
+        i := 0;
+        a := 0;
+        while i <= num {
+          a = a + i;
+          i = i + 1;
+        }
+        return a;
+      }
+      acc(4);`,
+			expected: 10,
+		},
+		{
+			input: `
+      fn acc(num) {
+        i := 0;
+        a := 0;
+        while true {
+          if i > num {
+            return a;
+          }
+          a = a + i;
+          i = i + 1;
+        }
+      }
+      acc(4);`,
+			expected: 10,
+		},
+		{
+			input: `
+      fn acc(num) {
+        i := 0;
+        a := 0;
+        while true {
+          if i > num {
+            break;
+          }
+          a = a + i;
+          i = i + 1;
+        }
+        return a;
+      }
+      acc(4);`,
+			expected: 10,
+		},
+		{
+			input: `
+      fn acc(num) {
+        i := 0;
+        a := 0;
+        while true {
+          a = a + i;
+          i = i + 1;
+          if i <= num {
+            continue;
+          }
+          return a;
+        }
+      }
+      acc(4);`,
+			expected: 10,
+		},
+	}
+	runVmTests(t, tests)
+}
+
 func TestConditionals(t *testing.T) {
 	tests := []vmTestCase{
 		{"if true { 10 } else { 12 }", 10},

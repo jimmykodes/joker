@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jimmykodes/joker/ast"
 	"github.com/jimmykodes/joker/code"
@@ -108,10 +109,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.FuncStatement:
+		sym := c.symbolTable.Define(node.Name.Value)
 		if err := c.Compile(node.Fn); err != nil {
 			return err
 		}
-		sym := c.symbolTable.Define(node.Name.Value)
 		switch sym.Scope {
 		case GlobalScope:
 			c.emit(code.OpSetGlobal, sym.Index)
@@ -229,6 +230,21 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		c.replaceOperand(jmpPos, len(c.scopes[c.scopeIdx].instructions))
 
+	case *ast.WhileExpression:
+		startPos := len(c.scopes[c.scopeIdx].instructions)
+		if err := c.Compile(node.Condition); err != nil {
+			return err
+		}
+		jntPos := c.emit(code.OpJumpNotTruthy, 0)
+
+		if err := c.Compile(node.Body); err != nil {
+			return err
+		}
+
+		c.emit(code.OpJump, startPos)
+		c.replaceOperand(jntPos, len(c.scopes[c.scopeIdx].instructions))
+		c.emit(code.OpNull)
+
 		// Literals
 	case *ast.IntegerLiteral:
 		obj := &object.Integer{Value: node.Value}
@@ -284,6 +300,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions, NumLocals: numLocals})
 		c.emit(code.OpConstant, cf)
 	case *ast.ReturnStatement:
+		if c.scopeIdx == 0 {
+			return fmt.Errorf("top level returns are not allowed")
+		}
 		if err := c.Compile(node.Value); err != nil {
 			return err
 		}
@@ -365,6 +384,18 @@ func (c *Compiler) addConstant(obj object.Object) int {
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
+}
+
+func (b Bytecode) String() string {
+	var sb strings.Builder
+	sb.WriteString("Constants:\n")
+	for _, constant := range b.Constants {
+		fmt.Fprintf(&sb, "\t%+v\n", constant)
+	}
+	sb.WriteString("Instructions:\n")
+	sb.WriteString(b.Instructions.String())
+
+	return sb.String()
 }
 
 type EmittedInstruction struct {

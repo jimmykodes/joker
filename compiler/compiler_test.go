@@ -515,6 +515,86 @@ func TestReassignStatements(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestWhileLoop(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      a := 0;
+      while true {
+        a = a + 1;
+      }
+      a;`,
+			expectedConstants: []any{0, 1},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.Instruction(code.OpConstant, 0),
+				// 0003
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0006
+				code.Instruction(code.OpTrue),
+				// 0007
+				code.Instruction(code.OpJumpNotTruthy, 23),
+				// 0010
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0013
+				code.Instruction(code.OpConstant, 1),
+				// 0016
+				code.Instruction(code.OpAdd),
+				// 0017
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0020
+				code.Instruction(code.OpJump, 6),
+				// 0023
+				code.Instruction(code.OpNull),
+				// 0024
+				code.Instruction(code.OpPop),
+				// 0025
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0028
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      a := 0;
+      while true {
+        a = a + 1;
+      }
+      a;`,
+			expectedConstants: []any{0, 1},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.Instruction(code.OpConstant, 0),
+				// 0003
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0006
+				code.Instruction(code.OpTrue),
+				// 0007
+				code.Instruction(code.OpJumpNotTruthy, 23),
+				// 0010
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0013
+				code.Instruction(code.OpConstant, 1),
+				// 0016
+				code.Instruction(code.OpAdd),
+				// 0017
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0020
+				code.Instruction(code.OpJump, 6),
+				// 0023
+				code.Instruction(code.OpNull),
+				// 0024
+				code.Instruction(code.OpPop),
+				// 0025
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0028
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestConditionals(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -855,7 +935,7 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 func testInstructions(want []code.Instructions, got code.Instructions) error {
 	joined := concatInstructions(want)
 	if len(got) != len(joined) {
-		return fmt.Errorf("wrong lengths:\ngot %q\nwant %q", got, joined)
+		return fmt.Errorf("wrong lengths:\ngot  %q\nwant %q", got, joined)
 	}
 	for i, ins := range joined {
 		if ins != got[i] {
