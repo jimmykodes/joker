@@ -9,7 +9,7 @@ import (
 	"github.com/jimmykodes/joker/object"
 )
 
-type CompilationScope struct {
+type Scope struct {
 	instructions code.Instructions
 	// ultInst is the last (ultimate) instruction emitted
 	ultInst EmittedInstruction
@@ -23,14 +23,13 @@ type Compiler struct {
 	constants   []object.Object
 	symbolTable *SymbolTable
 
-	scopes   []CompilationScope
-	scopeIdx int
+	scopes []*Scope
 }
 
 func New() *Compiler {
 	return &Compiler{
 		symbolTable: NewSymbolTable(),
-		scopes:      []CompilationScope{{}},
+		scopes:      []*Scope{{}},
 	}
 }
 
@@ -218,7 +217,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.removeLastInstruction(code.OpPop)
 		jmpPos := c.emit(code.OpJump, 0)
 
-		c.replaceOperand(jmpNTPos, len(c.scopes[c.scopeIdx].instructions))
+		c.replaceOperand(jmpNTPos, len(c.currentScope().instructions))
 
 		if node.Alternative == nil {
 			c.emit(code.OpNull)
@@ -230,13 +229,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.removeLastInstruction(code.OpPop)
 		}
 
-		c.replaceOperand(jmpPos, len(c.scopes[c.scopeIdx].instructions))
+		c.replaceOperand(jmpPos, len(c.currentScope().instructions))
 
 	case *ast.WhileExpression:
-		oldStart := c.scopes[c.scopeIdx].startPos
+		oldStart := c.currentScope().startPos
 
-		startPos := len(c.scopes[c.scopeIdx].instructions)
-		c.scopes[c.scopeIdx].startPos = startPos
+		startPos := len(c.currentScope().instructions)
+		c.currentScope().startPos = startPos
 
 		if err := c.Compile(node.Condition); err != nil {
 			return err
@@ -248,14 +247,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpJump, startPos)
-		endPos := len(c.scopes[c.scopeIdx].instructions)
+		endPos := len(c.currentScope().instructions)
 		c.replaceOperand(jntPos, endPos)
-		for _, setEndPos := range c.scopes[c.scopeIdx].setEndPos {
+		for _, setEndPos := range c.currentScope().setEndPos {
 			c.replaceOperand(setEndPos, endPos)
 		}
 		c.emit(code.OpNull)
-		c.scopes[c.scopeIdx].startPos = oldStart
-		c.scopes[c.scopeIdx].setEndPos = nil
+		c.currentScope().startPos = oldStart
+		c.currentScope().setEndPos = nil
 
 		// Literals
 	case *ast.IntegerLiteral:
@@ -302,7 +301,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		if c.scopes[c.scopeIdx].ultInst.Opcode != code.OpReturn {
+		if c.currentScope().ultInst.Opcode != code.OpReturn {
 			c.emit(code.OpNull)
 			c.emit(code.OpReturn)
 		}
@@ -313,7 +312,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpConstant, cf)
 
 	case *ast.ReturnStatement:
-		if c.scopeIdx == 0 {
+		if len(c.scopes) == 1 {
 			return fmt.Errorf("top level returns are not allowed")
 		}
 		if err := c.Compile(node.Value); err != nil {
@@ -323,10 +322,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	case *ast.BreakStatement:
 		jmpPos := c.emit(code.OpJump, 0)
-		c.scopes[c.scopeIdx].setEndPos = append(c.scopes[c.scopeIdx].setEndPos, jmpPos)
+		c.currentScope().setEndPos = append(c.currentScope().setEndPos, jmpPos)
 
 	case *ast.ContinueStatement:
-		c.emit(code.OpJump, c.scopes[c.scopeIdx].startPos)
+		c.emit(code.OpJump, c.currentScope().startPos)
 
 	default:
 		return fmt.Errorf("unknown node: %T", node)
@@ -342,38 +341,39 @@ func (c *Compiler) Bytecode() *Bytecode {
 	}
 }
 
-func (c *Compiler) enterScope() {
-	c.symbolTable = NewSymbolTable(OuterSymbolTable(c.symbolTable))
-	c.scopes = append(c.scopes, CompilationScope{})
-	c.scopeIdx++
+func (c *Compiler) currentScope() *Scope {
+	return c.scopes[len(c.scopes)-1]
 }
 
-func (c *Compiler) leaveScope() CompilationScope {
+func (c *Compiler) enterScope() {
+	c.symbolTable = NewSymbolTable(OuterSymbolTable(c.symbolTable))
+	c.scopes = append(c.scopes, &Scope{})
+}
+
+func (c *Compiler) leaveScope() *Scope {
 	c.symbolTable = c.symbolTable.outer
-	scope := c.scopes[c.scopeIdx]
-	c.scopes = c.scopes[:c.scopeIdx]
-	c.scopeIdx--
+	scope := c.currentScope()
+	c.scopes = c.scopes[:len(c.scopes)-1]
 	return scope
 }
 
 func (c *Compiler) removeLastInstruction(op code.Opcode) {
-	scope := c.scopes[c.scopeIdx]
+	scope := c.currentScope()
 	if scope.ultInst.Opcode != op {
 		return
 	}
 	scope.instructions = scope.instructions[:scope.ultInst.Position]
 	scope.ultInst = scope.penultInst
-	c.scopes[c.scopeIdx] = scope
 }
 
 func (c *Compiler) replaceInstruction(pos int, inst code.Instructions) {
 	for i, n := range inst {
-		c.scopes[c.scopeIdx].instructions[pos+i] = n
+		c.currentScope().instructions[pos+i] = n
 	}
 }
 
 func (c *Compiler) replaceOperand(pos int, operand int) {
-	op := code.Opcode(c.scopes[c.scopeIdx].instructions[pos])
+	op := code.Opcode(c.currentScope().instructions[pos])
 	newInst := code.Instruction(op, operand)
 	c.replaceInstruction(pos, newInst)
 }
@@ -386,13 +386,15 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 }
 
 func (c *Compiler) setUltInst(op code.Opcode, pos int) {
-	c.scopes[c.scopeIdx].penultInst = c.scopes[c.scopeIdx].ultInst
-	c.scopes[c.scopeIdx].ultInst = EmittedInstruction{Opcode: op, Position: pos}
+	scope := c.currentScope()
+	scope.penultInst = scope.ultInst
+	scope.ultInst = EmittedInstruction{Opcode: op, Position: pos}
 }
 
 func (c *Compiler) addInstruction(ins code.Instructions) int {
-	pos := len(c.scopes[c.scopeIdx].instructions)
-	c.scopes[c.scopeIdx].instructions = append(c.scopes[c.scopeIdx].instructions, ins...)
+	scope := c.currentScope()
+	pos := len(scope.instructions)
+	scope.instructions = append(scope.instructions, ins...)
 	return pos
 }
 
