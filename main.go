@@ -24,8 +24,8 @@ var (
 func main() {
 	flag.Parse()
 	if len(flag.Args()) == 0 {
-		// repl.Start(os.Stdin, os.Stdout)
-		repl.StartVM(os.Stdin, os.Stdout)
+		repl.Start(os.Stdin, os.Stdout)
+		// repl.StartVM(os.Stdin, os.Stdout)
 	} else {
 		file := flag.Arg(0)
 		f, err := os.Open(file)
