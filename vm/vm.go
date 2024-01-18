@@ -187,6 +187,11 @@ func (vm *VM) Run() error {
 			if !ok {
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
 			}
+
+			if numElems != res.NumParams {
+				return fmt.Errorf("invalid number of args, got %d - want %d", numElems, res.NumParams)
+			}
+
 			fr := NewFrame(res.Instructions, vm.sp-numElems)
 			vm.pushFrame(fr)
 			vm.sp = fr.basePointer + res.NumLocals

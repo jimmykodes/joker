@@ -308,7 +308,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 		numLocals := len(c.symbolTable.store)
 		scope := c.leaveScope()
 
-		cf := c.addConstant(&object.CompiledFunction{Instructions: scope.instructions, NumLocals: numLocals})
+		cf := c.addConstant(&object.CompiledFunction{
+			Instructions: scope.instructions,
+			NumLocals:    numLocals,
+			NumParams:    len(node.Parameters),
+		})
 		c.emit(code.OpConstant, cf)
 
 	case *ast.ReturnStatement:
