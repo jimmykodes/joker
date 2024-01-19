@@ -16,6 +16,24 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestClosure(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+      fn add(a) {
+        return fn(b) {
+          return a + b;
+        }
+      }
+      let adder = add(10);
+      adder(12);
+      `,
+			expected: 22,
+		},
+	}
+	runVmTests(t, tests)
+}
+
 func TestBuiltinCall(t *testing.T) {
 	tests := []vmTestCase{
 		{`len([1, 2, 3])`, 3},

@@ -216,16 +216,29 @@ func (vm *VM) Run() error {
 
 		case code.OpClosure:
 			constIdx := code.ReadUint16(ins[ip+1:])
-			numFree := code.ReadUint8(ins[ip+3:])
+			numFree := int(code.ReadUint8(ins[ip+3:]))
 			vm.currentFrame().ip += 3
-			_ = numFree
 
 			obj := vm.constants[constIdx]
 			fn, ok := obj.(*object.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
 			}
-			if err := vm.push(&object.Closure{Fn: fn}); err != nil {
+			free := make([]object.Object, numFree)
+			for i := range free {
+				free[i] = vm.stack[vm.sp-numFree+i]
+			}
+			vm.sp = vm.sp - numFree
+
+			if err := vm.push(&object.Closure{Fn: fn, Free: free}); err != nil {
+				return err
+			}
+		case code.OpGetFree:
+			freeIdx := code.ReadUint8(ins[ip+1:])
+			vm.currentFrame().ip++
+
+			currentClosure := vm.currentFrame().cl
+			if err := vm.push(currentClosure.Free[freeIdx]); err != nil {
 				return err
 			}
 
