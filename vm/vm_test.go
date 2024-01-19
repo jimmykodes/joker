@@ -16,6 +16,13 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestBuiltinCall(t *testing.T) {
+	tests := []vmTestCase{
+		{`len([1, 2, 3])`, 3},
+	}
+	runVmTests(t, tests)
+}
+
 func TestFuncCall(t *testing.T) {
 	tests := []vmTestCase{
 		{

@@ -25,6 +25,7 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpReturn),
 		Instruction(OpSetLocal, 255),
 		Instruction(OpGetLocal, 255),
+		Instruction(OpGetBuiltin, 1),
 		Instruction(OpPop),
 	}
 	expect := `0000 OpAdd
@@ -45,7 +46,8 @@ func TestInstructionsString(t *testing.T) {
 0028 OpReturn
 0029 OpSetLocal 255
 0031 OpGetLocal 255
-0033 OpPop
+0033 OpGetBuiltin 1
+0035 OpPop
 `
 	var joined Instructions
 	for _, ins := range inst {

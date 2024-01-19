@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/jimmykodes/joker/builtins"
 	"github.com/jimmykodes/joker/code"
 	"github.com/jimmykodes/joker/compiler"
 	"github.com/jimmykodes/joker/object"
@@ -183,18 +184,37 @@ func (vm *VM) Run() error {
 			vm.currentFrame().ip++
 
 			obj := vm.stack[vm.sp-1-numElems]
-			res, ok := obj.(*object.CompiledFunction)
-			if !ok {
+			switch obj := obj.(type) {
+			case *object.CompiledFunction:
+				if numElems != obj.NumParams {
+					return fmt.Errorf("invalid number of args, got %d - want %d", numElems, obj.NumParams)
+				}
+
+				fr := NewFrame(obj.Instructions, vm.sp-numElems)
+				vm.pushFrame(fr)
+				vm.sp = fr.basePointer + obj.NumLocals
+			case *object.Builtin:
+				args := vm.stack[vm.sp-numElems : vm.sp]
+				if res := obj.Fn(args...); res != nil {
+					return vm.push(res)
+				}
+				return vm.push(Null)
+
+			default:
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
+
 			}
 
-			if numElems != res.NumParams {
-				return fmt.Errorf("invalid number of args, got %d - want %d", numElems, res.NumParams)
+		case code.OpGetBuiltin:
+			builtin := int(code.ReadUint8(ins[ip+1:]))
+			vm.currentFrame().ip++
+			obj, ok := builtins.Func(builtin)
+			if !ok {
+				return fmt.Errorf("invalid builtin: %d", builtin)
 			}
-
-			fr := NewFrame(res.Instructions, vm.sp-numElems)
-			vm.pushFrame(fr)
-			vm.sp = fr.basePointer + res.NumLocals
+			if err := vm.push(obj); err != nil {
+				return err
+			}
 
 		case code.OpReturn:
 			val := vm.pop()

@@ -8,21 +8,21 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[startBuiltin-0]
-	_ = x[IntBuiltin-1]
-	_ = x[FloatBuiltin-2]
-	_ = x[StringBuiltin-3]
-	_ = x[LenBuiltin-4]
-	_ = x[PopBuiltin-5]
-	_ = x[PrintBuiltin-6]
-	_ = x[AppendBuiltin-7]
-	_ = x[SliceBuiltin-8]
-	_ = x[endBuiltin-9]
+	_ = x[start-0]
+	_ = x[Int-1]
+	_ = x[Float-2]
+	_ = x[String-3]
+	_ = x[Len-4]
+	_ = x[Pop-5]
+	_ = x[Print-6]
+	_ = x[Append-7]
+	_ = x[Slice-8]
+	_ = x[end-9]
 }
 
-const _builtin_name = "startBuiltinintfloatstringlenpopprintappendsliceendBuiltin"
+const _builtin_name = "startintfloatstringlenpopprintappendsliceend"
 
-var _builtin_index = [...]uint8{0, 12, 15, 20, 26, 29, 32, 37, 43, 48, 58}
+var _builtin_index = [...]uint8{0, 5, 8, 13, 19, 22, 25, 30, 36, 41, 44}
 
 func (i builtin) String() string {
 	if i < 0 || i >= builtin(len(_builtin_index)-1) {

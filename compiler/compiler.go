@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/builtins"
 	"github.com/jimmykodes/joker/code"
 	"github.com/jimmykodes/joker/object"
 )
@@ -61,7 +62,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.Identifier:
 		sym, ok := c.symbolTable.Resolve(node.Value)
 		if !ok {
-			return fmt.Errorf("could not resolve identifier: %s", node.Value)
+			builtin, ok := builtins.Lookup(node.Value)
+			if !ok {
+				return fmt.Errorf("could not resolve identifier: %s", node.Value)
+			}
+			c.emit(code.OpGetBuiltin, builtin)
 		}
 		switch sym.Scope {
 		case GlobalScope:

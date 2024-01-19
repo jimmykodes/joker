@@ -209,7 +209,7 @@ func evalIdent(ident *ast.Identifier, env *object.Environment) object.Object {
 	if o, ok := env.Get(ident.Value); ok {
 		return o
 	}
-	if b, ok := builtins.Lookup(ident.Value); ok {
+	if b, ok := builtins.LookupFunc(ident.Value); ok {
 		return b
 	}
 	return newError("identifier not found: %s", ident.Value)

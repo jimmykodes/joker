@@ -21,4 +21,4 @@ fn sqr(n) {
   return a;
 }
 
-sqr(10);
+print(sqr(10));

@@ -51,6 +51,7 @@ const (
 
 	// Function
 	OpCall
+	OpGetBuiltin
 	OpReturn
 
 	lastOpcode
@@ -67,6 +68,7 @@ var opWidths = [lastOpcode][]int{
 	OpArray:         {2},
 	OpMap:           {2},
 	OpCall:          {1},
+	OpGetBuiltin:    {1},
 }
 
 func OpWidths(op byte) ([]int, error) {

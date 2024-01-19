@@ -23,34 +23,47 @@ type builtin int
 
 //go:generate stringer -type builtin -linecomment
 const (
-	startBuiltin  builtin = iota
-	IntBuiltin            // int
-	FloatBuiltin          // float
-	StringBuiltin         // string
-	LenBuiltin            // len
-	PopBuiltin            // pop
-	PrintBuiltin          // print
-	AppendBuiltin         // append
-	SliceBuiltin          // slice
-	endBuiltin
+	start  builtin = iota
+	Int            // int
+	Float          // float
+	String         // string
+	Len            // len
+	Pop            // pop
+	Print          // print
+	Append         // append
+	Slice          // slice
+	end
 )
 
 var lookups map[string]builtin
 
 func init() {
-	lookups = make(map[string]builtin, endBuiltin)
-	for i := startBuiltin + 1; i < endBuiltin; i++ {
+	lookups = make(map[string]builtin, end)
+	for i := start + 1; i < end; i++ {
 		lookups[i.String()] = i
 	}
 }
 
-func Lookup(name string) (*object.Builtin, bool) {
+func Func(i int) (*object.Builtin, bool) {
+	b := builtin(i)
+	if start >= b || b >= end {
+		return nil, false
+	}
+	return builtins[b], true
+}
+
+func Lookup(name string) (int, bool) {
+	val, ok := lookups[name]
+	return int(val), ok
+}
+
+func LookupFunc(name string) (*object.Builtin, bool) {
 	val, ok := lookups[name]
 	return builtins[val], ok
 }
 
 var builtins = [...]*object.Builtin{
-	IntBuiltin: {
+	Int: {
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -76,7 +89,7 @@ var builtins = [...]*object.Builtin{
 			}
 		},
 	},
-	FloatBuiltin: {
+	Float: {
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -97,7 +110,7 @@ var builtins = [...]*object.Builtin{
 			}
 		},
 	},
-	StringBuiltin: {
+	String: {
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -114,7 +127,7 @@ var builtins = [...]*object.Builtin{
 			}
 		},
 	},
-	LenBuiltin: {
+	Len: {
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -126,7 +139,7 @@ var builtins = [...]*object.Builtin{
 			return l.Len()
 		},
 	},
-	PopBuiltin: {
+	Pop: {
 		// TODO: create a "popable" interface and have this compare the object to the interface
 		// implement the interface on both maps and slices
 		Fn: func(args ...object.Object) object.Object {
@@ -149,7 +162,7 @@ var builtins = [...]*object.Builtin{
 			return obj.Value
 		},
 	},
-	PrintBuiltin: {
+	Print: {
 		Fn: func(args ...object.Object) object.Object {
 			out := make([]any, len(args))
 			for i, arg := range args {
@@ -159,7 +172,7 @@ var builtins = [...]*object.Builtin{
 			return nil
 		},
 	},
-	AppendBuiltin: {
+	Append: {
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) < 2 {
 				return newError("invalid number of args, got %d, want 2+", len(args))
@@ -171,7 +184,7 @@ var builtins = [...]*object.Builtin{
 			return &object.Array{Elements: append(source.Elements, args[1:]...)}
 		},
 	},
-	SliceBuiltin: {
+	Slice: {
 		Fn: func(args ...object.Object) object.Object {
 			var (
 				source object.Object
