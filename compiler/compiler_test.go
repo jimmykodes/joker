@@ -17,6 +17,125 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestClosures(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      fn(a) {
+        return fn(b) {
+          return a + b;
+        };
+      }
+      `,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.Instruction(code.OpGetFree, 0),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+				[]code.Instructions{
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpClosure, 0, 1),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpClosure, 1, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      fn(a) {
+        return fn(b) {
+          return fn(c) {
+            return a + b + c;
+          }
+        }
+      }
+      `,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.Instruction(code.OpGetFree, 0),
+					code.Instruction(code.OpGetFree, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+				[]code.Instructions{
+					code.Instruction(code.OpGetFree, 0),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpClosure, 0, 2),
+					code.Instruction(code.OpReturn),
+				},
+				[]code.Instructions{
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpClosure, 1, 1),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpClosure, 2, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+      let g = 55;
+      fn() {
+        a := 66;
+        return fn() {
+          b := 77;
+          return fn() {
+            c := 88;
+            return g + a + b + c;
+          }
+        }
+      }
+      `,
+			expectedConstants: []any{
+				55, 66, 77, 88,
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 3),
+					code.Instruction(code.OpSetLocal, 0),
+					code.Instruction(code.OpGetGlobal, 0),
+					code.Instruction(code.OpGetFree, 0),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpGetFree, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 2),
+					code.Instruction(code.OpSetLocal, 0),
+					code.Instruction(code.OpGetFree, 0),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpClosure, 4, 2),
+					code.Instruction(code.OpReturn),
+				},
+				[]code.Instructions{
+					code.Instruction(code.OpConstant, 1),
+					code.Instruction(code.OpSetLocal, 0),
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpClosure, 5, 1),
+					code.Instruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpSetGlobal, 0),
+				code.Instruction(code.OpClosure, 6, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestVarScopes(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -33,7 +152,7 @@ func TestVarScopes(t *testing.T) {
 			expectedInstructions: []code.Instructions{
 				code.Instruction(code.OpConstant, 0),
 				code.Instruction(code.OpSetGlobal, 0),
-				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpClosure, 1, 0),
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -53,7 +172,7 @@ func TestVarScopes(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpClosure, 1, 0),
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -79,7 +198,7 @@ func TestVarScopes(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -105,7 +224,7 @@ func TestFunctionCalls(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpSetGlobal, 0),
 				code.Instruction(code.OpGetGlobal, 0),
 				code.Instruction(code.OpCall),
@@ -128,7 +247,7 @@ func TestFunctionCalls(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpSetGlobal, 0),
 				code.Instruction(code.OpGetGlobal, 0),
 				code.Instruction(code.OpCall),
@@ -148,7 +267,7 @@ func TestFunctionCalls(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpCall),
 				code.Instruction(code.OpPop),
 			},
@@ -167,7 +286,7 @@ func TestFunctionCalls(t *testing.T) {
 				13,
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 0),
+				code.Instruction(code.OpClosure, 0, 0),
 				code.Instruction(code.OpSetGlobal, 0),
 				code.Instruction(code.OpGetGlobal, 0),
 				code.Instruction(code.OpConstant, 1),
@@ -195,7 +314,7 @@ func TestFunctions(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -214,7 +333,7 @@ func TestFunctions(t *testing.T) {
 				},
 			},
 			expectedInstructions: []code.Instructions{
-				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpClosure, 2, 0),
 				code.Instruction(code.OpPop),
 			},
 		},

@@ -31,9 +31,8 @@ type VM struct {
 
 func New(bytecode *compiler.Bytecode) *VM {
 	vm := &VM{constants: bytecode.Constants}
-
-	vm.pushFrame(NewFrame(bytecode.Instructions, 0))
-
+	fn := &object.CompiledFunction{Instructions: bytecode.Instructions}
+	vm.pushFrame(NewFrame(&object.Closure{Fn: fn}, 0))
 	return vm
 }
 
@@ -46,7 +45,7 @@ func (vm *VM) Run() error {
 	for {
 		vm.currentFrame().ip++
 		ip = vm.currentFrame().ip
-		ins = vm.currentFrame().instructions
+		ins = vm.currentFrame().Instructions()
 		if ip >= len(ins) {
 			break
 		}
@@ -185,14 +184,14 @@ func (vm *VM) Run() error {
 
 			obj := vm.stack[vm.sp-1-numElems]
 			switch obj := obj.(type) {
-			case *object.CompiledFunction:
-				if numElems != obj.NumParams {
-					return fmt.Errorf("invalid number of args, got %d - want %d", numElems, obj.NumParams)
+			case *object.Closure:
+				if numElems != obj.Fn.NumParams {
+					return fmt.Errorf("invalid number of args, got %d - want %d", numElems, obj.Fn.NumParams)
 				}
 
-				fr := NewFrame(obj.Instructions, vm.sp-numElems)
+				fr := NewFrame(obj, vm.sp-numElems)
 				vm.pushFrame(fr)
-				vm.sp = fr.basePointer + obj.NumLocals
+				vm.sp = fr.basePointer + obj.Fn.NumLocals
 			case *object.Builtin:
 				args := vm.stack[vm.sp-numElems : vm.sp]
 				if res := obj.Fn(args...); res != nil {
@@ -202,7 +201,6 @@ func (vm *VM) Run() error {
 
 			default:
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
-
 			}
 
 		case code.OpGetBuiltin:
@@ -213,6 +211,21 @@ func (vm *VM) Run() error {
 				return fmt.Errorf("invalid builtin: %d", builtin)
 			}
 			if err := vm.push(obj); err != nil {
+				return err
+			}
+
+		case code.OpClosure:
+			constIdx := code.ReadUint16(ins[ip+1:])
+			numFree := code.ReadUint8(ins[ip+3:])
+			vm.currentFrame().ip += 3
+			_ = numFree
+
+			obj := vm.constants[constIdx]
+			fn, ok := obj.(*object.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
+			}
+			if err := vm.push(&object.Closure{Fn: fn}); err != nil {
 				return err
 			}
 

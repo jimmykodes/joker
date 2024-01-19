@@ -68,12 +68,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 			c.emit(code.OpGetBuiltin, builtin)
 		}
-		switch sym.Scope {
-		case GlobalScope:
-			c.emit(code.OpGetGlobal, sym.Index)
-		case LocalScope:
-			c.emit(code.OpGetLocal, sym.Index)
-		}
+		c.loadSymbol(sym)
 
 	case *ast.ReassignStatement:
 		if err := c.Compile(node.Value); err != nil {
@@ -88,6 +83,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpSetGlobal, sym.Index)
 		case LocalScope:
 			c.emit(code.OpSetLocal, sym.Index)
+			// TODO: what to do with FreeScope?
 		}
 
 	case *ast.LetStatement:
@@ -310,15 +306,20 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpNull)
 			c.emit(code.OpReturn)
 		}
+		freeSymbols := c.symbolTable.FreeSymbols
 		numLocals := len(c.symbolTable.store)
 		scope := c.leaveScope()
+
+		for _, s := range freeSymbols {
+			c.loadSymbol(s)
+		}
 
 		cf := c.addConstant(&object.CompiledFunction{
 			Instructions: scope.instructions,
 			NumLocals:    numLocals,
 			NumParams:    len(node.Parameters),
 		})
-		c.emit(code.OpConstant, cf)
+		c.emit(code.OpClosure, cf, len(freeSymbols))
 
 	case *ast.ReturnStatement:
 		if len(c.scopes) == 1 {
@@ -385,6 +386,17 @@ func (c *Compiler) replaceOperand(pos int, operand int) {
 	op := code.Opcode(c.currentScope().instructions[pos])
 	newInst := code.Instruction(op, operand)
 	c.replaceInstruction(pos, newInst)
+}
+
+func (c *Compiler) loadSymbol(s Symbol) {
+	switch s.Scope {
+	case GlobalScope:
+		c.emit(code.OpGetGlobal, s.Index)
+	case LocalScope:
+		c.emit(code.OpGetLocal, s.Index)
+	case FreeScope:
+		c.emit(code.OpGetFree, s.Index)
+	}
 }
 
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {

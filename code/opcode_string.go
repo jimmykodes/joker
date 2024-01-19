@@ -35,13 +35,15 @@ func _() {
 	_ = x[OpIndex-24]
 	_ = x[OpCall-25]
 	_ = x[OpGetBuiltin-26]
-	_ = x[OpReturn-27]
-	_ = x[lastOpcode-28]
+	_ = x[OpClosure-27]
+	_ = x[OpGetFree-28]
+	_ = x[OpReturn-29]
+	_ = x[lastOpcode-30]
 }
 
-const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpGetGlobalOpSetLocalOpGetLocalOpArrayOpMapOpIndexOpCallOpGetBuiltinOpReturnlastOpcode"
+const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpGetGlobalOpSetLocalOpGetLocalOpArrayOpMapOpIndexOpCallOpGetBuiltinOpClosureOpGetFreeOpReturnlastOpcode"
 
-var _Opcode_index = [...]uint8{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 134, 144, 154, 161, 166, 173, 179, 191, 199, 209}
+var _Opcode_index = [...]uint8{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 134, 144, 154, 161, 166, 173, 179, 191, 200, 209, 217, 227}
 
 func (i Opcode) String() string {
 	if i >= Opcode(len(_Opcode_index)-1) {

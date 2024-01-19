@@ -29,13 +29,13 @@ func (ins Instructions) fmtInstruction(op Opcode, widths []int, operands []int) 
 	if len(operands) != opCount {
 		return fmt.Sprintf("Error: operand len %d does not match defined %d\n", len(operands), opCount)
 	}
-	switch opCount {
-	case 0:
-		return op.String()
-	case 1:
-		return fmt.Sprintf("%s %d", op.String(), operands[0])
+
+	var sb strings.Builder
+	sb.WriteString(op.String())
+	for _, operand := range operands {
+		fmt.Fprintf(&sb, " %d", operand)
 	}
-	return fmt.Sprintf("Error: unhandled operand count (%d) for %s", opCount, op.String())
+	return sb.String()
 }
 
 func Instruction(op Opcode, operands ...int) []byte {

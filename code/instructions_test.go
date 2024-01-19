@@ -26,6 +26,7 @@ func TestInstructionsString(t *testing.T) {
 		Instruction(OpSetLocal, 255),
 		Instruction(OpGetLocal, 255),
 		Instruction(OpGetBuiltin, 1),
+		Instruction(OpClosure, 65535, 255),
 		Instruction(OpPop),
 	}
 	expect := `0000 OpAdd
@@ -47,7 +48,8 @@ func TestInstructionsString(t *testing.T) {
 0029 OpSetLocal 255
 0031 OpGetLocal 255
 0033 OpGetBuiltin 1
-0035 OpPop
+0035 OpClosure 65535 255
+0039 OpPop
 `
 	var joined Instructions
 	for _, ins := range inst {
@@ -110,6 +112,8 @@ func TestInstruction(t *testing.T) {
 		// Functions
 		{OpCall, []int{1}, []byte{byte(OpCall), 1}},
 		{OpReturn, []int{}, []byte{byte(OpReturn)}},
+		{OpGetBuiltin, []int{1}, []byte{byte(OpGetBuiltin), 1}},
+		{OpClosure, []int{math.MaxUint16 - 1, 255}, []byte{byte(OpClosure), 0xFF, 0xFE, 0xFF}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.op.String(), func(t *testing.T) {

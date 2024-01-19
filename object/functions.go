@@ -40,7 +40,13 @@ type CompiledFunction struct {
 	NumParams    int
 }
 
-func (f *CompiledFunction) Type() Type { return CompiledFunctionType }
-func (f *CompiledFunction) Inspect() string {
-	return fmt.Sprintf("CompiledFunction[%p]", f)
+func (f *CompiledFunction) Type() Type      { return CompiledFunctionType }
+func (f *CompiledFunction) Inspect() string { return fmt.Sprintf("CompiledFunction[%p]", f) }
+
+type Closure struct {
+	Fn   *CompiledFunction
+	Free []Object
 }
+
+func (c *Closure) Type() Type      { return ClosureType }
+func (c *Closure) Inspect() string { return fmt.Sprintf("Closure[%p]", c) }

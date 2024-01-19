@@ -11,6 +11,7 @@ const (
 	StringType
 	FunctionType
 	CompiledFunctionType
+	ClosureType
 	BuiltinType
 	ArrayType
 	MapType

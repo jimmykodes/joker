@@ -1,6 +1,8 @@
 package compiler
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestDefine(t *testing.T) {
 	expected := map[string]Symbol{
@@ -80,8 +82,8 @@ func TestResolve(t *testing.T) {
 			symbols: []Symbol{
 				{"a", GlobalScope, 0},
 				{"b", GlobalScope, 1},
-				{"c", LocalScope, 0},
-				{"d", LocalScope, 1},
+				{"c", FreeScope, 0},
+				{"d", FreeScope, 1},
 				{"e", LocalScope, 0},
 				{"f", LocalScope, 1},
 			},
@@ -96,6 +98,74 @@ func TestResolve(t *testing.T) {
 			}
 			if res != sym {
 				t.Errorf("invalid value for name %s: got %+v - want %+v", sym.Name, res, sym)
+			}
+		}
+	}
+}
+
+func TestResolveFree(t *testing.T) {
+	global := NewSymbolTable()
+	global.Define("a")
+	global.Define("b")
+
+	local1 := NewSymbolTable(OuterSymbolTable(global))
+	local1.Define("c")
+	local1.Define("d")
+
+	local2 := NewSymbolTable(OuterSymbolTable(local1))
+	local2.Define("e")
+	local2.Define("f")
+
+	tests := []struct {
+		table        *SymbolTable
+		expected     []Symbol
+		expectedFree []Symbol
+	}{
+		{
+			table: local1,
+			expected: []Symbol{
+				{"a", GlobalScope, 0},
+				{"b", GlobalScope, 1},
+				{"c", LocalScope, 0},
+				{"d", LocalScope, 1},
+			},
+			expectedFree: []Symbol{},
+		},
+		{
+			table: local2,
+			expected: []Symbol{
+				{"a", GlobalScope, 0},
+				{"b", GlobalScope, 1},
+				{"c", FreeScope, 0},
+				{"d", FreeScope, 1},
+				{"e", LocalScope, 0},
+				{"f", LocalScope, 1},
+			},
+			expectedFree: []Symbol{
+				{"c", LocalScope, 0},
+				{"d", LocalScope, 1},
+			},
+		},
+	}
+	for _, tt := range tests {
+		for _, sym := range tt.expected {
+			res, ok := tt.table.Resolve(sym.Name)
+			if !ok {
+				t.Errorf("could not resolve name: %s", sym.Name)
+				continue
+			}
+			if res != sym {
+				t.Errorf("invalid value for symbol %s: got %+v - want %+v", sym.Name, res, sym)
+			}
+		}
+		if len(tt.table.FreeSymbols) != len(tt.expectedFree) {
+			t.Errorf("invalid number of free symbols: got %d - want %d", len(tt.table.FreeSymbols), len(tt.expectedFree))
+			continue
+		}
+		for i, sym := range tt.expectedFree {
+			res := tt.table.FreeSymbols[i]
+			if res != sym {
+				t.Errorf("invalid value for free symbol %s: got %+v - want %+v", sym.Name, res, sym)
 			}
 		}
 	}
