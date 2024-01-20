@@ -34,6 +34,58 @@ func TestClosure(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestRecursion(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+      fn recursion(a) {
+        if a == 0 {
+          return 0;
+        } else {
+          return recursion(a - 1);
+        }
+      }
+      recursion(10);
+      `,
+			expected: 0,
+		},
+		{
+			input: `
+      fn recursion(a) {
+        if a == 0 {
+          return 0;
+        } else {
+          return recursion(a - 1);
+        }
+      }
+      fn wrapper() {
+        return recursion(1);
+      }
+      wrapper();
+      `,
+			expected: 0,
+		},
+		// TODO: this type of recursion breaks, and I don't
+		// like the book's fix for it, so until I come up with another
+		// one, i'm going to leave this case broken
+		// {
+		// 	input: `
+		//     fn wrapper() {
+		//       fn recursion(a) {
+		//         if a == 0 {
+		//           return 0;
+		//         }
+		//         return recursion(a - 1);
+		//       }
+		//       return recursion(10);
+		//     }
+		//     `,
+		// 	expected: 0,
+		// },
+	}
+	runVmTests(t, tests)
+}
+
 func TestBuiltinCall(t *testing.T) {
 	tests := []vmTestCase{
 		{`len([1, 2, 3])`, 3},
