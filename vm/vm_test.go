@@ -30,6 +30,41 @@ func TestClosure(t *testing.T) {
       `,
 			expected: 22,
 		},
+		{
+			input: `
+      fn add(a) {
+        acc := 0;
+        return fn() {
+          acc = acc + a;
+          return acc;
+        }
+      }
+      let adder = add(10);
+      adder();
+      adder();
+      adder();
+      `,
+			expected: 30,
+		},
+		// this test has a recursion failure that I haven't figured out how to solve yet...
+		// {
+		// 	input: `
+		//     fn add(a) {
+		//       acc := 0;
+		//       return fn(b) {
+		//         return fn() {
+		//           acc = acc + a + b;
+		//           return acc;
+		//         }
+		//       }
+		//     }
+		//     let adderA = add(10);
+		//     let adderB = adderA(5);
+		//     adderB();
+		//     adderB();
+		//     `,
+		// 	expected: 30,
+		// },
 	}
 	runVmTests(t, tests)
 }

@@ -8,6 +8,20 @@ import (
 
 type Instructions []byte
 
+func (ins *Instructions) UnmarshalBytes(data []byte) (int, error) {
+	lenIns := int(binary.BigEndian.Uint64(data))
+	*ins = data[8 : 8+lenIns]
+	return lenIns + 8, nil
+}
+
+func (ins Instructions) MarshalBytes() ([]byte, error) {
+	lenIns := len(ins)
+	out := make([]byte, 8, lenIns+8)
+	binary.BigEndian.PutUint64(out, uint64(lenIns))
+	out = append(out, ins...)
+	return out, nil
+}
+
 func (ins Instructions) String() string {
 	var sb strings.Builder
 	i := 0

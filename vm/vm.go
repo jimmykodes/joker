@@ -50,6 +50,7 @@ func (vm *VM) Run() error {
 			break
 		}
 		op = code.Opcode(ins[ip])
+
 		switch op {
 		// stack manipulation
 		case code.OpConstant:
@@ -194,10 +195,13 @@ func (vm *VM) Run() error {
 				vm.sp = fr.basePointer + obj.Fn.NumLocals
 			case *object.Builtin:
 				args := vm.stack[vm.sp-numElems : vm.sp]
-				if res := obj.Fn(args...); res != nil {
-					return vm.push(res)
+				res := obj.Fn(args...)
+				if res == nil {
+					res = Null
 				}
-				return vm.push(Null)
+				if err := vm.push(res); err != nil {
+					return err
+				}
 
 			default:
 				return fmt.Errorf("invalid object on stack: %s is not callable", obj.Type())
@@ -233,6 +237,7 @@ func (vm *VM) Run() error {
 			if err := vm.push(&object.Closure{Fn: fn, Free: free}); err != nil {
 				return err
 			}
+
 		case code.OpGetFree:
 			freeIdx := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++
@@ -240,6 +245,41 @@ func (vm *VM) Run() error {
 			currentClosure := vm.currentFrame().cl
 			if err := vm.push(currentClosure.Free[freeIdx]); err != nil {
 				return err
+			}
+
+		case code.OpSetFree:
+			freeIdx := code.ReadUint8(ins[ip+1:])
+			vm.currentFrame().ip++
+
+			currentClosure := vm.currentFrame().cl
+			val := vm.pop()
+			currentClosure.Free[freeIdx] = val
+
+			// when setting a free variable, the original variable
+			// has to be set in the outer frame, too. otherwise
+			// it won't be changed. so in the compiler, we emit "Set<Scope>"
+			// codes until we get to something _not_ FreeScope-d so here, we need
+			// to, for each instruction that is SetFree, look back one frame and
+			// and set the index, continuously until we hit a local scope var
+			// TODO: might be nice to make this recursive rather than iterative?
+			df := 1
+			for {
+				curIns := code.Opcode(ins[vm.currentFrame().ip])
+				if curIns == code.OpSetLocal {
+					idx := code.ReadUint8(ins[ip+1:])
+					vm.currentFrame().ip++
+					fr := vm.frames[vm.framesIdx-df]
+					vm.stack[fr.basePointer+int(idx)] = val
+					break
+				} else if curIns == code.OpSetFree {
+					idx := code.ReadUint8(ins[ip+1:])
+					vm.currentFrame().ip++
+					fr := vm.frames[vm.framesIdx-1-df]
+					fr.cl.Free[idx] = val
+					df++
+				} else {
+					break
+				}
 			}
 
 		case code.OpReturn:

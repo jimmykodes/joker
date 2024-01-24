@@ -1,6 +1,7 @@
 package object
 
 import (
+	"encoding/binary"
 	"fmt"
 	"hash/fnv"
 	"strings"
@@ -12,6 +13,23 @@ type String struct {
 
 func (s *String) Type() Type      { return StringType }
 func (s *String) Inspect() string { return `"` + s.Value + `"` }
+func (s *String) UnmarshalBytes(data []byte) (int, error) {
+	if t := Type(data[0]); t != s.Type() {
+		return 0, fmt.Errorf("invalid type: got %s - want %s", t, s.Type())
+	}
+	strLen := binary.BigEndian.Uint64(data[1:])
+
+	s.Value = string(data[9 : strLen+9])
+
+	return int(strLen) + 9, nil
+}
+
+func (s *String) MarshalBytes() ([]byte, error) {
+	out := make([]byte, 9, len(s.Value)+9)
+	out[0] = byte(s.Type())
+	binary.BigEndian.PutUint64(out[1:], uint64(len(s.Value)))
+	return append(out, []byte(s.Value)...), nil
+}
 
 func (s *String) Bool() *Boolean {
 	if s.Value != "" {

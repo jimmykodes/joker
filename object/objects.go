@@ -2,6 +2,11 @@ package object
 
 var ErrUnsupportedType = &Error{Message: "unsupported type for operation"}
 
+type Encodable interface {
+	MarshalBytes() ([]byte, error)
+	UnmarshalBytes([]byte) (int, error)
+}
+
 type Object interface {
 	Type() Type
 	Inspect() string

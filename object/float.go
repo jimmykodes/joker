@@ -1,6 +1,7 @@
 package object
 
 import (
+	"encoding/binary"
 	"fmt"
 	"math"
 )
@@ -11,6 +12,21 @@ type Float struct {
 
 func (f *Float) Type() Type      { return FloatType }
 func (f *Float) Inspect() string { return fmt.Sprintf("%f", f.Value) }
+func (f *Float) UnmarshalBytes(data []byte) (int, error) {
+	if t := Type(data[0]); t != f.Type() {
+		return 0, fmt.Errorf("invalid type: got %s - want %s", t, f.Type())
+	}
+	v := binary.BigEndian.Uint64(data[1:])
+	f.Value = math.Float64frombits(v)
+	return 9, nil
+}
+
+func (f *Float) MarshalBytes() ([]byte, error) {
+	out := make([]byte, 9)
+	out[0] = byte(f.Type())
+	binary.BigEndian.PutUint64(out[1:], math.Float64bits(f.Value))
+	return out, nil
+}
 
 func (f *Float) Bool() *Boolean {
 	if f.Value != 0 {

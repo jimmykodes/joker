@@ -41,6 +41,8 @@ const (
 	OpGetGlobal
 	OpSetLocal
 	OpGetLocal
+	OpGetFree
+	OpSetFree
 
 	// Composites
 	OpArray
@@ -53,7 +55,6 @@ const (
 	OpCall
 	OpGetBuiltin
 	OpClosure
-	OpGetFree
 	OpReturn
 
 	lastOpcode
@@ -67,12 +68,13 @@ var opWidths = [lastOpcode][]int{
 	OpGetGlobal:     {2},
 	OpSetLocal:      {1},
 	OpGetLocal:      {1},
+	OpGetFree:       {1},
+	OpSetFree:       {1},
 	OpArray:         {2},
 	OpMap:           {2},
 	OpCall:          {1},
 	OpGetBuiltin:    {1},
 	OpClosure:       {2, 1},
-	OpGetFree:       {1},
 }
 
 func OpWidths(op byte) ([]int, error) {

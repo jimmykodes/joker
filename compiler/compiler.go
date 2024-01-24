@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"encoding/binary"
 	"fmt"
 	"strings"
 
@@ -78,13 +79,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok {
 			return fmt.Errorf("cannot resolve symbol %s", node.Name.Value)
 		}
-		switch sym.Scope {
-		case GlobalScope:
-			c.emit(code.OpSetGlobal, sym.Index)
-		case LocalScope:
-			c.emit(code.OpSetLocal, sym.Index)
-			// TODO: what to do with FreeScope?
-		}
+		c.setSymbol(sym)
 
 	case *ast.LetStatement:
 		if err := c.Compile(node.Value); err != nil {
@@ -399,6 +394,22 @@ func (c *Compiler) loadSymbol(s Symbol) {
 	}
 }
 
+func (c *Compiler) setSymbol(s Symbol) {
+	c._setSymbol(c.symbolTable, s)
+}
+
+func (c *Compiler) _setSymbol(st *SymbolTable, s Symbol) {
+	switch s.Scope {
+	case GlobalScope:
+		c.emit(code.OpSetGlobal, s.Index)
+	case LocalScope:
+		c.emit(code.OpSetLocal, s.Index)
+	case FreeScope:
+		c.emit(code.OpSetFree, s.Index)
+		c._setSymbol(st.outer, st.FreeSymbols[s.Index])
+	}
+}
+
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	ins := code.Instruction(op, operands...)
 	pos := c.addInstruction(ins)
@@ -427,6 +438,60 @@ func (c *Compiler) addConstant(obj object.Object) int {
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
+}
+
+func (b *Bytecode) UnmarshalBinary(data []byte) error {
+	n, err := b.Instructions.UnmarshalBytes(data)
+	if err != nil {
+		return err
+	}
+	ptr := n
+	numConsts := int(binary.BigEndian.Uint64(data[ptr:]))
+	ptr += 8
+	b.Constants = make([]object.Object, 0, numConsts)
+	for ptr < len(data) {
+		var obj object.Encodable
+
+		switch object.Type(data[ptr]) {
+		case object.IntegerType:
+			obj = &object.Integer{}
+		case object.FloatType:
+			obj = &object.Float{}
+		case object.StringType:
+			obj = &object.String{}
+		case object.CompiledFunctionType:
+			obj = &object.CompiledFunction{}
+		}
+
+		read, err := obj.UnmarshalBytes(data[ptr:])
+		if err != nil {
+			return err
+		}
+		ptr += read
+		b.Constants = append(b.Constants, obj.(object.Object))
+	}
+	return nil
+}
+
+func (b Bytecode) MarshalBinary() ([]byte, error) {
+	out, err := b.Instructions.MarshalBytes()
+
+	numConst := len(b.Constants)
+	consts := make([]byte, 8, 8+(numConst*9))
+	binary.BigEndian.PutUint64(consts, uint64(numConst))
+	for _, c := range b.Constants {
+		obj, ok := c.(object.Encodable)
+		if !ok {
+			return nil, fmt.Errorf("invalid constant: cannot encode %s", c.Type())
+		}
+		b, err := obj.MarshalBytes()
+		if err != nil {
+			return nil, err
+		}
+		consts = append(consts, b...)
+	}
+
+	return append(out, consts...), err
 }
 
 func (b Bytecode) String() string {
