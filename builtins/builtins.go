@@ -1,22 +1,71 @@
-package evaluator
+package builtins
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/jimmykodes/joker/object"
 )
 
-func nArgs(n int, args []object.Object) object.Object {
+func newError(format string, a ...any) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func nArgs(n int, args []object.Object) *object.Error {
 	if len(args) != n {
-		return newError("invalid number of args. got %d - want %d", len(args), n)
+		return newError("invalid number of args: got %d - want %d", len(args), n)
 	}
 	return nil
 }
 
-var builtins = map[string]*object.Builtin{
-	"int": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+type builtin int
+
+//go:generate stringer -type builtin -linecomment
+const (
+	start  builtin = iota
+	Int            // int
+	Float          // float
+	String         // string
+	Len            // len
+	Pop            // pop
+	Print          // print
+	Append         // append
+	Slice          // slice
+	Argv           // argv
+	end
+)
+
+var lookups map[string]builtin
+
+func init() {
+	lookups = make(map[string]builtin, end)
+	for i := start + 1; i < end; i++ {
+		lookups[i.String()] = i
+	}
+}
+
+func Func(i int) (*object.Builtin, bool) {
+	b := builtin(i)
+	if start >= b || b >= end {
+		return nil, false
+	}
+	return builtins[b], true
+}
+
+func Lookup(name string) (int, bool) {
+	val, ok := lookups[name]
+	return int(val), ok
+}
+
+func LookupFunc(name string) (*object.Builtin, bool) {
+	val, ok := lookups[name]
+	return builtins[val], ok
+}
+
+var builtins = [...]*object.Builtin{
+	Int: {
+		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -41,8 +90,8 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
-	"float": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	Float: {
+		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -62,8 +111,8 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
-	"string": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	String: {
+		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -79,8 +128,8 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
-	"len": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	Len: {
+		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
 			}
@@ -91,35 +140,41 @@ var builtins = map[string]*object.Builtin{
 			return l.Len()
 		},
 	},
-	"del": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	Pop: {
+		// TODO: create a "popable" interface and have this compare the object to the interface
+		// implement the interface on both maps and slices
+		Fn: func(args ...object.Object) object.Object {
 			if err := nArgs(2, args); err != nil {
 				return err
 			}
 			m, ok := args[0].(*object.Map)
 			if !ok {
-				return newError("invalid type for del. got %s, want %s", args[0].Type(), object.MapType)
+				return newError("invalid type for pop. got %s, want %s", args[0].Type(), object.MapType)
 			}
 			k, ok := args[1].(object.Hashable)
 			if !ok {
 				return newError("invalid key type")
 			}
+			obj, ok := m.Pairs[k.HashKey()]
+			if !ok {
+				return nil
+			}
 			delete(m.Pairs, k.HashKey())
-			return Null
+			return obj.Value
 		},
 	},
-	"print": {
-		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+	Print: {
+		Fn: func(args ...object.Object) object.Object {
 			out := make([]any, len(args))
 			for i, arg := range args {
 				out[i] = arg.Inspect()
 			}
-			fmt.Fprintln(env.Out(), out...)
-			return Null
+			fmt.Fprintln(os.Stdout, out...)
+			return nil
 		},
 	},
-	"append": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	Append: {
+		Fn: func(args ...object.Object) object.Object {
 			if len(args) < 2 {
 				return newError("invalid number of args, got %d, want 2+", len(args))
 			}
@@ -130,8 +185,8 @@ var builtins = map[string]*object.Builtin{
 			return &object.Array{Elements: append(source.Elements, args[1:]...)}
 		},
 	},
-	"slice": {
-		Fn: func(_ *object.Environment, args ...object.Object) object.Object {
+	Slice: {
+		Fn: func(args ...object.Object) object.Object {
 			var (
 				source object.Object
 				start  int64
@@ -172,6 +227,19 @@ var builtins = map[string]*object.Builtin{
 			default:
 				return newError("invalid source for slice, must be %s or %s", object.ArrayType, object.StringType)
 			}
+		},
+	},
+	Argv: {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 0 {
+				return newError("invalid number of args, got %d, want 0", len(args))
+			}
+			argv := os.Args
+			elements := make([]object.Object, len(os.Args))
+			for i, arg := range argv {
+				elements[i] = &object.String{Value: arg}
+			}
+			return &object.Array{Elements: elements}
 		},
 	},
 }

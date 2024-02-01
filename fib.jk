@@ -8,17 +8,4 @@ fn fib(i) {
   return fib(i-1) + fib(i-2);
 }
 
-fn main(n) {
-  let i = 0;
-  let out = [];
-
-  while i < n {
-    i = i + 1;
-    out = append(out, fib(i));
-  }
-
-  print(out);
-}
-
-
-main(10);
+print(fib(30));

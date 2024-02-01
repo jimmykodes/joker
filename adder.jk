@@ -1,0 +1,6 @@
+fn add(a) {
+  return fn(b) { return a + b; }
+}
+
+let adder = add(10);
+print(adder(12));

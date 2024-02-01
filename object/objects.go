@@ -1,13 +1,11 @@
 package object
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/jimmykodes/joker/ast"
-)
-
 var ErrUnsupportedType = &Error{Message: "unsupported type for operation"}
+
+type Encodable interface {
+	MarshalBytes() ([]byte, error)
+	UnmarshalBytes([]byte) (int, error)
+}
 
 type Object interface {
 	Type() Type
@@ -63,15 +61,6 @@ type Negater interface {
 	Negative() Object
 }
 
-type Null struct{}
-
-func (n *Null) Type() Type      { return NullType }
-func (n *Null) Inspect() string { return "null" }
-
-func (n *Null) Bool() (*Boolean, error) {
-	return False, nil
-}
-
 type Continue struct{}
 
 func (c *Continue) Type() Type      { return ContinueType }
@@ -96,29 +85,3 @@ type Error struct {
 func (e *Error) Type() Type      { return ErrorType }
 func (e *Error) Inspect() string { return e.Message }
 func (e *Error) Error() string   { return e.Message }
-
-type Function struct {
-	Parameters []*ast.Identifier
-	Body       *ast.BlockStatement
-	Env        *Environment
-}
-
-func (f *Function) Type() Type { return FunctionType }
-func (f *Function) Inspect() string {
-	var sb strings.Builder
-	params := make([]string, len(f.Parameters))
-	for i, p := range f.Parameters {
-		params[i] = p.String()
-	}
-	fmt.Fprintf(&sb, "fn(%s) {\n%s\n}", strings.Join(params, ", "), f.Body.String())
-	return sb.String()
-}
-
-type BuiltinFunction func(env *Environment, args ...Object) Object
-
-type Builtin struct {
-	Fn BuiltinFunction
-}
-
-func (b *Builtin) Type() Type      { return BuiltinType }
-func (b *Builtin) Inspect() string { return "builtin function" }

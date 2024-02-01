@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jimmykodes/joker/ast"
+	"github.com/jimmykodes/joker/builtins"
 	"github.com/jimmykodes/joker/object"
 )
 
@@ -146,7 +147,10 @@ func isError(o object.Object) bool {
 func applyFunc(fn object.Object, args []object.Object, env *object.Environment) object.Object {
 	switch f := fn.(type) {
 	case *object.Builtin:
-		return f.Fn(env, args...)
+		if res := f.Fn(args...); res != nil {
+			return res
+		}
+		return Null
 	case *object.Function:
 		if len(args) != len(f.Parameters) {
 			return newError("invalid number of args. got %d - want %d", len(args), len(f.Parameters))
@@ -205,7 +209,7 @@ func evalIdent(ident *ast.Identifier, env *object.Environment) object.Object {
 	if o, ok := env.Get(ident.Value); ok {
 		return o
 	}
-	if b, ok := builtins[ident.Value]; ok {
+	if b, ok := builtins.LookupFunc(ident.Value); ok {
 		return b
 	}
 	return newError("identifier not found: %s", ident.Value)

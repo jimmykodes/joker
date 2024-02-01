@@ -1,6 +1,8 @@
 package object
 
 import (
+	"encoding/binary"
+	"fmt"
 	"strconv"
 )
 
@@ -11,6 +13,21 @@ type Integer struct {
 func (i *Integer) Type() Type      { return IntegerType }
 func (i *Integer) Inspect() string { return strconv.FormatInt(i.Value, 10) }
 
+func (i *Integer) UnmarshalBytes(data []byte) (int, error) {
+	if t := Type(data[0]); t != i.Type() {
+		return 0, fmt.Errorf("invalid type: got %s - want %s", t, i.Type())
+	}
+	i.Value = int64(binary.BigEndian.Uint64(data[1:]))
+	return 9, nil
+}
+
+func (i *Integer) MarshalBytes() ([]byte, error) {
+	out := make([]byte, 9)
+	out[0] = byte(IntegerType)
+	binary.BigEndian.PutUint64(out[1:], uint64(i.Value))
+	return out, nil
+}
+
 func (i *Integer) Bool() *Boolean {
 	if i.Value != 0 {
 		return True
@@ -18,8 +35,8 @@ func (i *Integer) Bool() *Boolean {
 	return False
 }
 
-func (i *Integer) Negative() (Object, error) {
-	return &Integer{Value: -i.Value}, nil
+func (i *Integer) Negative() Object {
+	return &Integer{Value: -i.Value}
 }
 
 func (i *Integer) HashKey() HashKey {
