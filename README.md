@@ -556,10 +556,12 @@ Unary operators include:
 - `!` boolean inversion
 - `-` numeric sign inversion
 
-`!!(10+5)` will return `true`
-`!(10+12)` will return `false`
-`-(10-5)` will return `-5`
-`-(5-10)` will return `5`
+```joker
+!!(10+5) # => true
+!(10+12) # => false
+-(10-5)  # -5
+-(5-10)  # 5
+```
 
 ### Comparison
 
