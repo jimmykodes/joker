@@ -186,3 +186,145 @@ Element assignment is currently unsupported.
 ```
 {"foo": 1}["bar"] = 12 // throws a parser error
 ```
+
+## Functions
+
+Declarations:
+
+```
+fn add(a, b) {
+    return a + b;
+}
+```
+
+Anonymous:
+```
+fn(a + b) {
+    return a + b;
+}
+```
+
+Immediately invoked:
+```
+fn(a, b){ return a + b; }(12, 5);
+```
+
+Functions can also be values in Arrays and maps:
+```
+[
+    fn(a, b) { return a + b; },
+    fn(a, b) { return a - b; },
+    fn(a, b) { return a * b; },
+    fn(a, b) { return a / b; },
+]
+
+{
+    "add": fn(a, b) { return a + b; }, 
+    "sub": fn(a, b) { return a - b; }, 
+    "mul": fn(a, b) { return a * b; },
+    "div": fn(a, b) { return a / b; },
+}
+```
+
+They can then be called directly from their access statements:
+```
+let x = [
+    fn(a, b) { return a + b; },
+    fn(a, b) { return a - b; },
+    fn(a, b) { return a * b; },
+    fn(a, b) { return a / b; },
+]
+
+let y = {
+    "add": fn(a, b) { return a + b; }, 
+    "sub": fn(a, b) { return a - b; }, 
+    "mul": fn(a, b) { return a * b; },
+    "div": fn(a, b) { return a / b; },
+}
+
+x[0](1, 2) // => 3
+y["sub"](5, 3) // => 2
+```
+
+### Recursion
+
+```
+fn fib(i) {
+    if i == 0 {
+        return 0
+    }
+    if i == 1 {
+        return 1
+    }
+    return fib(i-1) + fib(i-2);
+}
+
+fib(30); // => 832040
+```
+
+### Closures
+
+Simple closures:
+```
+fn adder(a) {
+    return fn(b) {
+        return a + b;
+    }
+}
+
+let plusTwo = adder(2);
+plusTwo(4);  // => 6
+plusTwo(10); // => 12
+```
+
+Accumulator closures:
+```
+fn accumulator() {
+    acc := 0;
+    return fn(a) {
+        acc = acc + a;
+        return acc
+    }
+}
+let a = accumulator();
+a(10); // => 10
+a(10); // => 20
+a(5); // => 25
+```
+or
+```
+fn add(a) {
+    acc := 0;
+    return fn() {
+        acc = acc + a;
+        return acc;
+    }
+}
+
+let addTwo = add(2);
+addTwo(); // => 2
+addTwo(); // => 4
+addTwo(); // => 6
+```
+
+Recursive closures _don't_ work (at least not yet):
+```
+fn map(arr, f) {
+  fn iter(arr, acc) {
+    if len(arr) == 0 {
+      return acc;
+    } else {
+      next := arr[0];
+      rest := slice(arr, 1, len(arr));
+      return iter(rest, append(acc, f(next)));
+    }
+  }
+  return iter(arr, []);
+}
+
+items := [1, 2, 3];
+fn double(a) {
+  return a * 2;
+}
+print(map(items, double));
+```
