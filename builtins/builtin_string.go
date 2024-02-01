@@ -17,12 +17,13 @@ func _() {
 	_ = x[Print-6]
 	_ = x[Append-7]
 	_ = x[Slice-8]
-	_ = x[end-9]
+	_ = x[Argv-9]
+	_ = x[end-10]
 }
 
-const _builtin_name = "startintfloatstringlenpopprintappendsliceend"
+const _builtin_name = "startintfloatstringlenpopprintappendsliceargvend"
 
-var _builtin_index = [...]uint8{0, 5, 8, 13, 19, 22, 25, 30, 36, 41, 44}
+var _builtin_index = [...]uint8{0, 5, 8, 13, 19, 22, 25, 30, 36, 41, 45, 48}
 
 func (i builtin) String() string {
 	if i < 0 || i >= builtin(len(_builtin_index)-1) {

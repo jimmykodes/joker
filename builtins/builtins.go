@@ -32,6 +32,7 @@ const (
 	Print          // print
 	Append         // append
 	Slice          // slice
+	Argv           // argv
 	end
 )
 
@@ -226,6 +227,19 @@ var builtins = [...]*object.Builtin{
 			default:
 				return newError("invalid source for slice, must be %s or %s", object.ArrayType, object.StringType)
 			}
+		},
+	},
+	Argv: {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 0 {
+				return newError("invalid number of args, got %d, want 0", len(args))
+			}
+			argv := os.Args
+			elements := make([]object.Object, len(os.Args))
+			for i, arg := range argv {
+				elements[i] = &object.String{Value: arg}
+			}
+			return &object.Array{Elements: elements}
 		},
 	},
 }
