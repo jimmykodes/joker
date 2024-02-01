@@ -485,8 +485,47 @@ joker run arg.jk
 ## Operators
 
 ### Arithmetic
+
+Arithmetic operations include:
+
+- `+` - addition
+- `-` - subtraction
+- `*` - multiplication
+- `/` - division
+
+for all the above operators, both sides of the operator must be numeric types (int, float). If either value is a float,
+the result will be a float. If both objects are integers, the result will be an int. In the case of division, the value
+will be truncated to an int, not rounded.
+
+Special case operators:
+- `+` - string concatenation
+- `%` - modulus
+
+`+` also serves as string concatenation when both sides of the operator are string types. If either side is not a string, an error will be returned
+
+`%` Modulus division cannot be done with floats, so both sides of the operator must be integers
+
 ### Unary
+
+Unary operators include:
+- `!` boolean inversion
+- `-` numeric sign inversion
+
+`!!(10+5)` will return `true`
+`!(10+12)` will return `false`
+`-(10-5)` will return `-5`
+`-(5-10)` will return `5`
+
 ### Comparison
+
+Comparison operators should seem intuitive:
+
+- `>` - greater than
+- `>=` - greater than or equal to
+- `<` - less than
+- `<=` - less than or equal to
+- `==` - equals
+- `!=` - does not equal
 
 ## Flow Control
 
