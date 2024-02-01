@@ -1,4 +1,4 @@
-#!/usr/bin/env joker
+#!/usr/bin/env joker run
 
 fn adder(a) {
   acc := 0; # initialize the accumulator at 0
