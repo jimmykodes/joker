@@ -480,3 +480,148 @@ print(argv());
 joker run arg.jk
 # ["joker", "run", "arg.jk"]
 ```
+
+
+## Operators
+
+### Arithmetic
+### Unary
+### Comparison
+
+## Flow Control
+
+### If
+
+
+If statements take the form
+```
+if <condition> {
+    <consequence>
+}
+```
+or
+```
+if <condition> {
+    <consequence>
+} else {
+    <alternative>
+}
+```
+
+`<condition>` should not be wrapped in parentheses.
+They must reduce to a boolean directly, the "truthiness" of a value is not evaluated.
+
+The following is valid:
+```joker
+let val = 10;
+if val % 2 == 0 {
+    print("even")
+} else {
+    print("odd")
+}
+```
+
+The following is _not_:
+```joker
+let val = 10;
+if val % 2 {
+    print("odd")
+} else {
+    print("even")
+}
+```
+
+In order to resolve the truthiness of a value for an if, consider using the `!!`:
+```joker
+let val = 10;
+if !!val {
+    print("value is truthy")
+} else {
+    print("value is falsy")
+}
+```
+
+#### Complex conditionals
+
+There is currently no support for `and` or `or` logic in conditionals, meaning something like:
+```joker
+if 0 < x && x <= 10 {
+    print("between 1 and 10")
+}
+```
+would need to be expressed as
+```joker
+if 0 < x {
+    if x > 10 {
+        print("between 1 and 10")
+    }
+}
+```
+
+There is also currently no support for multiple tiers of if statements, so something like:
+```joker
+if x > 10 {
+    print("greater than 10")
+} else if x > 5 {
+    print("greater than 5")
+} else {
+    print("too small")
+}
+```
+would need to be expresses as:
+```joker
+if x > 10 {
+    print("greater than 10")
+} else {
+    if x > 5 {
+        print("greater than 5")
+    } else {
+        print("too small")
+    }
+}
+
+```
+
+### While loops
+
+While loops take the format:
+```
+while <condition> {
+    <consequence>
+}
+```
+
+Same as `if` statements, condition should not be wrapped in parentheses, and it must be
+a boolean value.
+the body of `consequence` is executed until `condition` evaluates to `false` or a `break` statement
+is encountered.
+And again, same as if, `and` and `or` logic does not exist, so for complex conditionals, consider offloading
+the logic to a function call like:
+```joker
+fn between(x, min, max) {
+    if x >= min {
+        if x <= max {
+            return true;
+        }
+    }
+    return false;
+}
+
+let i = 0;
+while between(i, 0, 10) {
+    i = i + 1;
+}
+```
+
+### For loops
+
+For loops are currently not implemented directly. The behavior can be reached using a while loop like so:
+
+```joker
+let elems = [1, 2, 3, 4, 5, 6];
+let i = 0;
+while i < len(elems) {
+    print(elems[i]);
+    i = i + 1;
+}
+```
