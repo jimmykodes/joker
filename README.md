@@ -29,6 +29,51 @@ joker run fib.jkb  # runs the compiled fib.jkb file
 
 # Language Spec
 
+## Table of Contents
+
+- [Data Types](#data-types)
+  - [Int](#int)
+    - [Conversions](#conversions)
+  - [Float](#float)
+    - [Conversions](#conversions-1)
+  - [String](#string)
+    - [Conversions](#conversions-2)
+  - [Boolean](#boolean)
+    - [Conversions](#conversions-3)
+  - [Array](#array)
+    - [Element access](#element-access)
+    - [Element assignment](#element-assignment)
+  - [Map](#map)
+    - [Element access](#element-access-1)
+    - [Element assignment](#element-assignment-1)
+- [Variables](#variables)
+  - [Definition](#definition)
+  - [Assignment](#assignment)
+- [Functions](#functions)
+  - [Recursion](#recursion)
+  - [Closures](#closures)
+    - [Simple closures](#simple-closures)
+    - [Accumulator closures](#accumulator-closures)
+- [Builtins](#builtins)
+  - [Int](#int-1)
+  - [Float](#float-1)
+  - [String](#string-1)
+  - [Len](#len)
+  - [Pop](#pop)
+  - [Print](#print)
+  - [Append](#append)
+  - [Slice](#slice)
+  - [Argv](#argv)
+- [Operators](#operators)
+  - [Arithmetic](#arithmetic)
+  - [Unary](#unary)
+  - [Comparison](#comparison)
+- [Flow Control](#flow-control)
+  - [If](#if)
+    - [Complex conditionals](#complex-conditionals)
+  - [While loops](#while-loops)
+  - [For loops](#for-loops)
+
 ## Data Types
 
 ### Int
