@@ -7,6 +7,7 @@ import (
 
 	"github.com/jimmykodes/joker/cmd/joker/internal/build"
 	"github.com/jimmykodes/joker/cmd/joker/internal/bytecode"
+	"github.com/jimmykodes/joker/cmd/joker/internal/debugger"
 	"github.com/jimmykodes/joker/cmd/joker/internal/interpreter"
 	"github.com/jimmykodes/joker/cmd/joker/internal/run"
 	"github.com/jimmykodes/joker/repl"
@@ -37,6 +38,8 @@ func runner() error {
 		f = bytecode.Cmd()
 	case "interpret", "i":
 		f = interpreter.Cmd()
+	case "debug", "d":
+		f = debugger.Cmd()
 	case "help", "h":
 		fallthrough
 	default:
@@ -52,6 +55,7 @@ func usage() {
 	fmt.Println("\nCommands:")
 	fmt.Println("  build          build a .jkb file from a .jk file")
 	fmt.Println("  run            run a .jk or .jkb file")
+	fmt.Println("  debug, d       run a .jk or .jkb file using an interactive debugger")
 	fmt.Println("  bytecode, bc   print the bytecode for a .jk file")
 	fmt.Println("  interpret, i   run a .jk file using the interpreter instead of compiler")
 	fmt.Println("  help, h        show this usage text")

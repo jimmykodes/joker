@@ -241,6 +241,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Body); err != nil {
 			return err
 		}
+		c.emit(code.OpNull)
 
 		c.emit(code.OpJump, startPos)
 		endPos := len(c.currentScope().instructions)

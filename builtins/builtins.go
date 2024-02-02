@@ -65,6 +65,7 @@ func LookupFunc(name string) (*object.Builtin, bool) {
 
 var builtins = [...]*object.Builtin{
 	Int: {
+		Name: Int.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -91,6 +92,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Float: {
+		Name: Float.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -112,6 +114,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	String: {
+		Name: String.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -129,6 +132,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Len: {
+		Name: Len.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if errOb := nArgs(1, args); errOb != nil {
 				return errOb
@@ -141,6 +145,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Pop: {
+		Name: Pop.String(),
 		// TODO: create a "popable" interface and have this compare the object to the interface
 		// implement the interface on both maps and slices
 		Fn: func(args ...object.Object) object.Object {
@@ -164,6 +169,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Print: {
+		Name: Print.String(),
 		Fn: func(args ...object.Object) object.Object {
 			out := make([]any, len(args))
 			for i, arg := range args {
@@ -174,6 +180,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Append: {
+		Name: Append.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) < 2 {
 				return newError("invalid number of args, got %d, want 2+", len(args))
@@ -186,6 +193,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Slice: {
+		Name: Slice.String(),
 		Fn: func(args ...object.Object) object.Object {
 			var (
 				source object.Object
@@ -230,6 +238,7 @@ var builtins = [...]*object.Builtin{
 		},
 	},
 	Argv: {
+		Name: Argv.String(),
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 0 {
 				return newError("invalid number of args, got %d, want 0", len(args))

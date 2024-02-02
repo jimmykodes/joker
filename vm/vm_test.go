@@ -130,11 +130,11 @@ func TestBuiltinCall(t *testing.T) {
 		// the way we evaluate `len(x)` to be pushed then popped
 		// because it is an expression, without intelligently determining
 		// the value is used as an arg is breaking things
-		// {
-		// 	input: `let x = [1, 2, 3];
-		//     slice(x, 1, len(x));`,
-		// 	expected: []any{2, 3},
-		// },
+		{
+			input: `let x = [1, 2, 3];
+		    slice(x, 1, len(x));`,
+			expected: []any{2, 3},
+		},
 		{
 			input: `let x = [1, 2, 3];
       let end = len(x);
