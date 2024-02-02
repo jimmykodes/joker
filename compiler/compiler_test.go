@@ -664,12 +664,8 @@ func TestWhileLoop(t *testing.T) {
 				// 0020
 				code.Instruction(code.OpJump, 6),
 				// 0023
-				code.Instruction(code.OpNull),
-				// 0024
-				code.Instruction(code.OpPop),
-				// 0025
 				code.Instruction(code.OpGetGlobal, 0),
-				// 0028
+				// 0025
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -701,12 +697,8 @@ func TestWhileLoop(t *testing.T) {
 				// 0020
 				code.Instruction(code.OpJump, 6),
 				// 0023
-				code.Instruction(code.OpNull),
-				// 0024
-				code.Instruction(code.OpPop),
-				// 0025
 				code.Instruction(code.OpGetGlobal, 0),
-				// 0028
+				// 0026
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -723,18 +715,14 @@ func TestConditionals(t *testing.T) {
 				// 0000
 				code.Instruction(code.OpTrue),
 				// 0001
-				code.Instruction(code.OpJumpNotTruthy, 10),
+				code.Instruction(code.OpJumpNotTruthy, 8),
 				// 0004
 				code.Instruction(code.OpConstant, 0),
 				// 0007
-				code.Instruction(code.OpJump, 11),
-				// 0010
-				code.Instruction(code.OpNull),
-				// 0011
 				code.Instruction(code.OpPop),
-				// 0012
+				// 0008
 				code.Instruction(code.OpConstant, 1),
-				// 0015
+				// 0010
 				code.Instruction(code.OpPop),
 			},
 		},
@@ -745,18 +733,20 @@ func TestConditionals(t *testing.T) {
 				// 0000
 				code.Instruction(code.OpTrue),
 				// 0001
-				code.Instruction(code.OpJumpNotTruthy, 10),
+				code.Instruction(code.OpJumpNotTruthy, 11),
 				// 0004
 				code.Instruction(code.OpConstant, 0),
 				// 0007
-				code.Instruction(code.OpJump, 13),
-				// 0010
-				code.Instruction(code.OpConstant, 1),
-				// 0011
 				code.Instruction(code.OpPop),
-				// 0012
+				// 0008
+				code.Instruction(code.OpJump, 15),
+				// 0011
+				code.Instruction(code.OpConstant, 1),
+				// 0014
+				code.Instruction(code.OpPop),
+				// 0015
 				code.Instruction(code.OpConstant, 2),
-				// 0013
+				// 0018
 				code.Instruction(code.OpPop),
 			},
 		},

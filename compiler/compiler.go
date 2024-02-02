@@ -58,7 +58,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Expression); err != nil {
 			return err
 		}
-		c.emit(code.OpPop)
+
+		switch node.Expression.(type) {
+		case *ast.WhileExpression:
+		case *ast.IfExpression:
+		default:
+			c.emit(code.OpPop)
+		}
 
 	case *ast.Identifier:
 		sym, ok := c.symbolTable.Resolve(node.Value)
@@ -210,22 +216,16 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		c.removeLastInstruction(code.OpPop)
-		jmpPos := c.emit(code.OpJump, 0)
-
-		c.replaceOperand(jmpNTPos, len(c.currentScope().instructions))
-
-		if node.Alternative == nil {
-			c.emit(code.OpNull)
-		} else {
+		if node.Alternative != nil {
+			jmpPos := c.emit(code.OpJump, 0)
+			c.replaceOperand(jmpNTPos, len(c.currentScope().instructions))
 			if err := c.Compile(node.Alternative); err != nil {
 				return err
 			}
-
-			c.removeLastInstruction(code.OpPop)
+			c.replaceOperand(jmpPos, len(c.currentScope().instructions))
+		} else {
+			c.replaceOperand(jmpNTPos, len(c.currentScope().instructions))
 		}
-
-		c.replaceOperand(jmpPos, len(c.currentScope().instructions))
 
 	case *ast.WhileExpression:
 		oldStart := c.currentScope().startPos
@@ -241,7 +241,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Body); err != nil {
 			return err
 		}
-		c.emit(code.OpNull)
 
 		c.emit(code.OpJump, startPos)
 		endPos := len(c.currentScope().instructions)
@@ -249,7 +248,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 		for _, setEndPos := range c.currentScope().setEndPos {
 			c.replaceOperand(setEndPos, endPos)
 		}
-		c.emit(code.OpNull)
 		c.currentScope().startPos = oldStart
 		c.currentScope().setEndPos = nil
 

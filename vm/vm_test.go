@@ -337,12 +337,9 @@ func TestWhileLoop(t *testing.T) {
 
 func TestConditionals(t *testing.T) {
 	tests := []vmTestCase{
-		{"if true { 10 } else { 12 }", 10},
-		{"if false { 10 } else { 12 }", 12},
-		{"if (if true { 10; }) { 10 } else { 12 }", 10},
-		{"if (if false { 10; }) { 10 } else { 12 }", 12},
-		{"if 1 > 2 { 10 }", Null},
-		{"if false { 10 }", Null},
+		{"let x = 0; if true { x = 1; } else { x = 2; }; x;", 1},
+		{"let x = 0; if false { x = 1; } else { x = 2; }; x;", 2},
+		{"let x = 0; if 1 > 2 { x = 1; }; x;", 0},
 	}
 	runVmTests(t, tests)
 }
@@ -441,7 +438,6 @@ func TestBooleanExpressions(t *testing.T) {
 		{"!(2 == 1)", true},
 		{"!((1 < 2) == true)", false},
 		{"!((1 < 2) == false)", true},
-		{"!(if false { 5; })", true},
 	}
 	runVmTests(t, tests)
 }
