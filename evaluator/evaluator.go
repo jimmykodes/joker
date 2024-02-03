@@ -373,8 +373,9 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 
 func evalFor(n *ast.ForExpression, env *object.Environment) object.Object {
 	var res object.Object = Null
-	for Eval(n.Init, env); Eval(n.Condition, env) == object.True; Eval(n.Increment, env) {
-		loopRes := Eval(n.Body, env)
+	forEnv := object.NewEnvironment(object.EncloseOuterOption(env))
+	for Eval(n.Init, forEnv); Eval(n.Condition, forEnv) == object.True; Eval(n.Increment, forEnv) {
+		loopRes := Eval(n.Body, forEnv)
 		if isError(loopRes) {
 			return loopRes
 		}
