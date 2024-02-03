@@ -65,9 +65,9 @@ func (i *IfExpression) String() string {
 	fmt.Fprintf(&sb, "%s", i.Consequence.String())
 
 	if i.Alternative != nil {
-		fmt.Fprintf(&sb, "} else {\n%s}\n", i.Alternative.String())
+		fmt.Fprintf(&sb, "} else {\n%s}", i.Alternative.String())
 	} else {
-		sb.WriteString("}\n")
+		sb.WriteString("}")
 	}
 	return sb.String()
 }
@@ -86,7 +86,25 @@ func (w *WhileExpression) String() string {
 	sb.WriteString(w.Condition.String())
 	sb.WriteString(") {\n")
 	sb.WriteString(w.Body.String())
-	sb.WriteString("};\n")
+	sb.WriteString("};")
+	return sb.String()
+}
+
+type ForExpression struct {
+	Token     token.Token
+	Init      Statement
+	Condition Statement
+	Increment Statement
+	Body      *BlockStatement
+}
+
+func (f *ForExpression) expressionNode()      {}
+func (f *ForExpression) TokenLiteral() string { return f.Token.String() }
+func (f *ForExpression) String() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "for %s %s; %s {\n", f.Init, f.Condition, f.Increment)
+	sb.WriteString(f.Body.String())
+	sb.WriteString("}")
 	return sb.String()
 }
 
@@ -107,7 +125,7 @@ func (c *CallExpression) String() string {
 		args[i] = arg.String()
 	}
 	sb.WriteString(strings.Join(args, ", "))
-	sb.WriteRune(')')
+	sb.WriteString(");")
 	return sb.String()
 }
 

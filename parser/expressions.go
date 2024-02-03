@@ -90,6 +90,23 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseForExpression() ast.Expression {
+	exp := &ast.ForExpression{Token: p.curToken}
+	p.nextToken()
+
+	exp.Init = p.parseStatement()
+	p.nextToken()
+
+	exp.Condition = p.parseStatement()
+	p.nextToken()
+
+	exp.Increment = p.parseStatement()
+	p.nextToken()
+
+	exp.Body = p.parseBlockStatement()
+	return exp
+}
+
 func (p *Parser) parseWhileExpression() ast.Expression {
 	exp := &ast.WhileExpression{Token: p.curToken}
 	p.nextToken()
