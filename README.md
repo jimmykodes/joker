@@ -701,13 +701,38 @@ while between(i, 0, 10) {
 
 ### For loops
 
-For loops are currently not implemented directly. The behavior can be reached using a while loop like so:
+For loops take the format
+```
+for <init>; <condition>; <increment>; {
+    <body>
+}
+```
+where evaluation looks like:
+1. init
+2. condition
+3. body if condition is true
+4. increment
+5. repeat 2-5 until condition returns false
+
+Note:
+The increment statement must conclude with a `;` before the `{`
+> TODO: fix the parser so the increment need not end with a `;`
+
+Example:
 
 ```joker
 let elems = [1, 2, 3, 4, 5, 6];
-let i = 0;
-while i < len(elems) {
+
+for i := 0; i < len(elems); i = i + 1; {
     print(elems[i]);
-    i = i + 1;
+}
+```
+
+Nesting:
+```joker
+for i := 0; i < 10; i = i + 1; {
+    for j := 0; j < 5; j = j + 1; {
+        print(i, j);
+    }
 }
 ```
