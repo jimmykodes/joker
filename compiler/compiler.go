@@ -61,6 +61,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		switch node.Expression.(type) {
 		case *ast.WhileExpression:
+		case *ast.ForExpression:
 		case *ast.IfExpression:
 		default:
 			c.emit(code.OpPop)
@@ -226,6 +227,44 @@ func (c *Compiler) Compile(node ast.Node) error {
 		} else {
 			c.replaceOperand(jmpNTPos, len(c.currentScope().instructions))
 		}
+	case *ast.ForExpression:
+		if err := c.Compile(node.Init); err != nil {
+			return err
+		}
+
+		initJumpPos := c.emit(code.OpJump, 0)
+
+		oldStart := c.currentScope().startPos
+		incrementLocation := len(c.currentScope().instructions)
+		c.currentScope().startPos = incrementLocation
+
+		if err := c.Compile(node.Increment); err != nil {
+			return err
+		}
+
+		c.replaceOperand(initJumpPos, len(c.currentScope().instructions))
+
+		if err := c.Compile(node.Condition); err != nil {
+			return err
+		}
+		c.removeLastInstruction(code.OpPop)
+
+		jntPos := c.emit(code.OpJumpNotTruthy, 0)
+
+		if err := c.Compile(node.Body); err != nil {
+			return err
+		}
+
+		c.emit(code.OpJump, incrementLocation)
+		endPos := len(c.currentScope().instructions)
+
+		c.replaceOperand(jntPos, endPos)
+		for _, setEndPos := range c.currentScope().setEndPos {
+			c.replaceOperand(setEndPos, endPos)
+		}
+
+		c.currentScope().startPos = oldStart
+		c.currentScope().setEndPos = nil
 
 	case *ast.WhileExpression:
 		oldStart := c.currentScope().startPos
