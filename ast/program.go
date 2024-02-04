@@ -28,6 +28,7 @@ func (p *Program) String() string {
 		} else {
 			sb.WriteString(statement.String())
 		}
+		sb.WriteString("\n")
 	}
 	return sb.String()
 }

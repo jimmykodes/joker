@@ -85,6 +85,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIf(n, env)
 	case *ast.WhileExpression:
 		return evalWhile(n, env)
+	case *ast.ForExpression:
+		return evalFor(n, env)
 	case *ast.CallExpression:
 		f := Eval(n.Function, env)
 		if isError(f) {
@@ -367,6 +369,27 @@ func evalIf(n *ast.IfExpression, env *object.Environment) object.Object {
 		return Eval(n.Alternative, env)
 	}
 	return Null
+}
+
+func evalFor(n *ast.ForExpression, env *object.Environment) object.Object {
+	var res object.Object = Null
+	forEnv := object.NewEnvironment(object.EncloseOuterOption(env))
+	for Eval(n.Init, forEnv); Eval(n.Condition, forEnv) == object.True; Eval(n.Increment, forEnv) {
+		loopRes := Eval(n.Body, forEnv)
+		if isError(loopRes) {
+			return loopRes
+		}
+		if loopRes.Type() == object.ReturnType {
+			return loopRes
+		}
+		if loopRes.Type() == object.BreakType {
+			return Null
+		}
+		if loopRes.Type() != object.ContinueType {
+			res = loopRes
+		}
+	}
+	return res
 }
 
 func evalWhile(n *ast.WhileExpression, env *object.Environment) object.Object {

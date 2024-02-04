@@ -41,25 +41,25 @@ func TestParser_ParseProgram(t *testing.T) {
 			name:          "expression statement - ident",
 			input:         "foobar;",
 			numStatements: 1,
-			programText:   "foobar",
+			programText:   "foobar\n",
 		},
 		{
 			name:          "expression statement - int",
 			input:         "-5;",
 			numStatements: 1,
-			programText:   "(-5)",
+			programText:   "(-5)\n",
 		},
 		{
 			name:          "expression statement - int",
 			input:         "5",
 			numStatements: 1,
-			programText:   "5",
+			programText:   "5\n",
 		},
 		{
 			name:          "expression statement - multiple",
 			input:         "5 + 4 <= 2 + 12 * 2",
 			numStatements: 1,
-			programText:   "((5 + 4) <= (2 + (12 * 2)))",
+			programText:   "((5 + 4) <= (2 + (12 * 2)))\n",
 		},
 		{
 			name:          "return int",
@@ -71,19 +71,19 @@ func TestParser_ParseProgram(t *testing.T) {
 			name:          "bool",
 			input:         "true == false",
 			numStatements: 1,
-			programText:   "(true == false)",
+			programText:   "(true == false)\n",
 		},
 		{
 			name:          "complex bool",
 			input:         "5 < 3 == false",
 			numStatements: 1,
-			programText:   "((5 < 3) == false)",
+			programText:   "((5 < 3) == false)\n",
 		},
 		{
 			name:          "grouped",
 			input:         "(5 + 8) * 23",
 			numStatements: 1,
-			programText:   "((5 + 8) * 23)",
+			programText:   "((5 + 8) * 23)\n",
 		},
 		{
 			name:          "if",
@@ -107,13 +107,21 @@ func TestParser_ParseProgram(t *testing.T) {
 			name:          "func call with sub args",
 			input:         "add(2 + 5, 3 * 9)",
 			numStatements: 1,
-			programText:   "add((2 + 5), (3 * 9))",
+			programText:   "add((2 + 5), (3 * 9));\n",
 		},
 		{
 			name:          "func call",
 			input:         "add(2, 9)",
 			numStatements: 1,
-			programText:   "add(2, 9)",
+			programText:   "add(2, 9);\n",
+		},
+		{
+			name: "for",
+			input: `for i := 0; i < 10; i = i + 1; {
+        print(i);
+      }`,
+			numStatements: 1,
+			programText:   "for i := 0; (i < 10); i = (i + 1) {\n\tprint(i);\n}\n",
 		},
 	}
 	for _, tt := range tests {

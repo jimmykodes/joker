@@ -69,7 +69,9 @@ func (f *FunctionLiteral) String() string {
 		params[i] = parameter.String()
 	}
 	sb.WriteString(strings.Join(params, ", "))
-	sb.WriteString(") {\n" + f.Body.String() + "}\n")
+	sb.WriteString(") {\n")
+	sb.WriteString(f.Body.String())
+	sb.WriteString("}")
 	return sb.String()
 }
 

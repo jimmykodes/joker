@@ -21,7 +21,7 @@ type DefineStatement struct {
 func (ds *DefineStatement) statementNode()       {}
 func (ds *DefineStatement) TokenLiteral() string { return ds.Token.String() }
 func (ds *DefineStatement) String() string {
-	return fmt.Sprintf("%s %s %s;\n", ds.Name.Value, ds.TokenLiteral(), ds.Value)
+	return fmt.Sprintf("%s %s %s;", ds.Name.Value, ds.TokenLiteral(), ds.Value)
 }
 
 type LetStatement struct {
@@ -33,7 +33,7 @@ type LetStatement struct {
 func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.String() }
 func (ls *LetStatement) String() string {
-	return fmt.Sprintf("%s %s = %s;\n", ls.TokenLiteral(), ls.Name.Value, ls.Value)
+	return fmt.Sprintf("%s %s = %s;", ls.TokenLiteral(), ls.Name.Value, ls.Value)
 }
 
 type FuncStatement struct {
@@ -79,7 +79,7 @@ func (rs *ReturnStatement) String() string {
 	} else {
 		sb.WriteString("<nil>")
 	}
-	sb.WriteString(";\n")
+	sb.WriteString(";")
 	return sb.String()
 }
 
@@ -123,6 +123,7 @@ func (b *BlockStatement) String() string {
 		} else {
 			sb.WriteString("\t" + statement.String())
 		}
+		sb.WriteString("\n")
 	}
 	return sb.String()
 }

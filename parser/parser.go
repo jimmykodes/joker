@@ -43,6 +43,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.Minus:  p.parsePrefixExpression,
 		token.LParen: p.parseGroupedExpression,
 		token.If:     p.parseIfExpression,
+		token.For:    p.parseForExpression,
 		token.While:  p.parseWhileExpression,
 		token.Func:   p.parseFuncExpression,
 	}

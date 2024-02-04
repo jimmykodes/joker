@@ -255,6 +255,52 @@ func TestGlobalVariableDefs(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestForLoop(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+      a := 0;
+      for i := 0; i < 10; i = i + 1; {
+        a = a + 1;
+      }
+      a;
+      `,
+			expected: 10,
+		},
+		{
+			input: `
+      a := 0;
+      for i := 0; i < 10; i = i + 1; {
+        for j := 0; j < 10; j = j + 1; {
+          if i == j {
+            continue;
+          }
+          a = a + 1;
+        }
+      }
+      a;
+      `,
+			expected: 90,
+		},
+		{
+			input: `
+      a := 0;
+      for i := 0; i < 10; i = i + 1; {
+        for j := 0; j < 10; j = j + 1; {
+          if a >= 50 {
+            break;
+          }
+          a = a + 1;
+        }
+      }
+      a;
+      `,
+			expected: 50,
+		},
+	}
+	runVmTests(t, tests)
+}
+
 func TestWhileLoop(t *testing.T) {
 	tests := []vmTestCase{
 		{

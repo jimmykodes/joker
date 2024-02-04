@@ -634,6 +634,140 @@ func TestReassignStatements(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestForLoop(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      a := 0;
+      for i := 0; i < 10; i = i + 1; {
+        a = a + 1;
+      }
+      a;`,
+			expectedConstants: []any{0, 0, 1, 10, 1},
+			expectedInstructions: []code.Instructions{
+				// 0000 OpConstant 0
+				code.Instruction(code.OpConstant, 0),
+				// 0003 OpSetGlobal 0
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0006 OpConstant 1
+				code.Instruction(code.OpConstant, 1),
+				// 0009 OpSetGlobal 1
+				code.Instruction(code.OpSetGlobal, 1),
+				// 0012 OpJump 25
+				code.Instruction(code.OpJump, 25),
+				// 0015 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0018 OpConstant 2
+				code.Instruction(code.OpConstant, 2),
+				// 0021 OpAdd
+				code.Instruction(code.OpAdd),
+				// 0022 OpSetGlobal 1
+				code.Instruction(code.OpSetGlobal, 1),
+				// 0025 OpConstant 3
+				code.Instruction(code.OpConstant, 3),
+				// 0028 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0031 OpGT
+				code.Instruction(code.OpGT),
+				// 0032 OpJumpNotTruthy 48
+				code.Instruction(code.OpJumpNotTruthy, 48),
+				// 0035 OpGetGlobal 0
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0038 OpConstant 4
+				code.Instruction(code.OpConstant, 4),
+				// 0041 OpAdd
+				code.Instruction(code.OpAdd),
+				// 0042 OpSetGlobal 0
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0045 OpJump 15
+				code.Instruction(code.OpJump, 15),
+				// 0048 OpGetGlobal 0
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0051 OpPop
+				code.Instruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+		    a := 0;
+		    for i := 0; i < 10; i = i + 1; {
+		      if i == 5 {
+		        continue;
+		      }
+		      if i == 8 {
+		        break;
+		      }
+		      a = a + 1;
+		    }
+		    a;`,
+			expectedConstants: []any{0, 0, 1, 10, 5, 8, 1},
+			expectedInstructions: []code.Instructions{
+				// 0000 OpConstant 0
+				code.Instruction(code.OpConstant, 0),
+				// 0003 OpSetGlobal 0
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0006 OpConstant 1
+				code.Instruction(code.OpConstant, 1),
+				// 0009 OpSetGlobal 1
+				code.Instruction(code.OpSetGlobal, 1),
+				// 0012 OpJump 25
+				code.Instruction(code.OpJump, 25),
+				// 0015 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0018 OpConstant 2
+				code.Instruction(code.OpConstant, 2),
+				// 0021 OpAdd
+				code.Instruction(code.OpAdd),
+				// 0022 OpSetGlobal 1
+				code.Instruction(code.OpSetGlobal, 1),
+				// 0025 OpConstant 3
+				code.Instruction(code.OpConstant, 3),
+				// 0028 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0031 OpGT
+				code.Instruction(code.OpGT),
+				// 0032 OpJumpNotTruthy 74
+				code.Instruction(code.OpJumpNotTruthy, 74),
+				// 0035 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0038 OpConstant 4
+				code.Instruction(code.OpConstant, 4),
+				// 0041 OpEQ
+				code.Instruction(code.OpEQ),
+				// 0042 OpJumpNotTruthy 48
+				code.Instruction(code.OpJumpNotTruthy, 48),
+				// 0045 OpJump 15
+				code.Instruction(code.OpJump, 15),
+				// 0048 OpGetGlobal 1
+				code.Instruction(code.OpGetGlobal, 1),
+				// 0051 OpConstant 5
+				code.Instruction(code.OpConstant, 5),
+				// 0054 OpEQ
+				code.Instruction(code.OpEQ),
+				// 0055 OpJumpNotTruthy 61
+				code.Instruction(code.OpJumpNotTruthy, 61),
+				// 0058 OpJump 74
+				code.Instruction(code.OpJump, 74),
+				// 0061 OpGetGlobal 0
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0064 OpConstant 6
+				code.Instruction(code.OpConstant, 6),
+				// 0067 OpAdd
+				code.Instruction(code.OpAdd),
+				// 0068 OpSetGlobal 0
+				code.Instruction(code.OpSetGlobal, 0),
+				// 0071 OpJump 15
+				code.Instruction(code.OpJump, 15),
+				// 0074 OpGetGlobal 0
+				code.Instruction(code.OpGetGlobal, 0),
+				// 0077 OpPop
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func TestWhileLoop(t *testing.T) {
 	tests := []compilerTestCase{
 		{
