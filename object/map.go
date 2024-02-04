@@ -40,3 +40,13 @@ func (m *Map) Idx(obj Object) Object {
 	}
 	return p.Value
 }
+
+func (m *Map) Set(key, value Object) Object {
+	hashable, ok := key.(Hashable)
+	if !ok {
+		return ErrUnsupportedType
+	}
+	hk := hashable.HashKey()
+	m.Pairs[hk] = HashPair{key, value}
+	return nil
+}

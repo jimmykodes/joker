@@ -62,6 +62,7 @@ joker run fib.jkb  # runs the compiled fib.jkb file
   - [Pop](#pop)
   - [Print](#print)
   - [Append](#append)
+  - [Set](#set)
   - [Slice](#slice)
   - [Argv](#argv)
 - [Operators](#operators)
@@ -203,9 +204,18 @@ Array elements are access by index, starting at 0
 
 #### Element assignment
 
-Element assignment is currently unsupported.
+Direct element assignment is currently unsupported.
 ```joker
 [1][0] = 12 # throws a parser error
+```
+
+Instead, elements can be assigned using the `set` builtin:
+```joker
+let x = [1, 2, 3, 4];
+for i := 0; i < len(x); i = i + 1; {
+    set(x, i, x[i] * 2);
+}
+print(x); # => [2, 4, 6, 8]
 ```
 
 ### Map
@@ -219,6 +229,14 @@ Keys and values should be separated by a colon(`:`) and pairs should be separate
 {"foo": [1, 2, 3], "bar": {"baz": "taco"}}
 ```
 
+Keys for maps must be hashable types, these include:
+- integers
+- floats
+- strings
+- booleans
+
+Values for a map can be anything.
+
 #### Element access
 
 Map values are access by key:
@@ -229,10 +247,19 @@ Map values are access by key:
 
 #### Element assignment
 
-Element assignment is currently unsupported.
+Direct element assignment is currently unsupported.
 
 ```joker
 {"foo": 1}["bar"] = 12 # throws a parser error
+```
+
+Instead, elements can be assigned using the `set` builtin:
+```joker
+let x = {};
+for i := 0; i < 5; i = i + 1; {
+    set(x, i, i * 2);
+}
+print(x); # => {0: 0, 1: 2, 2: 4, 3: 6, 4: 8}
 ```
 
 ## Variables
@@ -493,6 +520,12 @@ let y = append(x, 4, 5, 6);
 print(x) # => [1, 2, 3]
 print(y) # => [1, 2, 3, 4, 5, 6]
 ```
+### Set
+
+`set(object, key, value)` will set the value for `key` to `value` on `object`.
+
+`object` must be of type Array or Map. When `object` is an Array, `key` must be an integer. When `object` is a Map, key must
+be a hashable type. See Map type for a list of hashable types.
 
 ### Slice
 

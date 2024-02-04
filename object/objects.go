@@ -61,6 +61,10 @@ type Negater interface {
 	Negative() Object
 }
 
+type Settable interface {
+	Set(key, value Object) Object
+}
+
 type Continue struct{}
 
 func (c *Continue) Type() Type      { return ContinueType }

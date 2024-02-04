@@ -31,6 +31,7 @@ const (
 	Pop            // pop
 	Print          // print
 	Append         // append
+	Set            // set
 	Slice          // slice
 	Argv           // argv
 	end
@@ -190,6 +191,21 @@ var builtins = [...]*object.Builtin{
 				return newError("first argument of append must be an %s", object.ArrayType)
 			}
 			return &object.Array{Elements: append(source.Elements, args[1:]...)}
+		},
+	},
+	Set: {
+		Name: Set.String(),
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 3 {
+				return newError("invalid number of args, got %d, want 3", len(args))
+			}
+			obj := args[0]
+
+			settable, ok := obj.(object.Settable)
+			if !ok {
+				return newError("invalid object: %T is not Settable", obj)
+			}
+			return settable.Set(args[1], args[2])
 		},
 	},
 	Slice: {

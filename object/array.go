@@ -32,3 +32,15 @@ func (a *Array) Idx(obj Object) Object {
 	}
 	return a.Elements[o.Value]
 }
+
+func (a *Array) Set(key, value Object) Object {
+	o, ok := key.(*Integer)
+	if !ok {
+		return ErrUnsupportedType
+	}
+	if o.Value >= int64(len(a.Elements)) {
+		return &Error{Message: fmt.Sprintf("index out of range [%d] with length %d", o.Value, len(a.Elements))}
+	}
+	a.Elements[o.Value] = value
+	return nil
+}
