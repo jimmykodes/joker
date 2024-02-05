@@ -23,11 +23,12 @@ func _() {
 	_ = x[ContinueType-12]
 	_ = x[BreakType-13]
 	_ = x[ErrorType-14]
+	_ = x[FileType-15]
 }
 
-const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeCompiledFunctionTypeClosureTypeBuiltinTypeArrayTypeMapTypeReturnTypeContinueTypeBreakTypeErrorType"
+const _Type_name = "NullTypeIntegerTypeFloatTypeBoolTypeStringTypeFunctionTypeCompiledFunctionTypeClosureTypeBuiltinTypeArrayTypeMapTypeReturnTypeContinueTypeBreakTypeErrorTypeFileType"
 
-var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 78, 89, 100, 109, 116, 126, 138, 147, 156}
+var _Type_index = [...]uint8{0, 8, 19, 28, 36, 46, 58, 78, 89, 100, 109, 116, 126, 138, 147, 156, 164}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

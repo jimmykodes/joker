@@ -1,6 +1,7 @@
 package run
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -42,6 +43,10 @@ func Cmd() func(args []string) error {
 			l := lexer.New(string(data))
 			p := parser.New(l)
 			prog := p.ParseProgram()
+			if err := errors.Join(p.Errors()...); err != nil {
+				return err
+			}
+
 			c := compiler.New()
 			if err := c.Compile(prog); err != nil {
 				return err

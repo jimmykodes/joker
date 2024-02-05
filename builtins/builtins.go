@@ -23,17 +23,22 @@ type builtin int
 
 //go:generate stringer -type builtin -linecomment
 const (
-	start  builtin = iota
-	Int            // int
-	Float          // float
-	String         // string
-	Len            // len
-	Pop            // pop
-	Print          // print
-	Append         // append
-	Set            // set
-	Slice          // slice
-	Argv           // argv
+	start    builtin = iota
+	Int              // int
+	Float            // float
+	String           // string
+	Len              // len
+	Pop              // pop
+	Print            // print
+	Append           // append
+	Set              // set
+	Slice            // slice
+	Argv             // argv
+	Open             // open
+	Read             // read
+	Readline         // readline
+	Write            // write
+	Close            // close
 	end
 )
 
@@ -265,6 +270,107 @@ var builtins = [...]*object.Builtin{
 				elements[i] = &object.String{Value: arg}
 			}
 			return &object.Array{Elements: elements}
+		},
+	},
+	Open: {
+		Name: Open.String(),
+		Fn: func(args ...object.Object) object.Object {
+			switch len(args) {
+			case 1:
+				if args[0].Type() != object.StringType {
+					return newError("invalid type for file name: must be %s - got %s", object.StringType, args[0].Type())
+				}
+				filename := args[0].(*object.String)
+				f, err := os.Open(filename.Value)
+				if err != nil {
+					return object.ErrorFromGo(err)
+				}
+				return &object.File{Value: f}
+			case 2:
+				if args[0].Type() != object.StringType {
+					return newError("invalid type for file name: must be %s - got %s", object.StringType, args[0].Type())
+				}
+				if args[1].Type() != object.StringType {
+					return newError("invalid type for file mode: must be %s - got %s", object.StringType, args[1].Type())
+				}
+
+				var (
+					filename = args[0].(*object.String)
+					mode     = args[1].(*object.String)
+					state    = object.UnknownFileState
+					f        *os.File
+					err      error
+				)
+				switch mode.Value {
+				case "r":
+					f, err = os.Open(filename.Value)
+				case "w":
+					state = object.WriteFileState
+					f, err = os.Create(filename.Value)
+				case "a":
+					state = object.WriteFileState
+					f, err = os.OpenFile(filename.Value, os.O_APPEND|os.O_WRONLY, 0)
+				}
+				if err != nil {
+					return object.ErrorFromGo(err)
+				}
+				return &object.File{Value: f, State: state}
+
+			default:
+				return newError("invalid number of args, got %d, want 1 or 2", len(args))
+			}
+		},
+	},
+	Read: {
+		Name: Read.String(),
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("invalid number of args, got %d, want 1", len(args))
+			}
+			reader, ok := args[0].(object.Reader)
+			if !ok {
+				return newError("invalid type: cannot read from %s", args[0].Type())
+			}
+			return reader.Read()
+		},
+	},
+	Readline: {
+		Name: Readline.String(),
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("invalid number of args, got %d, want 1", len(args))
+			}
+			reader, ok := args[0].(object.Readliner)
+			if !ok {
+				return newError("invalid type: cannot readline from %s", args[0].Type())
+			}
+			return reader.Readline()
+		},
+	},
+	Write: {
+		Name: Write.String(),
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 2 {
+				return newError("invalid number of args, got %d, want 2", len(args))
+			}
+			writer, ok := args[0].(object.Writer)
+			if !ok {
+				return newError("invalid type: cannot write to %s", args[0].Type())
+			}
+			return writer.Write(args[1])
+		},
+	},
+	Close: {
+		Name: Close.String(),
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("invalid number of args, got %d, want 1", len(args))
+			}
+			reader, ok := args[0].(object.Closer)
+			if !ok {
+				return newError("invalid type: cannot readline from %s", args[0].Type())
+			}
+			return reader.Close()
 		},
 	},
 }
