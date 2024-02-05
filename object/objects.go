@@ -12,6 +12,10 @@ type Object interface {
 	Inspect() string
 }
 
+type Stringer interface {
+	String() string
+}
+
 type Hashable interface {
 	HashKey() HashKey
 }

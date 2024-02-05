@@ -62,7 +62,13 @@ func (f *File) Write(obj Object) Object {
 	if f.State != WriteFileState {
 		return &Error{Message: "file not in 'write' state"}
 	}
-	n, err := fmt.Fprint(f.Value, obj.Inspect())
+	var data string
+	if s, ok := obj.(Stringer); ok {
+		data = s.String()
+	} else {
+		data = obj.Inspect()
+	}
+	n, err := fmt.Fprint(f.Value, data)
 	if err != nil {
 		return ErrorFromGo(err)
 	}

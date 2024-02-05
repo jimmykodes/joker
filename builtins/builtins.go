@@ -179,7 +179,11 @@ var builtins = [...]*object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			out := make([]any, len(args))
 			for i, arg := range args {
-				out[i] = arg.Inspect()
+				if s, ok := arg.(object.Stringer); ok {
+					out[i] = s.String()
+				} else {
+					out[i] = arg.Inspect()
+				}
 			}
 			fmt.Fprintln(os.Stdout, out...)
 			return nil

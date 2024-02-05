@@ -12,6 +12,7 @@ type Float struct {
 
 func (f *Float) Type() Type      { return FloatType }
 func (f *Float) Inspect() string { return fmt.Sprintf("%f", f.Value) }
+
 func (f *Float) UnmarshalBytes(data []byte) (int, error) {
 	if t := Type(data[0]); t != f.Type() {
 		return 0, fmt.Errorf("invalid type: got %s - want %s", t, f.Type())
