@@ -68,7 +68,7 @@ func (f *File) Write(obj Object) Object {
 	} else {
 		data = obj.Inspect()
 	}
-	n, err := fmt.Fprint(f.Value, data)
+	n, err := fmt.Fprintln(f.Value, data)
 	if err != nil {
 		return ErrorFromGo(err)
 	}
