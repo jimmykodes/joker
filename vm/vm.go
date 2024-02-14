@@ -58,10 +58,14 @@ func (vm *VM) run() error {
 }
 
 func (vm *VM) Debug() error {
+	r := make([]byte, 1)
+	isValid := false
+
 	for {
-		r := make([]byte, 1)
+		isValid = false
+		fmt.Print(">> ")
 		_, err := fmt.Scanln(&r)
-		if err != nil {
+		if err != nil && err.Error() != "unexpected newline" {
 			return err
 		}
 		fmt.Println("-----")
@@ -91,16 +95,26 @@ func (vm *VM) Debug() error {
 				i++
 			}
 		case 'i':
-			fmt.Println(vm.currentFrame().ip + 1)
+			fmt.Printf("loc: %04d\n", vm.currentFrame().ip+1)
 			fmt.Println(vm.currentFrame().Instructions())
 		case 'c':
 			for i, constant := range vm.constants {
 				fmt.Println(i, "-", constant.Inspect())
 			}
 		case 'h':
+			isValid = true
 			fallthrough
 		default:
-			fmt.Println("")
+			if !isValid {
+				fmt.Println("invalid option:", string(r))
+			}
+			fmt.Println("Valid options:")
+			fmt.Println("n\tnext instruction")
+			fmt.Println("i\tshow instructions")
+			fmt.Println("s\tdump stack")
+			fmt.Println("g\tdump globals")
+			fmt.Println("c\tdump constants")
+			fmt.Println("h\tshow this help message")
 		}
 	}
 }

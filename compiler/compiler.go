@@ -340,7 +340,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 		freeSymbols := c.symbolTable.FreeSymbols
-		numLocals := len(c.symbolTable.store)
+		numLocals := c.symbolTable.numDefinitions
 		scope := c.leaveScope()
 
 		for _, s := range freeSymbols {
