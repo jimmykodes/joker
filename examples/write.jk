@@ -1,0 +1,55 @@
+fn handleRead(file) {
+  f := open(file);
+  print(read(f));
+  close(f);
+}
+
+fn handleReadline(file) {
+  f := open(file);
+  text := "";
+  while true {
+    text = readline(f);
+    if !text {
+      break;
+    }
+    print(text);
+  }
+  close(f);
+}
+
+fn handleAppend(file, content) {
+  f := open(file, "a");
+  write(f, content);
+  close(f);
+}
+
+fn handleWrite(file, content) {
+  f := open(file, "w");
+  write(f, content);
+  close(f);
+}
+
+fn main() {
+  args := argv();
+  file := args[3];
+  mode := args[4];
+
+  if mode == "r" {
+    handleRead(file);
+  }
+
+  if mode == "rl" {
+    handleReadline(file);
+  }
+
+  if mode == "a" {
+    handleAppend(file, args[5]);
+  }
+
+  if mode == "w" {
+    handleWrite(file, args[5]);
+  }
+
+}
+
+main();

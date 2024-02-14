@@ -12,6 +12,10 @@ type Object interface {
 	Inspect() string
 }
 
+type Stringer interface {
+	String() string
+}
+
 type Hashable interface {
 	HashKey() HashKey
 }
@@ -65,6 +69,22 @@ type Settable interface {
 	Set(key, value Object) Object
 }
 
+type Closer interface {
+	Close() Object
+}
+
+type Reader interface {
+	Read() Object
+}
+
+type Readliner interface {
+	Readline() Object
+}
+
+type Writer interface {
+	Write(Object) Object
+}
+
 type Continue struct{}
 
 func (c *Continue) Type() Type      { return ContinueType }
@@ -81,6 +101,10 @@ type Return struct {
 
 func (r *Return) Type() Type      { return ReturnType }
 func (r *Return) Inspect() string { return r.Value.Inspect() }
+
+func ErrorFromGo(err error) *Error {
+	return &Error{Message: err.Error()}
+}
 
 type Error struct {
 	Message string

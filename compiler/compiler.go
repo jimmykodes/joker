@@ -372,7 +372,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	default:
 		return fmt.Errorf("unknown node: %T", node)
-
 	}
 	return nil
 }

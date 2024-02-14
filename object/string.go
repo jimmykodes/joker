@@ -13,6 +13,8 @@ type String struct {
 
 func (s *String) Type() Type      { return StringType }
 func (s *String) Inspect() string { return `"` + s.Value + `"` }
+func (s *String) String() string  { return s.Value }
+
 func (s *String) UnmarshalBytes(data []byte) (int, error) {
 	if t := Type(data[0]); t != s.Type() {
 		return 0, fmt.Errorf("invalid type: got %s - want %s", t, s.Type())
