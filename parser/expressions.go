@@ -148,11 +148,12 @@ func (p *Parser) parseFuncExpression() ast.Expression {
 }
 
 func (p *Parser) parseCallExpression(f ast.Expression) ast.Expression {
-	return &ast.CallExpression{
-		Token:     p.curToken,
-		Function:  f,
-		Arguments: p.parseExpressionList(token.RParen),
+	exp := &ast.CallExpression{
+		Token:    p.curToken,
+		Function: f,
 	}
+	exp.Arguments = p.parseExpressionList(token.RParen)
+	return exp
 }
 
 func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {

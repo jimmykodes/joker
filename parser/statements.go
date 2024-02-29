@@ -120,10 +120,8 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 }
 
 func (p *Parser) parseExpressionStatement() ast.Statement {
-	stmt := &ast.ExpressionStatement{
-		Token:      p.curToken,
-		Expression: p.parseExpression(token.LowestPrecedence),
-	}
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+	stmt.Expression = p.parseExpression(token.LowestPrecedence)
 	if p.peekTokenIs(token.SemiCol) {
 		p.nextToken()
 	}
