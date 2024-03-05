@@ -1,11 +1,19 @@
 package builtins
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
 	"github.com/jimmykodes/joker/object"
+)
+
+var (
+	PrintDest = ""
+
+	Dest io.ReadWriter = os.Stdout
 )
 
 func newError(format string, a ...any) *object.Error {
@@ -45,6 +53,9 @@ const (
 var lookups map[string]builtin
 
 func init() {
+	if PrintDest == "buffer" {
+		Dest = bytes.NewBuffer(nil)
+	}
 	lookups = make(map[string]builtin, end)
 	for i := start + 1; i < end; i++ {
 		lookups[i.String()] = i
@@ -185,7 +196,7 @@ var builtins = [...]*object.Builtin{
 					out[i] = arg.Inspect()
 				}
 			}
-			fmt.Fprintln(os.Stdout, out...)
+			fmt.Fprintln(Dest, out...)
 			return nil
 		},
 	},
