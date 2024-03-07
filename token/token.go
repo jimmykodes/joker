@@ -6,6 +6,10 @@ import (
 
 type Token int
 
+func (t Token) MarshalText() ([]byte, error) {
+	return []byte(t.String()), nil
+}
+
 const (
 	Illegal Token = iota
 	EOF
