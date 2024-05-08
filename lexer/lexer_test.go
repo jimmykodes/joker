@@ -100,7 +100,7 @@ func TestLexer(t *testing.T) {
 			expected: []token.Token{
 				{Type: token.Let, Line: 1},
 				{Type: token.Ident, Line: 1, Value: []byte("twelve_12")},
-				{Type: token.Eq, Line: 1},
+				{Type: token.EQ, Line: 1},
 				{Type: token.Int, Line: 1, Value: []byte("12")},
 				{Type: token.SemiColon, Line: 1},
 			},

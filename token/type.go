@@ -27,13 +27,13 @@ const (
 
 	// logical
 	Bang   // !
-	BangEq // !=
-	Eq     // =
-	EqEq   // ==
-	Gr     // >
-	GrEq   // >=
-	Ls     // <
-	LsEq   // <=
+	NEQ    // !=
+	Assign // =
+	EQ     // ==
+	GT     // >
+	GTE    // >=
+	LT     // <
+	LTEQ   // <=
 
 	// literals
 	Ident  // ident

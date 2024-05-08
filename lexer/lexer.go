@@ -61,13 +61,13 @@ func (l *Lexer) Next() (token.Token, error) {
 		}
 
 	case '!':
-		t.Type = l.matchEq(token.Bang, token.BangEq)
+		t.Type = l.matchEq(token.Bang, token.NEQ)
 	case '=':
-		t.Type = l.matchEq(token.Eq, token.EqEq)
+		t.Type = l.matchEq(token.EQ, token.EQ)
 	case '>':
-		t.Type = l.matchEq(token.Gr, token.GrEq)
+		t.Type = l.matchEq(token.GT, token.GTE)
 	case '<':
-		t.Type = l.matchEq(token.Ls, token.LsEq)
+		t.Type = l.matchEq(token.LT, token.LTEQ)
 
 	case '"':
 		t.Type = token.String
