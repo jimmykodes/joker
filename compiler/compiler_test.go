@@ -15,6 +15,7 @@ type compilerTestCase struct {
 	input                string
 	expectedConstants    []any
 	expectedInstructions []code.Instructions
+	optimize             bool
 }
 
 func TestClosures(t *testing.T) {
@@ -129,6 +130,36 @@ func TestClosures(t *testing.T) {
 				code.Instruction(code.OpConstant, 0),
 				code.Instruction(code.OpSetGlobal, 0),
 				code.Instruction(code.OpClosure, 6, 0),
+				code.Instruction(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestOptimizations(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+      fn add(a, b) { return a + b; }
+      add(5, 8);`,
+			optimize: true,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.Instruction(code.OpGetLocal, 0),
+					code.Instruction(code.OpGetLocal, 1),
+					code.Instruction(code.OpAdd),
+					code.Instruction(code.OpReturn),
+				},
+				5,
+				8,
+			},
+			expectedInstructions: []code.Instructions{
+				code.Instruction(code.OpClosure, 0, 0),
+				code.Instruction(code.OpSetGlobalKeep, 0),
+				code.Instruction(code.OpConstant, 1),
+				code.Instruction(code.OpConstant, 2),
+				code.Instruction(code.OpCall, 2),
 				code.Instruction(code.OpPop),
 			},
 		},

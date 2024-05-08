@@ -38,11 +38,16 @@ const (
 
 	// variables
 	OpSetGlobal
+	OpSetGlobalKeep
 	OpGetGlobal
+
 	OpSetLocal
+	OpSetLocalKeep
 	OpGetLocal
-	OpGetFree
+
 	OpSetFree
+	OpSetFreeKeep
+	OpGetFree
 
 	// Composites
 	OpArray

@@ -35,6 +35,42 @@ func New() *Compiler {
 	}
 }
 
+func (c *Compiler) Optimize() error {
+	var (
+		s   = c.scopes[0]
+		ins = s.instructions
+		op  code.Opcode
+	)
+
+	for ip := 0; ip < len(ins); ip++ {
+		op = code.Opcode(ins[ip])
+		switch op {
+		case code.OpSetGlobal:
+			start := ip
+			widths, err := code.OpWidths(byte(op))
+			if err != nil {
+				return err
+			}
+			for _, width := range widths {
+				ip += width
+			}
+			if code.Opcode(ins[ip+1]) == code.OpGetGlobal {
+				ins[start] = byte(code.OpSetGlobalKeep)
+			}
+			remove := 1
+			rmWidths, err := code.OpWidths(ins[ip+1])
+			if err != nil {
+				return err
+			}
+			for _, w := range rmWidths {
+				remove += w
+			}
+			ins = append(ins[:start+1], ins[start+remove+1:]...)
+		}
+	}
+	return nil
+}
+
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
 	case *ast.Program:

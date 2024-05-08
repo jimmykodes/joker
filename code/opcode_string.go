@@ -27,24 +27,27 @@ func _() {
 	_ = x[OpJump-16]
 	_ = x[OpJumpNotTruthy-17]
 	_ = x[OpSetGlobal-18]
-	_ = x[OpGetGlobal-19]
-	_ = x[OpSetLocal-20]
-	_ = x[OpGetLocal-21]
-	_ = x[OpGetFree-22]
-	_ = x[OpSetFree-23]
-	_ = x[OpArray-24]
-	_ = x[OpMap-25]
-	_ = x[OpIndex-26]
-	_ = x[OpCall-27]
-	_ = x[OpGetBuiltin-28]
-	_ = x[OpClosure-29]
-	_ = x[OpReturn-30]
-	_ = x[lastOpcode-31]
+	_ = x[OpSetGlobalKeep-19]
+	_ = x[OpGetGlobal-20]
+	_ = x[OpSetLocal-21]
+	_ = x[OpSetLocalKeep-22]
+	_ = x[OpGetLocal-23]
+	_ = x[OpSetFree-24]
+	_ = x[OpSetFreeKeep-25]
+	_ = x[OpGetFree-26]
+	_ = x[OpArray-27]
+	_ = x[OpMap-28]
+	_ = x[OpIndex-29]
+	_ = x[OpCall-30]
+	_ = x[OpGetBuiltin-31]
+	_ = x[OpClosure-32]
+	_ = x[OpReturn-33]
+	_ = x[lastOpcode-34]
 }
 
-const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpGetGlobalOpSetLocalOpGetLocalOpGetFreeOpSetFreeOpArrayOpMapOpIndexOpCallOpGetBuiltinOpClosureOpReturnlastOpcode"
+const _Opcode_name = "OpConstantOpPopOpAddOpSubOpMultOpDivOpModOpTrueOpFalseOpNullOpEQOpNEQOpGTOpGTEOpMinusOpBangOpJumpOpJumpNotTruthyOpSetGlobalOpSetGlobalKeepOpGetGlobalOpSetLocalOpSetLocalKeepOpGetLocalOpSetFreeOpSetFreeKeepOpGetFreeOpArrayOpMapOpIndexOpCallOpGetBuiltinOpClosureOpReturnlastOpcode"
 
-var _Opcode_index = [...]uint8{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 134, 144, 154, 163, 172, 179, 184, 191, 197, 209, 218, 226, 236}
+var _Opcode_index = [...]uint16{0, 10, 15, 20, 25, 31, 36, 41, 47, 54, 60, 64, 69, 73, 78, 85, 91, 97, 112, 123, 138, 149, 159, 173, 183, 192, 205, 214, 221, 226, 233, 239, 251, 260, 268, 278}
 
 func (i Opcode) String() string {
 	if i >= Opcode(len(_Opcode_index)-1) {
