@@ -37,8 +37,15 @@ func (l *Lexer) Next() (token.Token, error) {
 	case ',':
 		t.Type = token.Comma
 	case '.':
-		// TODO: look ahead for digit
-		t.Type = token.Dot
+		if isDigit(l.peek()) {
+			t.Type = token.Float
+			for isDigit(l.peek()) || l.peek() == '_' {
+				l.advance()
+			}
+			t.Value = l.data[l.startPos : l.currentPos+1]
+		} else {
+			t.Type = token.Dot
+		}
 	case '|':
 		t.Type = token.Pipe
 	case ';':

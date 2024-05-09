@@ -111,12 +111,11 @@ func TestParse(t *testing.T) {
 			input:    "0.5",
 			expected: &ast.FloatLitExpr{Token: token.Token{Type: token.Float, Line: 1, Value: []byte("0.5")}, Value: 0.5},
 		},
-		// TODO: fix no leading 0
-		// {
-		// 	name:     "no leading float",
-		// 	input:    ".5",
-		// 	expected: &ast.FloatLitExpr{Token: token.Token{Type: token.Float, Line: 1, Value: []byte(".5")}, Value: 0.5},
-		// },
+		{
+			name:     "no leading float",
+			input:    ".5",
+			expected: &ast.FloatLitExpr{Token: token.Token{Type: token.Float, Line: 1, Value: []byte(".5")}, Value: 0.5},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

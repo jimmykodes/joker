@@ -14,7 +14,7 @@ func TestLexer(t *testing.T) {
 		expected []token.Token
 	}{
 		{
-			input: "+-*%/;",
+			input: "+-*%/;.",
 			expected: []token.Token{
 				{Type: token.Plus, Line: 1},
 				{Type: token.Minus, Line: 1},
@@ -22,6 +22,7 @@ func TestLexer(t *testing.T) {
 				{Type: token.Mod, Line: 1},
 				{Type: token.Div, Line: 1},
 				{Type: token.SemiColon, Line: 1},
+				{Type: token.Dot, Line: 1},
 			},
 		},
 		{
@@ -71,6 +72,7 @@ func TestLexer(t *testing.T) {
 01_23
 123
 12_34
+.123
 `,
 			expected: []token.Token{
 				{Type: token.Hex, Line: 1, Value: []byte("0x1fa")},
@@ -92,6 +94,7 @@ func TestLexer(t *testing.T) {
 				{Type: token.Int, Line: 16, Value: []byte("01_23")},
 				{Type: token.Int, Line: 17, Value: []byte("123")},
 				{Type: token.Int, Line: 18, Value: []byte("12_34")},
+				{Type: token.Float, Line: 19, Value: []byte(".123")},
 			},
 		},
 
