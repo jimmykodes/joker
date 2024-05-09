@@ -40,7 +40,7 @@ func (o IntObject) Type() ObjectType { return IntType }
 func (o IntObject) Add(right Object) Object {
 	r, ok := right.(IntObject)
 	if !ok {
-		return Errf("Add not supported between %T and %T", o, right)
+		return Errf("Add not supported between %s and %s", o.Type(), right.Type())
 	}
 	return IntObject{Value: o.Value + r.Value}
 }
@@ -48,7 +48,21 @@ func (o IntObject) Add(right Object) Object {
 type FloatObject struct{ Value float64 }
 
 func (o FloatObject) Type() ObjectType { return FloatType }
+func (o FloatObject) Add(right Object) Object {
+	r, ok := right.(FloatObject)
+	if !ok {
+		return Errf("Add not supported between %s and %s", o.Type(), right.Type())
+	}
+	return FloatObject{Value: o.Value + r.Value}
+}
 
 type StringObject struct{ Value string }
 
 func (o StringObject) Type() ObjectType { return StringType }
+func (o StringObject) Add(right Object) Object {
+	r, ok := right.(StringObject)
+	if !ok {
+		return Errf("Add not supported between %s and %s", o.Type(), right.Type())
+	}
+	return StringObject{Value: o.Value + r.Value}
+}

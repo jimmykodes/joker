@@ -71,7 +71,7 @@ func (l *Lexer) Next() (token.Token, error) {
 	case '!':
 		t.Type = l.matchEq(token.Bang, token.NEQ)
 	case '=':
-		t.Type = l.matchEq(token.EQ, token.EQ)
+		t.Type = l.matchEq(token.Assign, token.EQ)
 	case '>':
 		t.Type = l.matchEq(token.GT, token.GTE)
 	case '<':

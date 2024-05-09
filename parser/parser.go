@@ -68,6 +68,42 @@ func (p *Parser) expression() (ast.Expr, error) {
 }
 
 func (p *Parser) stmt() (ast.Stmt, error) {
+	switch p.peekToken.Type {
+	case token.Let:
+		return p.letStmt()
+	default:
+		return p.exprStmt()
+	}
+}
+
+func (p *Parser) letStmt() (ast.Stmt, error) {
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	if !p.peekTokenIs(token.Ident) {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected identifier"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	stmt := ast.LetStmt{
+		Name: string(p.curToken.Value),
+	}
+	if !p.peekTokenIs(token.Assign) {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected '='"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	expr, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+	stmt.Value = expr
+	return &stmt, nil
+}
+
+func (p *Parser) exprStmt() (ast.Stmt, error) {
 	v, err := p.expression()
 	if err != nil {
 		return nil, err
