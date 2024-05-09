@@ -8,6 +8,7 @@ type Expr interface {
 //go:generate go run ../tools/expr Binary Left:Expr Right:Expr Operator:token.Token
 //go:generate go run ../tools/expr Unary Right:Expr Operator:token.Token
 //go:generate go run ../tools/expr Grouping Expr:Expr Token:token.Token
+//go:generate go run ../tools/expr Ident Token:token.Token Name:string
 //go:generate go run ../tools/expr CommentLit Token:token.Token Value:string
 //go:generate go run ../tools/expr StringLit Token:token.Token Value:string
 //go:generate go run ../tools/expr IntLit Token:token.Token Value:int64

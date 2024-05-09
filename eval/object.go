@@ -13,6 +13,8 @@ const (
 	StringType
 )
 
+var Nil = NilObject{}
+
 type Object interface {
 	Type() ObjectType
 }
@@ -32,6 +34,10 @@ func Errf(msg string, a ...any) Object {
 type ErrObject struct{ Value string }
 
 func (o ErrObject) Type() ObjectType { return ErrType }
+
+type NilObject struct{}
+
+func (o NilObject) Type() ObjectType { return NilType }
 
 type IntObject struct{ Value int64 }
 

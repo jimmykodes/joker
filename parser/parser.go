@@ -69,6 +69,11 @@ func (p *Parser) expression() (ast.Expr, error) {
 
 func (p *Parser) stmt() (ast.Stmt, error) {
 	switch p.peekToken.Type {
+	case token.Newline:
+		if err := p.advance(); err != nil {
+			return nil, err
+		}
+		return p.stmt()
 	case token.Let:
 		return p.letStmt()
 	default:
@@ -100,6 +105,12 @@ func (p *Parser) letStmt() (ast.Stmt, error) {
 		return nil, err
 	}
 	stmt.Value = expr
+	if !p.peekTokenIs(token.SemiColon, token.Newline, token.EOF) {
+		return nil, ParserError{Token: p.peekToken, Message: "Unterminated statement"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
 	return &stmt, nil
 }
 
@@ -236,6 +247,9 @@ func (p *Parser) primary() (ast.Expr, error) {
 	c := p.curToken
 	if p.curTokenIs(token.Newline) {
 		return p.primary()
+	}
+	if p.curTokenIs(token.Ident) {
+		return &ast.IdentExpr{Token: c, Name: string(c.Value)}, nil
 	}
 	if p.curTokenIs(token.False, token.True, token.Nil) {
 		switch c.Type {

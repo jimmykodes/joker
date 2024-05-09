@@ -20,14 +20,20 @@ func Eval(node ast.Node) Object {
 			}
 			fmt.Println(obj)
 		}
-		return nil
+		return Nil
 	case *ast.LetStmt:
 		v := Eval(node.Value)
 		if isErr(v) {
 			return v
 		}
 		symbolTable[node.Name] = v
-		return nil
+		return Nil
+	case *ast.IdentExpr:
+		s, ok := symbolTable[node.Name]
+		if !ok {
+			return Nil
+		}
+		return s
 	case *ast.ExprStmt:
 		return Eval(node.Expr)
 	case *ast.BinaryExpr:
