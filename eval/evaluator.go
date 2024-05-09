@@ -7,13 +7,11 @@ import (
 	"github.com/jimmykodes/joker/token"
 )
 
-var symbolTable = make(map[string]Object)
-
-func Eval(node ast.Node) Object {
+func Eval(node ast.Node, env *Env) Object {
 	switch node := node.(type) {
 	case *ast.ProgramStmt:
 		for _, stmt := range node.Stmts {
-			obj := Eval(stmt)
+			obj := Eval(stmt, env)
 			if isErr(obj) {
 				fmt.Println("error:", obj)
 				return obj
@@ -22,26 +20,22 @@ func Eval(node ast.Node) Object {
 		}
 		return Nil
 	case *ast.LetStmt:
-		v := Eval(node.Value)
+		v := Eval(node.Value, env)
 		if isErr(v) {
 			return v
 		}
-		symbolTable[node.Name] = v
+		env.Set(node.Name, v)
 		return Nil
 	case *ast.IdentExpr:
-		s, ok := symbolTable[node.Name]
-		if !ok {
-			return Nil
-		}
-		return s
+		return env.Get(node.Name)
 	case *ast.ExprStmt:
-		return Eval(node.Expr)
+		return Eval(node.Expr, env)
 	case *ast.BinaryExpr:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
 		if isErr(left) {
 			return left
 		}
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isErr(right) {
 			return right
 		}
