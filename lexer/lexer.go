@@ -84,6 +84,9 @@ func (l *Lexer) Next() (token.Token, error) {
 		}
 		l.advance() // final "
 		t.Value = l.data[l.startPos+1 : l.currentPos]
+	case '\n':
+		l.lineNum++
+		t.Type = token.Newline
 
 	case 0:
 		t.Type = token.EOF
@@ -156,9 +159,6 @@ func (l *Lexer) Next() (token.Token, error) {
 func (l *Lexer) strip() {
 	for {
 		switch l.current() {
-		case '\n':
-			l.lineNum++
-			fallthrough
 		case '\t', ' ':
 			l.advance()
 		default:

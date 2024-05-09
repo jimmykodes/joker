@@ -65,6 +65,7 @@ const (
 	Nil    // nil
 	keywordEnd
 
+	Newline
 	EOF
 
 	end

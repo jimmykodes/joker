@@ -57,13 +57,14 @@ func _() {
 	_ = x[False-46]
 	_ = x[Nil-47]
 	_ = x[keywordEnd-48]
-	_ = x[EOF-49]
-	_ = x[end-50]
+	_ = x[Newline-49]
+	_ = x[EOF-50]
+	_ = x[end-51]
 }
 
-const _Type_name = "unknown(){}[],.|;+-*/%!!====>>=<<=identstringinthexoctbinfloatcommentkeywordStartclasssuperselffnreturnletifelseandorforwhiletruefalsenilkeywordEndEOFend"
+const _Type_name = "unknown(){}[],.|;+-*/%!!====>>=<<=identstringinthexoctbinfloatcommentkeywordStartclasssuperselffnreturnletifelseandorforwhiletruefalsenilkeywordEndNewlineEOFend"
 
-var _Type_index = [...]uint8{0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 28, 29, 31, 32, 34, 39, 45, 48, 51, 54, 57, 62, 69, 81, 86, 91, 95, 97, 103, 106, 108, 112, 115, 117, 120, 125, 129, 134, 137, 147, 150, 153}
+var _Type_index = [...]uint8{0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 28, 29, 31, 32, 34, 39, 45, 48, 51, 54, 57, 62, 69, 81, 86, 91, 95, 97, 103, 106, 108, 112, 115, 117, 120, 125, 129, 134, 137, 147, 154, 157, 160}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {

@@ -1,12 +1,22 @@
 package eval
 
 import (
+	"fmt"
+
 	"github.com/jimmykodes/joker/ast"
 	"github.com/jimmykodes/joker/token"
 )
 
 func Eval(node ast.Node) Object {
 	switch node := node.(type) {
+	case *ast.ProgramStmt:
+		for _, stmt := range node.Stmts {
+			obj := Eval(stmt)
+			fmt.Println(obj)
+		}
+		return nil
+	case *ast.ExprStmt:
+		return Eval(node.Expr)
 	case *ast.BinaryExpr:
 		left := Eval(node.Left)
 		right := Eval(node.Right)

@@ -23,8 +23,19 @@ type Parser struct {
 	peekToken token.Token
 }
 
-func (p *Parser) Parse() (ast.Expr, error) {
-	return p.expression()
+func (p *Parser) Parse() (ast.Node, error) {
+	prog := ast.ProgramStmt{}
+	for {
+		n, err := p.stmt()
+		if err != nil {
+			return nil, err
+		}
+		if n == nil {
+			break
+		}
+		prog.Stmts = append(prog.Stmts, n)
+	}
+	return &prog, nil
 }
 
 func (p *Parser) advance() error {
@@ -54,6 +65,23 @@ func (p *Parser) curTokenIs(t ...token.Type) bool {
 
 func (p *Parser) expression() (ast.Expr, error) {
 	return p.equality()
+}
+
+func (p *Parser) stmt() (ast.Stmt, error) {
+	v, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+	if v == nil {
+		return nil, nil
+	}
+	if !p.peekTokenIs(token.SemiColon, token.Newline, token.EOF) {
+		return nil, ParserError{Token: p.peekToken, Message: "Unterminated statement"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	return &ast.ExprStmt{Expr: v}, nil
 }
 
 func (p *Parser) equality() (ast.Expr, error) {
@@ -170,6 +198,9 @@ func (p *Parser) primary() (ast.Expr, error) {
 		return nil, err
 	}
 	c := p.curToken
+	if p.curTokenIs(token.Newline) {
+		return p.primary()
+	}
 	if p.curTokenIs(token.False, token.True, token.Nil) {
 		switch c.Type {
 		case token.True:
@@ -225,6 +256,9 @@ func (p *Parser) primary() (ast.Expr, error) {
 			return nil, err
 		}
 		return &ast.GroupingExpr{Expr: expr, Token: c}, nil
+	}
+	if p.curTokenIs(token.EOF) {
+		return nil, nil
 	}
 
 	return nil, ParserError{Token: p.curToken, Message: "invalid token"}
