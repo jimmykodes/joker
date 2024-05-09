@@ -12,6 +12,7 @@ type NilLitExpr struct {
 	Token token.Token
 }
 
+func (e *NilLitExpr) node() {}
 func (e *NilLitExpr) expr() {}
 
 func (e NilLitExpr) String() string {

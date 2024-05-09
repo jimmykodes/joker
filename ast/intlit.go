@@ -13,6 +13,7 @@ type IntLitExpr struct {
 	Value int64
 }
 
+func (e *IntLitExpr) node() {}
 func (e *IntLitExpr) expr() {}
 
 func (e IntLitExpr) String() string {

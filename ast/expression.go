@@ -1,6 +1,7 @@
 package ast
 
 type Expr interface {
+	Node
 	expr()
 }
 

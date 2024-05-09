@@ -66,6 +66,7 @@ type {{.Name}}Expr struct {
 	{{.Name}}{{ .Padding }} {{.Type}}{{ end }}
 }
 
+func (e *{{.Name}}Expr) node() {}
 func (e *{{.Name}}Expr) expr() {}
 
 func (e {{.Name}}Expr) String() string {

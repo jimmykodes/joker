@@ -14,6 +14,7 @@ type BinaryExpr struct {
 	Operator token.Token
 }
 
+func (e *BinaryExpr) node() {}
 func (e *BinaryExpr) expr() {}
 
 func (e BinaryExpr) String() string {

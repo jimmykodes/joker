@@ -13,6 +13,7 @@ type GroupingExpr struct {
 	Token token.Token
 }
 
+func (e *GroupingExpr) node() {}
 func (e *GroupingExpr) expr() {}
 
 func (e GroupingExpr) String() string {

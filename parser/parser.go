@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bytes"
 	"strconv"
 
 	"github.com/jimmykodes/joker/ast"
@@ -183,16 +184,17 @@ func (p *Parser) primary() (ast.Expr, error) {
 		var (
 			v   int64
 			err error
+			s   string = string(bytes.ReplaceAll(c.Value, []byte{'_'}, nil))
 		)
 		switch c.Type {
 		case token.Int:
-			v, err = strconv.ParseInt(string(c.Value), 10, 64)
+			v, err = strconv.ParseInt(s, 10, 64)
 		case token.Hex:
-			v, err = strconv.ParseInt(string(c.Value)[2:], 16, 64)
+			v, err = strconv.ParseInt(s[2:], 16, 64)
 		case token.Oct:
-			v, err = strconv.ParseInt(string(c.Value)[2:], 8, 64)
+			v, err = strconv.ParseInt(s[2:], 8, 64)
 		case token.Bin:
-			v, err = strconv.ParseInt(string(c.Value)[2:], 2, 64)
+			v, err = strconv.ParseInt(s[2:], 2, 64)
 		}
 		if err != nil {
 			return nil, ParserError{Token: p.curToken, Message: "invalid int literal", Err: err}

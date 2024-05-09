@@ -13,6 +13,7 @@ type FloatLitExpr struct {
 	Value float64
 }
 
+func (e *FloatLitExpr) node() {}
 func (e *FloatLitExpr) expr() {}
 
 func (e FloatLitExpr) String() string {

@@ -13,6 +13,7 @@ type StringLitExpr struct {
 	Value string
 }
 
+func (e *StringLitExpr) node() {}
 func (e *StringLitExpr) expr() {}
 
 func (e StringLitExpr) String() string {

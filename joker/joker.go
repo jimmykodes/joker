@@ -4,6 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/jimmykodes/joker/eval"
+	"github.com/jimmykodes/joker/lexer"
+	"github.com/jimmykodes/joker/parser"
 )
 
 type Joker struct{}
@@ -35,6 +39,16 @@ func (j *Joker) Read(reader *bufio.Reader) ([]byte, error) {
 }
 
 func (j *Joker) run(code []byte) error {
-	fmt.Println(string(code))
+	l := lexer.New(code)
+	p, err := parser.New(l)
+	if err != nil {
+		return err
+	}
+	expr, err := p.Parse()
+	if err != nil {
+		return err
+	}
+	res := eval.Eval(expr)
+	fmt.Println(res)
 	return nil
 }

@@ -13,6 +13,7 @@ type BoolLitExpr struct {
 	Value bool
 }
 
+func (e *BoolLitExpr) node() {}
 func (e *BoolLitExpr) expr() {}
 
 func (e BoolLitExpr) String() string {

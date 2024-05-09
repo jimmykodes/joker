@@ -13,6 +13,7 @@ type UnaryExpr struct {
 	Operator token.Token
 }
 
+func (e *UnaryExpr) node() {}
 func (e *UnaryExpr) expr() {}
 
 func (e UnaryExpr) String() string {

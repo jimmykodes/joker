@@ -13,6 +13,7 @@ type CommentLitExpr struct {
 	Value string
 }
 
+func (e *CommentLitExpr) node() {}
 func (e *CommentLitExpr) expr() {}
 
 func (e CommentLitExpr) String() string {
