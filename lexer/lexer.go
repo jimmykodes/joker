@@ -37,6 +37,7 @@ func (l *Lexer) Next() (token.Token, error) {
 	case ',':
 		t.Type = token.Comma
 	case '.':
+		// TODO: look ahead for digit
 		t.Type = token.Dot
 	case '|':
 		t.Type = token.Pipe

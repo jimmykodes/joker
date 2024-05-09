@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/jimmykodes/joker/ast"
@@ -24,7 +23,6 @@ type Parser struct {
 }
 
 func (p *Parser) Parse() (ast.Expr, error) {
-	print("parse\n")
 	return p.expression()
 }
 
@@ -54,12 +52,10 @@ func (p *Parser) curTokenIs(t ...token.Type) bool {
 }
 
 func (p *Parser) expression() (ast.Expr, error) {
-	print("expression\n")
 	return p.equality()
 }
 
 func (p *Parser) equality() (ast.Expr, error) {
-	print("equality\n")
 	expr, err := p.comparison()
 	if err != nil {
 		return nil, err
@@ -82,7 +78,6 @@ func (p *Parser) equality() (ast.Expr, error) {
 }
 
 func (p *Parser) comparison() (ast.Expr, error) {
-	print("comparison\n")
 	expr, err := p.term()
 	if err != nil {
 		return nil, err
@@ -106,7 +101,6 @@ func (p *Parser) comparison() (ast.Expr, error) {
 }
 
 func (p *Parser) term() (ast.Expr, error) {
-	print("term\n")
 	expr, err := p.factor()
 	if err != nil {
 		return nil, err
@@ -130,7 +124,6 @@ func (p *Parser) term() (ast.Expr, error) {
 }
 
 func (p *Parser) factor() (ast.Expr, error) {
-	print("factor\n")
 	expr, err := p.unary()
 	if err != nil {
 		return nil, err
@@ -154,7 +147,6 @@ func (p *Parser) factor() (ast.Expr, error) {
 }
 
 func (p *Parser) unary() (ast.Expr, error) {
-	print("unary\n")
 	if p.peekTokenIs(token.Bang, token.Minus) {
 		if err := p.advance(); err != nil {
 			return nil, err
@@ -196,21 +188,21 @@ func (p *Parser) primary() (ast.Expr, error) {
 		case token.Int:
 			v, err = strconv.ParseInt(string(c.Value), 10, 64)
 		case token.Hex:
-			v, err = strconv.ParseInt(string(c.Value), 16, 64)
+			v, err = strconv.ParseInt(string(c.Value)[2:], 16, 64)
 		case token.Oct:
-			v, err = strconv.ParseInt(string(c.Value), 8, 64)
+			v, err = strconv.ParseInt(string(c.Value)[2:], 8, 64)
 		case token.Bin:
-			v, err = strconv.ParseInt(string(c.Value), 2, 64)
+			v, err = strconv.ParseInt(string(c.Value)[2:], 2, 64)
 		}
 		if err != nil {
-			return nil, err
+			return nil, ParserError{Token: p.curToken, Message: "invalid int literal", Err: err}
 		}
 		return &ast.IntLitExpr{Token: p.curToken, Value: v}, nil
 	}
 	if p.curTokenIs(token.Float) {
 		v, err := strconv.ParseFloat(string(c.Value), 64)
 		if err != nil {
-			return nil, err
+			return nil, ParserError{Token: p.curToken, Message: "invalid float literal", Err: err}
 		}
 		return &ast.FloatLitExpr{Token: c, Value: v}, nil
 	}
@@ -225,7 +217,7 @@ func (p *Parser) primary() (ast.Expr, error) {
 			return nil, err
 		}
 		if !p.peekTokenIs(token.RPar) {
-			return nil, fmt.Errorf("expected ')'")
+			return nil, ParserError{Token: p.peekToken, Message: "missing expected ')'"}
 		}
 		if err := p.advance(); err != nil {
 			return nil, err
@@ -233,5 +225,5 @@ func (p *Parser) primary() (ast.Expr, error) {
 		return &ast.GroupingExpr{Expr: expr, Token: c}, nil
 	}
 
-	return nil, fmt.Errorf("invalid token: %+v", c)
+	return nil, ParserError{Token: p.curToken, Message: "invalid token"}
 }
