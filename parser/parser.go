@@ -94,7 +94,6 @@ func (p *Parser) letStmt() (ast.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	n, ok := name.(*ast.IdentExpr)
 	if !ok {
 		return nil, ParserError{Token: p.peekToken, Message: "Expected identifier"}
@@ -123,6 +122,19 @@ func (p *Parser) letStmt() (ast.Stmt, error) {
 }
 
 func (p *Parser) funcStmt() (ast.Stmt, error) {
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	name, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+	n, ok := name.(*ast.IdentExpr)
+	if !ok {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected identifier"}
+	}
+	_ = n
+
 	return nil, nil
 }
 
