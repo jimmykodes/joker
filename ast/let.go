@@ -7,7 +7,7 @@ import (
 )
 
 type LetStmt struct {
-	Name  string
+	Name  *IdentExpr
 	Value Expr
 }
 

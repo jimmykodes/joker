@@ -24,7 +24,7 @@ func Eval(node ast.Node, env *Env) Object {
 		if isErr(v) {
 			return v
 		}
-		env.Set(node.Name, v)
+		env.Set(node.Name.Name, v)
 		return Nil
 	case *ast.IdentExpr:
 		return env.Get(node.Name)
