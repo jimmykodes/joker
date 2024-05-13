@@ -1,24 +1,21 @@
 package eval
 
 import (
-	"fmt"
-
 	"github.com/jimmykodes/joker/ast"
 	"github.com/jimmykodes/joker/token"
 )
 
 func Eval(node ast.Node, env *Env) Object {
 	switch node := node.(type) {
-	case *ast.ProgramStmt:
+	case *ast.BlockStmt:
+		var obj Object
 		for _, stmt := range node.Stmts {
-			obj := Eval(stmt, env)
+			obj = Eval(stmt, env)
 			if isErr(obj) {
-				fmt.Println("error:", obj)
 				return obj
 			}
-			fmt.Println(obj)
 		}
-		return Nil
+		return obj
 	case *ast.LetStmt:
 		v := Eval(node.Value, env)
 		if isErr(v) {

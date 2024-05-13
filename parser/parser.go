@@ -24,18 +24,7 @@ type Parser struct {
 }
 
 func (p *Parser) Parse() (ast.Node, error) {
-	prog := ast.ProgramStmt{}
-	for {
-		n, err := p.stmt()
-		if err != nil {
-			return nil, err
-		}
-		if n == nil {
-			break
-		}
-		prog.Stmts = append(prog.Stmts, n)
-	}
-	return &prog, nil
+	return p.blockStmt()
 }
 
 func (p *Parser) advance() error {
@@ -81,6 +70,21 @@ func (p *Parser) stmt() (ast.Stmt, error) {
 	default:
 		return p.exprStmt()
 	}
+}
+
+func (p *Parser) blockStmt() (ast.Stmt, error) {
+	prog := ast.BlockStmt{}
+	for {
+		n, err := p.stmt()
+		if err != nil {
+			return nil, err
+		}
+		if n == nil {
+			break
+		}
+		prog.Stmts = append(prog.Stmts, n)
+	}
+	return &prog, nil
 }
 
 func (p *Parser) letStmt() (ast.Stmt, error) {

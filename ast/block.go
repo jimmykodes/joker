@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-type ProgramStmt struct {
+type BlockStmt struct {
 	Stmts []Stmt
 }
 
-func (e *ProgramStmt) node() {}
-func (e *ProgramStmt) stmt() {}
+func (e *BlockStmt) node() {}
+func (e *BlockStmt) stmt() {}
 
-func (e ProgramStmt) String() string {
+func (e BlockStmt) String() string {
 	var sb strings.Builder
-	sb.WriteString("ProgramStmt - {")
+	sb.WriteString("BlockStmt - {")
 	fmt.Fprintf(&sb, "\n  Stmts: (%+v)", e.Stmts)
 	sb.WriteString("\n}")
 	return sb.String()
