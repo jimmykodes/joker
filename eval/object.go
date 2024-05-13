@@ -1,6 +1,10 @@
 package eval
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/jimmykodes/joker/ast"
+)
 
 type ObjectType int
 
@@ -11,6 +15,7 @@ const (
 	IntType
 	FloatType
 	StringType
+	FuncType
 )
 
 var Nil = NilObject{}
@@ -72,3 +77,11 @@ func (o StringObject) Add(right Object) Object {
 	}
 	return StringObject{Value: o.Value + r.Value}
 }
+
+type FuncObject struct {
+	Params []*ast.IdentExpr
+	Body   *ast.BlockStmt
+	Env    *Env
+}
+
+func (o FuncObject) Type() ObjectType { return FuncType }

@@ -23,6 +23,12 @@ func Eval(node ast.Node, env *Env) Object {
 		}
 		env.Set(node.Name.Name, v)
 		return Nil
+	case *ast.FuncStmt:
+		name := node.Name.Name
+		fn := Eval(node.Fn, env)
+		env.Set(name, fn)
+		return Nil
+
 	case *ast.IdentExpr:
 		return env.Get(node.Name)
 	case *ast.ExprStmt:
@@ -52,6 +58,8 @@ func Eval(node ast.Node, env *Env) Object {
 		return FloatObject{Value: node.Value}
 	case *ast.StringLitExpr:
 		return StringObject{Value: node.Value}
+	case *ast.FuncLitExpr:
+		return FuncObject{Params: node.Params, Body: node.Body}
 
 	default:
 		return Errf("unsupported node type: %T", node)

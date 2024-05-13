@@ -13,11 +13,12 @@ func _() {
 	_ = x[IntType-2]
 	_ = x[FloatType-3]
 	_ = x[StringType-4]
+	_ = x[FuncType-5]
 }
 
-const _ObjectType_name = "ErrTypeNilTypeIntTypeFloatTypeStringType"
+const _ObjectType_name = "ErrTypeNilTypeIntTypeFloatTypeStringTypeFuncType"
 
-var _ObjectType_index = [...]uint8{0, 7, 14, 21, 30, 40}
+var _ObjectType_index = [...]uint8{0, 7, 14, 21, 30, 40, 48}
 
 func (i ObjectType) String() string {
 	if i < 0 || i >= ObjectType(len(_ObjectType_index)-1) {

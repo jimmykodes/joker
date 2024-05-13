@@ -2,7 +2,6 @@ package joker
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 
@@ -47,11 +46,7 @@ func (j *Joker) run(code []byte, env *eval.Env) error {
 		return err
 	}
 	expr, err := p.Parse()
-	var pErr parser.ParserError
-	if errors.As(err, &pErr) {
-		fmt.Println(pErr.Error())
-		return nil
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 	res := eval.Eval(expr, env)

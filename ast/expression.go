@@ -15,3 +15,4 @@ type Expr interface {
 //go:generate go run ../tools/expr FloatLit Token:token.Token Value:float64
 //go:generate go run ../tools/expr BoolLit Token:token.Token Value:bool
 //go:generate go run ../tools/expr NilLit Token:token.Token
+//go:generate go run ../tools/expr FuncLit Token:token.Token Params:[]*IdentExpr Body:*BlockStmt

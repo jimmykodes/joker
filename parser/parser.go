@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 
 	"github.com/jimmykodes/joker/ast"
@@ -24,7 +25,11 @@ type Parser struct {
 }
 
 func (p *Parser) Parse() (ast.Node, error) {
-	return p.blockStmt()
+	n, err := p.blockStmt(token.EOF)
+	if err != nil {
+		return nil, fmt.Errorf("Program: %w", err)
+	}
+	return n, nil
 }
 
 func (p *Parser) advance() error {
@@ -72,12 +77,15 @@ func (p *Parser) stmt() (ast.Stmt, error) {
 	}
 }
 
-func (p *Parser) blockStmt() (ast.Stmt, error) {
+func (p *Parser) blockStmt(endTokens ...token.Type) (*ast.BlockStmt, error) {
 	prog := ast.BlockStmt{}
 	for {
+		if p.peekTokenIs(endTokens...) {
+			break
+		}
 		n, err := p.stmt()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("block %q: %w", endTokens, err)
 		}
 		if n == nil {
 			break
@@ -116,16 +124,19 @@ func (p *Parser) letStmt() (ast.Stmt, error) {
 		return nil, err
 	}
 	stmt.Value = expr
+
 	if !p.peekTokenIs(token.SemiColon, token.Newline, token.EOF) {
 		return nil, ParserError{Token: p.peekToken, Message: "Unterminated statement"}
 	}
 	if err := p.advance(); err != nil {
 		return nil, err
 	}
+
 	return &stmt, nil
 }
 
 func (p *Parser) funcStmt() (ast.Stmt, error) {
+	t := p.curToken
 	if err := p.advance(); err != nil {
 		return nil, err
 	}
@@ -137,9 +148,59 @@ func (p *Parser) funcStmt() (ast.Stmt, error) {
 	if !ok {
 		return nil, ParserError{Token: p.peekToken, Message: "Expected identifier"}
 	}
-	_ = n
+	body, err := p.funcLitExpr()
+	if err != nil {
+		return nil, err
+	}
+	// reset token to be the correct "fn" token
+	// will be the ident token otherwise
+	body.Token = t
+	stmt := &ast.FuncStmt{
+		Name: n,
+		Fn:   body,
+	}
+	return stmt, nil
+}
 
-	return nil, nil
+func (p *Parser) funcLitExpr() (*ast.FuncLitExpr, error) {
+	t := p.curToken
+	if !p.peekTokenIs(token.LPar) {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected '('"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+	// TODO: parse params
+	if !p.peekTokenIs(token.RPar) {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected ')'"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+
+	if !p.peekTokenIs(token.LBrace) {
+		return nil, ParserError{Token: p.peekToken, Message: "Expected '{'"}
+	}
+	if err := p.advance(); err != nil {
+		return nil, err
+	}
+
+	body, err := p.blockStmt(token.RBrace)
+	if err != nil {
+		return nil, fmt.Errorf("func: %w", err)
+	}
+
+	// if !p.curTokenIs(token.RBrace) {
+	// 	return nil, ParserError{Token: p.peekToken, Message: "Expected '}'"}
+	// }
+	// if err := p.advance(); err != nil {
+	// 	return nil, err
+	// }
+
+	return &ast.FuncLitExpr{
+		Token: t,
+		Body:  body,
+	}, nil
 }
 
 func (p *Parser) exprStmt() (ast.Stmt, error) {
@@ -335,9 +396,5 @@ func (p *Parser) primary() (ast.Expr, error) {
 		}
 		return &ast.GroupingExpr{Expr: expr, Token: c}, nil
 	}
-	if p.curTokenIs(token.EOF) {
-		return nil, nil
-	}
-
-	return nil, ParserError{Token: p.curToken, Message: "invalid token"}
+	return nil, nil
 }
