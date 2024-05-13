@@ -170,9 +170,22 @@ func (p *Parser) funcLitExpr() (*ast.FuncLitExpr, error) {
 	if err := p.advance(); err != nil {
 		return nil, err
 	}
-	// TODO: parse params
-	if !p.peekTokenIs(token.RPar) {
-		return nil, ParserError{Token: p.peekToken, Message: "Expected ')'"}
+	var params []*ast.IdentExpr
+	for !p.peekTokenIs(token.RPar) {
+		exp, err := p.primary()
+		if err != nil {
+			return nil, err
+		}
+		expr, ok := exp.(*ast.IdentExpr)
+		if !ok {
+			return nil, ParserError{Token: p.peekToken, Message: "Expected identifier"}
+		}
+		if p.peekTokenIs(token.Comma) {
+			if err := p.advance(); err != nil {
+				return nil, err
+			}
+		}
+		params = append(params, expr)
 	}
 	if err := p.advance(); err != nil {
 		return nil, err
@@ -190,16 +203,10 @@ func (p *Parser) funcLitExpr() (*ast.FuncLitExpr, error) {
 		return nil, fmt.Errorf("func: %w", err)
 	}
 
-	// if !p.curTokenIs(token.RBrace) {
-	// 	return nil, ParserError{Token: p.peekToken, Message: "Expected '}'"}
-	// }
-	// if err := p.advance(); err != nil {
-	// 	return nil, err
-	// }
-
 	return &ast.FuncLitExpr{
-		Token: t,
-		Body:  body,
+		Token:  t,
+		Params: params,
+		Body:   body,
 	}, nil
 }
 
