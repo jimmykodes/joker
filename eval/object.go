@@ -43,6 +43,7 @@ func (o ErrObject) Type() ObjectType { return ErrType }
 type NilObject struct{}
 
 func (o NilObject) Type() ObjectType { return NilType }
+func (o NilObject) String() string   { return "nil" }
 
 type IntObject struct{ Value int64 }
 

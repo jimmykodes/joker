@@ -60,6 +60,8 @@ func Eval(node ast.Node, env *Env) Object {
 		return StringObject{Value: node.Value}
 	case *ast.FuncLitExpr:
 		return FuncObject{Params: node.Params, Body: node.Body}
+	case *ast.NilLitExpr:
+		return Nil
 
 	default:
 		return Errf("unsupported node type: %T", node)
