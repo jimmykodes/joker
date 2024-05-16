@@ -1,21 +1,8 @@
-mod lexer {
-    pub mod lexer;
-}
-mod tokens {
-    pub mod token;
-}
-
-use lexer::lexer::lexer;
+mod opcodes;
+use opcodes::{Chunk, OpCode};
 
 fn main() {
-    let l = lexer(
-        r#"
-fn add(a, b){
-    return a + b;
-}
-
-add(12, 4)
-"#,
-    );
-    println!("{:?}", l);
+    let mut c = Chunk::new();
+    c.push(OpCode::OpReturn);
+    println!("{:?}", c);
 }
