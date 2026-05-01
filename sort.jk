@@ -1,0 +1,28 @@
+fn split(values, pivot) {
+	let lt = [];
+	let gt = [];
+	for i := 0; i < len(values); i = i + 1; {
+		if values[i] <= pivot {
+			lt = append(lt, values[i]);
+		} else {
+			gt = append(gt, values[i]);
+		}
+	};
+	return [lt, gt];
+}
+
+fn sort(x) {
+	if len(x) == 0 {
+		return [];
+	}
+	pivot := x[0];
+	rest := slice(x, 1, len(x));
+	parts := split(rest, pivot);
+	l := sort(parts[0]);
+	r := sort(parts[1]);
+	out := append(l, pivot);
+	for i := 0; i < len(r); i = i + 1; {
+		out = append(out, r[i]);
+	}
+	return out;
+}
